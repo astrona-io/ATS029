@@ -1,0 +1,118 @@
+# Preparation scaffold. Technical pages stay draft until authoring and review.
+training:
+  id: ATS029
+  title: 'CKAD: Application Environment, Configuration and Security'
+  description: Preparation scaffold for Application Environment, Configuration and Security. Lessons and
+    environments are planned.
+  certification:
+    name: Certified Kubernetes Application Developer
+    code: CKAD
+    provider: CNCF / Linux Foundation
+    domain: Application Environment, Configuration and Security
+    weight: 25
+    competencies:
+    - Discover and use resources that extend Kubernetes (CRD, Operators)
+    - Understand authentication, authorization and admission control
+    - Understand requests, limits, quotas
+    - Understand ConfigMaps
+    - Define resource requirements
+    - Create & consume Secrets
+    - Understand ServiceAccounts
+    - Understand Application Security (SecurityContexts, Capabilities, etc.)
+modules:
+- id: module-intro
+  title: Introduction
+  description: Planned introduction and authoring status.
+  content:
+  - type: reading
+    title: Introduction
+    path: sections/intro/README.md
+  - type: reading
+    title: Welcome To The Course
+    path: sections/intro/course-01-welcome.md
+  - type: reading
+    title: Get Your Machine Ready
+    path: sections/intro/course-02-get-your-machine-ready.md
+  - type: reading
+    title: How This Course Is Made
+    path: sections/intro/course-03-how-this-course-is-made.md
+- id: module-010
+  title: Discover and use resources that extend Kubernetes (CRD, Operators)
+  description: Planned coverage of this curriculum objective.
+  content:
+  - type: reading
+    title: Section Overview
+    path: sections/section-010/README.md
+  - type: reading
+    title: Discover and use resources that extend Kubernetes (CRD, Operators)
+    path: sections/section-010/module-01/course.md
+- id: module-020
+  title: Understand authentication, authorization and admission control
+  description: Planned coverage of this curriculum objective.
+  content:
+  - type: reading
+    title: Section Overview
+    path: sections/section-020/README.md
+  - type: reading
+    title: Understand authentication, authorization and admission control
+    path: sections/section-020/module-01/course.md
+- id: module-030
+  title: Understand requests, limits, quotas
+  description: Planned coverage of this curriculum objective.
+  content:
+  - type: reading
+    title: Section Overview
+    path: sections/section-030/README.md
+  - type: reading
+    title: Understand requests, limits, quotas
+    path: sections/section-030/module-01/course.md
+- id: module-040
+  title: Understand ConfigMaps
+  description: Planned coverage of this curriculum objective.
+  content:
+  - type: reading
+    title: Section Overview
+    path: sections/section-040/README.md
+  - type: reading
+    title: Understand ConfigMaps
+    path: sections/section-040/module-01/course.md
+- id: module-050
+  title: Define resource requirements
+  description: Planned coverage of this curriculum objective.
+  content:
+  - type: reading
+    title: Section Overview
+    path: sections/section-050/README.md
+  - type: reading
+    title: Define resource requirements
+    path: sections/section-050/module-01/course.md
+- id: module-060
+  title: Create & consume Secrets
+  description: Planned coverage of this curriculum objective.
+  content:
+  - type: reading
+    title: Section Overview
+    path: sections/section-060/README.md
+  - type: reading
+    title: Create & consume Secrets
+    path: sections/section-060/module-01/course.md
+- id: module-070
+  title: Understand ServiceAccounts
+  description: Planned coverage of this curriculum objective.
+  content:
+  - type: reading
+    title: Section Overview
+    path: sections/section-070/README.md
+  - type: reading
+    title: Understand ServiceAccounts
+    path: sections/section-070/module-01/course.md
+- id: module-080
+  title: Understand Application Security (SecurityContexts, Capabilities, etc.)
+  description: Planned coverage of this curriculum objective.
+  content:
+  - type: reading
+    title: Section Overview
+    path: sections/section-080/README.md
+  - type: reading
+    title: Understand Application Security (SecurityContexts, Capabilities, etc.)
+    path: sections/section-080/module-01/course.md
