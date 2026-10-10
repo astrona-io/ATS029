@@ -1,6 +1,17 @@
 ---
 draft: true
+exam_objectives:
+- Understand ServiceAccounts
 ---
 # Understand ServiceAccounts
 
-This section is reserved for the curriculum objective above. Content is planned.
+This section covers understand ServiceAccounts. You will study ServiceAccounts And Bound Workload Credentials. The lessons explain the responsible components, configuration relationships and failure cases relevant to application development.
+
+Each module begins with its goals and ends with a summary. Reusable YAML knowledge checks follow the section summary and are registered separately for future presentation.
+
+## Learning Outcomes
+
+- Explain ServiceAccount identity and namespace scope.
+- Distinguish credential delivery from permission grants.
+- Evaluate token audience, expiry and workload use.
+- Choose least-privilege access for an application role.

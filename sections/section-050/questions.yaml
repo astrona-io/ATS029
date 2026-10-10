@@ -1,0 +1,111 @@
+schema_version: 1
+kind: question_bank
+id: ats029-section-050
+course_id: ATS029
+exam_code: CKAD
+status: draft
+provenance: Original practice material; not official examination questions.
+scope:
+  type: section
+  id: section-050
+  title: Define resource requirements
+placement:
+  position: after
+  reading: sections/section-050/module-01/course-02-summary.md
+questions:
+- id: ats029-section-050-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Interpret CPU and memory quantities correctly.
+  source_readings:
+  - sections/section-050/module-01/course-01-expressing-resource-needs-for-every-container.md
+  prompt: Which quantity represents one quarter of a CPU unit?
+  options:
+  - id: a
+    text: 250 millicpu
+    explanation: A thousand millicpu represents one CPU unit.
+  - id: b
+    text: 250 Mi of memory
+    explanation: That is a memory quantity rather than CPU capacity.
+  - id: c
+    text: 250 entire CPU units
+    explanation: That is much larger than the stated fraction.
+  correct_option: a
+  explanation: A thousand millicpu represents one CPU unit.
+- id: ats029-section-050-q02
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Interpret CPU and memory quantities correctly.
+  source_readings:
+  - sections/section-050/module-01/course-01-expressing-resource-needs-for-every-container.md
+  prompt: Why distinguish M and Mi when setting memory?
+  options:
+  - id: a
+    text: They are always exactly identical
+    explanation: Decimal and binary units differ.
+  - id: b
+    text: Both are aliases for a CPU limit
+    explanation: Memory quantities are not CPU allocation units.
+  - id: c
+    text: They use different decimal and binary quantity conventions
+    explanation: The suffix changes the actual number of bytes requested.
+  correct_option: c
+  explanation: The suffix changes the actual number of bytes requested.
+- id: ats029-section-050-q03
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Account for helpers and initialization lifecycle.
+  source_readings:
+  - sections/section-050/module-01/course-01-expressing-resource-needs-for-every-container.md
+  prompt: A Pod has an application and a continuing helper. Which resource review is appropriate?
+  options:
+  - id: a
+    text: Count only whichever container has the largest name
+    explanation: Names do not determine allocation.
+  - id: b
+    text: Account for the complete applicable running workload
+    explanation: The helper contributes to effective capacity requirements.
+  - id: c
+    text: Ignore the helper because it has no public endpoint
+    explanation: Public routing does not determine resource use.
+  correct_option: b
+  explanation: The helper contributes to effective capacity requirements.
+- id: ats029-section-050-q04
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain admitted defaults and complete Pod needs.
+  source_readings:
+  - sections/section-050/module-01/course-01-expressing-resource-needs-for-every-container.md
+  prompt: A Pod is rejected because declared totals exceed namespace quota. What cannot directly fix that
+    admission decision?
+  options:
+  - id: a
+    text: Only adding node capacity without changing the quota condition
+    explanation: A namespace policy rejection is different from a scheduler capacity decision.
+  - id: b
+    text: Changing the applicable declared total to fit policy
+    explanation: That can address the actual quota condition when appropriate.
+  - id: c
+    text: Reviewing policy and admitted defaults
+    explanation: Those observations help identify the effective admission requirement.
+  correct_option: a
+  explanation: A namespace policy rejection is different from a scheduler capacity decision.
+- id: ats029-section-050-q05
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Distinguish scheduling, throttling and memory termination.
+  source_readings:
+  - sections/section-050/module-01/course-01-expressing-resource-needs-for-every-container.md
+  prompt: A process exceeds its memory limit. Does raising only its request necessarily remove that limit?
+  options:
+  - id: a
+    text: Yes; every higher request deletes the limit
+    explanation: There is no universal rule that removes the limit.
+  - id: b
+    text: Yes; memory limits are only Service routing metadata
+    explanation: They affect resource enforcement rather than routing labels.
+  - id: c
+    text: No; request and limit have separate roles
+    explanation: Changing allocation intent does not automatically raise the enforcement threshold.
+  correct_option: c
+  explanation: Changing allocation intent does not automatically raise the enforcement threshold.

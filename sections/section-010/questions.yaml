@@ -1,0 +1,111 @@
+schema_version: 1
+kind: question_bank
+id: ats029-section-010
+course_id: ATS029
+exam_code: CKAD
+status: draft
+provenance: Original practice material; not official examination questions.
+scope:
+  type: section
+  id: section-010
+  title: Discover and use resources that extend Kubernetes (CRD, Operators)
+placement:
+  position: after
+  reading: sections/section-010/module-01/course-03-summary.md
+questions:
+- id: ats029-section-010-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Distinguish type registration from controller behavior.
+  source_readings:
+  - sections/section-010/module-01/course-02-reading-a-custom-resource-and-its-controller-contract.md
+  prompt: A CRD is installed but no controller is running. What can still be possible?
+  options:
+  - id: a
+    text: The API can accept valid custom instances without performing their intended reconciliation
+    explanation: Schema registration and operational control are separate responsibilities.
+  - id: b
+    text: All requested external tasks must finish automatically
+    explanation: The registered schema does not execute reconciliation by itself.
+  - id: c
+    text: Every custom resource becomes a built-in Deployment
+    explanation: A custom kind retains its own schema and controller contract.
+  correct_option: a
+  explanation: Schema registration and operational control are separate responsibilities.
+- id: ats029-section-010-q02
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Read scope, versions and schema of a custom type.
+  source_readings:
+  - sections/section-010/module-01/course-02-reading-a-custom-resource-and-its-controller-contract.md
+  prompt: A custom type is cluster-scoped. What does supplying a namespace option do to its scope?
+  options:
+  - id: a
+    text: It creates an independent resource endpoint for each namespace
+    explanation: Client options do not rewrite the CRD's scope.
+  - id: b
+    text: It changes the type into a ConfigMap
+    explanation: Scope selection does not change resource kind.
+  - id: c
+    text: It does not redefine the registered type as namespaced
+    explanation: Scope belongs to the type's definition.
+  correct_option: c
+  explanation: Scope belongs to the type's definition.
+- id: ats029-section-010-q03
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Interpret desired fields and controller observations.
+  source_readings:
+  - sections/section-010/module-01/course-02-reading-a-custom-resource-and-its-controller-contract.md
+  prompt: A controller reads a custom instance but cannot create its required Job. What should be checked?
+  options:
+  - id: a
+    text: Only the external Service port
+    explanation: Routing ports do not authorize API creation.
+  - id: b
+    text: The controller identity's permission for the output operation
+    explanation: Reconciliation needs authority for its inputs and effects.
+  - id: c
+    text: Only whether the custom object text parses
+    explanation: Acceptance does not grant controller output permission.
+  correct_option: b
+  explanation: Reconciliation needs authority for its inputs and effects.
+- id: ats029-section-010-q04
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain prerequisite, permission and finalizer failures.
+  source_readings:
+  - sections/section-010/module-01/course-02-reading-a-custom-resource-and-its-controller-contract.md
+  prompt: A deleting custom instance retains a finalizer. What can that indicate?
+  options:
+  - id: a
+    text: Its responsible cleanup has not completed
+    explanation: A finalizer can hold deletion pending while cleanup is performed.
+  - id: b
+    text: The API always deletes the instance immediately anyway
+    explanation: The marker exists to affect deletion progression.
+  - id: c
+    text: The finalizer proves a database backup exists
+    explanation: It is a cleanup mechanism rather than a backup guarantee.
+  correct_option: a
+  explanation: A finalizer can hold deletion pending while cleanup is performed.
+- id: ats029-section-010-q05
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Interpret desired fields and controller observations.
+  source_readings:
+  - sections/section-010/module-01/course-02-reading-a-custom-resource-and-its-controller-contract.md
+  prompt: Why read the custom type's condition contract?
+  options:
+  - id: a
+    text: Every ready field automatically creates an Ingress
+    explanation: That connection requires a designed controller behavior.
+  - id: b
+    text: Custom status is always a replacement for process evidence
+    explanation: Status contributes observations but does not universally establish every application
+      result.
+  - id: c
+    text: Status meanings are defined by its controller and schema
+    explanation: A familiar field name does not supply universal application semantics.
+  correct_option: c
+  explanation: A familiar field name does not supply universal application semantics.

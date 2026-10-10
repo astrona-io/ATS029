@@ -1,0 +1,113 @@
+schema_version: 1
+kind: question_bank
+id: ats029-domain-review
+course_id: ATS029
+exam_code: CKAD
+status: draft
+provenance: Original practice material; not official examination questions.
+scope:
+  type: domain
+  id: domain-review
+  title: Application Environment, Configuration and Security
+placement:
+  position: after
+  reading: sections/section-080/module-01/course-03-summary.md
+questions:
+- id: ats029-domain-review-q01
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Interpret desired fields and controller observations.
+  source_readings:
+  - sections/section-010/module-01/course-02-reading-a-custom-resource-and-its-controller-contract.md
+  prompt: A valid custom instance remains unready because its controller lacks a required output permission.
+    Which repair layer matters?
+  options:
+  - id: a
+    text: Controller authorization and the failed reconciliation action
+    explanation: Schema acceptance cannot supply the missing permission.
+  - id: b
+    text: Only renaming the custom instance
+    explanation: A name change does not grant authority.
+  - id: c
+    text: Only changing its prose description
+    explanation: Documentation text does not alter effective access.
+  correct_option: a
+  explanation: Schema acceptance cannot supply the missing permission.
+- id: ats029-domain-review-q02
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Distinguish authentication, authorization and admission.
+  source_readings:
+  - sections/section-020/module-01/course-01-api-request-checks-and-workload-identity.md
+  prompt: Why distinguish authentication from authorization when diagnosing a denied request?
+  options:
+  - id: a
+    text: They always use the same decision and cannot differ
+    explanation: Identity can be valid while an action is denied.
+  - id: b
+    text: Admission automatically bypasses both stages
+    explanation: Admission is not a universal replacement for identity and access control.
+  - id: c
+    text: Identity establishment and permission evaluation can fail independently
+    explanation: The stages explain different causes and corrections.
+  correct_option: c
+  explanation: The stages explain different causes and corrections.
+- id: ats029-domain-review-q03
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Distinguish object updates from process configuration reload.
+  source_readings:
+  - sections/section-040/module-01/course-01-configmaps-secrets-and-configuration-delivery.md
+  prompt: The ConfigMap changed but the process still uses old environment settings. What is missing from
+    the assumed update model?
+  options:
+  - id: a
+    text: A Secret encoding change unrelated to the application
+    explanation: That does not update the ConfigMap environment consumer.
+  - id: b
+    text: A process restart or another designed way to receive new configuration
+    explanation: Object update alone does not rewrite existing environment values.
+  - id: c
+    text: A longer Service name
+    explanation: Naming does not refresh the process environment.
+  correct_option: b
+  explanation: Object update alone does not rewrite existing environment values.
+- id: ats029-domain-review-q04
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Distinguish scheduling, throttling and memory termination.
+  source_readings:
+  - sections/section-050/module-01/course-01-expressing-resource-needs-for-every-container.md
+  prompt: A workload is admitted and placed but then memory-terminated. Which contract now needs evidence?
+  options:
+  - id: a
+    text: Runtime memory allowance and application consumption
+    explanation: Placement success does not guarantee the process stays within its memory limit.
+  - id: b
+    text: Only cluster API discovery
+    explanation: Served resource discovery does not explain runtime memory growth.
+  - id: c
+    text: Only Ingress path matching
+    explanation: Routing paths do not determine the termination threshold.
+  correct_option: a
+  explanation: Placement success does not guarantee the process stays within its memory limit.
+- id: ats029-domain-review-q05
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Choose least-privilege access for an application role.
+  source_readings:
+  - sections/section-070/module-01/course-02-rbac-scope-and-least-privilege.md
+  prompt: A workload can create Pods consuming confidential values but cannot directly read Secrets. What
+    must access review include?
+  options:
+  - id: a
+    text: Only whether a direct read command returns forbidden
+    explanation: That omits the authority to create a consumer.
+  - id: b
+    text: Only the number of ServiceAccounts in the namespace
+    explanation: Counts do not establish effective capabilities.
+  - id: c
+    text: Indirect authority through workload creation
+    explanation: Direct Secret reads do not capture every exposure path.
+  correct_option: c
+  explanation: Direct Secret reads do not capture every exposure path.

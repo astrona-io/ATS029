@@ -1,9 +1,9 @@
-# Preparation scaffold. Technical pages stay draft until authoring and review.
+# Reading-only course. YAML assessments are registered separately in assessments/index.yaml.
 training:
   id: ATS029
   title: 'CKAD: Application Environment, Configuration and Security'
-  description: Preparation scaffold for Application Environment, Configuration and Security. Lessons and
-    environments are planned.
+  description: Detailed reading lessons and reusable YAML knowledge checks covering the CKAD domain. No
+    new labs or playgrounds. Technical content remains draft for review.
   certification:
     name: Certified Kubernetes Application Developer
     code: CKAD
@@ -22,7 +22,7 @@ training:
 modules:
 - id: module-intro
   title: Introduction
-  description: Planned introduction and authoring status.
+  description: Audience, learning method, reading requirements and authoring process.
   content:
   - type: reading
     title: Introduction
@@ -38,81 +38,158 @@ modules:
     path: sections/intro/course-03-how-this-course-is-made.md
 - id: module-010
   title: Discover and use resources that extend Kubernetes (CRD, Operators)
-  description: Planned coverage of this curriculum objective.
+  description: Developed explanations and application reasoning for Discover and use resources that extend
+    Kubernetes (CRD, Operators).
+  draft: true
   content:
-  - type: reading
-    title: Section Overview
-    path: sections/section-010/README.md
   - type: reading
     title: Discover and use resources that extend Kubernetes (CRD, Operators)
+    path: sections/section-010/README.md
+  - type: reading
+    title: Custom Types And Application Reconciliation
     path: sections/section-010/module-01/course.md
+  - type: reading
+    title: Custom Resources And Operators
+    path: sections/section-010/module-01/course-01-custom-resources-and-operators.md
+  - type: reading
+    title: Reading A Custom Resource And Its Controller Contract
+    path: sections/section-010/module-01/course-02-reading-a-custom-resource-and-its-controller-contract.md
+  - type: reading
+    title: Summary
+    path: sections/section-010/module-01/course-03-summary.md
 - id: module-020
   title: Understand authentication, authorization and admission control
-  description: Planned coverage of this curriculum objective.
+  description: Developed explanations and application reasoning for Understand authentication, authorization
+    and admission control.
+  draft: true
   content:
-  - type: reading
-    title: Section Overview
-    path: sections/section-020/README.md
   - type: reading
     title: Understand authentication, authorization and admission control
+    path: sections/section-020/README.md
+  - type: reading
+    title: Identity And API Access Decisions
     path: sections/section-020/module-01/course.md
+  - type: reading
+    title: API Request Checks And Workload Identity
+    path: sections/section-020/module-01/course-01-api-request-checks-and-workload-identity.md
+  - type: reading
+    title: RBAC Grants And Their Consequences
+    path: sections/section-020/module-01/course-02-rbac-grants-and-their-consequences.md
+  - type: reading
+    title: Summary
+    path: sections/section-020/module-01/course-03-summary.md
 - id: module-030
   title: Understand requests, limits, quotas
-  description: Planned coverage of this curriculum objective.
+  description: Developed explanations and application reasoning for Understand requests, limits, quotas.
+  draft: true
   content:
-  - type: reading
-    title: Section Overview
-    path: sections/section-030/README.md
   - type: reading
     title: Understand requests, limits, quotas
+    path: sections/section-030/README.md
+  - type: reading
+    title: Allocation, Enforcement And Namespace Policy
     path: sections/section-030/module-01/course.md
+  - type: reading
+    title: Requests, Limits And Namespace Budgets
+    path: sections/section-030/module-01/course-01-requests-limits-and-namespace-budgets.md
+  - type: reading
+    title: Summary
+    path: sections/section-030/module-01/course-02-summary.md
 - id: module-040
   title: Understand ConfigMaps
-  description: Planned coverage of this curriculum objective.
+  description: Developed explanations and application reasoning for Understand ConfigMaps.
+  draft: true
   content:
-  - type: reading
-    title: Section Overview
-    path: sections/section-040/README.md
   - type: reading
     title: Understand ConfigMaps
+    path: sections/section-040/README.md
+  - type: reading
+    title: ConfigMaps And Application Configuration Delivery
     path: sections/section-040/module-01/course.md
+  - type: reading
+    title: ConfigMaps, Secrets And Configuration Delivery
+    path: sections/section-040/module-01/course-01-configmaps-secrets-and-configuration-delivery.md
+  - type: reading
+    title: Configuration, Dependencies And Request Failures
+    path: sections/section-040/module-01/course-02-configuration-dependencies-and-request-failures.md
+  - type: reading
+    title: Summary
+    path: sections/section-040/module-01/course-03-summary.md
 - id: module-050
   title: Define resource requirements
-  description: Planned coverage of this curriculum objective.
+  description: Developed explanations and application reasoning for Define resource requirements.
+  draft: true
   content:
-  - type: reading
-    title: Section Overview
-    path: sections/section-050/README.md
   - type: reading
     title: Define resource requirements
+    path: sections/section-050/README.md
+  - type: reading
+    title: Complete Container Resource Requirements
     path: sections/section-050/module-01/course.md
+  - type: reading
+    title: Expressing Resource Needs For Every Container
+    path: sections/section-050/module-01/course-01-expressing-resource-needs-for-every-container.md
+  - type: reading
+    title: Summary
+    path: sections/section-050/module-01/course-02-summary.md
 - id: module-060
   title: Create & consume Secrets
-  description: Planned coverage of this curriculum objective.
+  description: Developed explanations and application reasoning for Create & consume Secrets.
+  draft: true
   content:
-  - type: reading
-    title: Section Overview
-    path: sections/section-060/README.md
   - type: reading
     title: Create & consume Secrets
+    path: sections/section-060/README.md
+  - type: reading
+    title: Secret Consumption And Confidentiality Limits
     path: sections/section-060/module-01/course.md
+  - type: reading
+    title: Secret Storage, Delivery And Rotation
+    path: sections/section-060/module-01/course-01-secret-storage-delivery-and-rotation.md
+  - type: reading
+    title: Credentials And Image Supply Chains
+    path: sections/section-060/module-01/course-02-credentials-and-image-supply-chains.md
+  - type: reading
+    title: Summary
+    path: sections/section-060/module-01/course-03-summary.md
 - id: module-070
   title: Understand ServiceAccounts
-  description: Planned coverage of this curriculum objective.
+  description: Developed explanations and application reasoning for Understand ServiceAccounts.
+  draft: true
   content:
-  - type: reading
-    title: Section Overview
-    path: sections/section-070/README.md
   - type: reading
     title: Understand ServiceAccounts
+    path: sections/section-070/README.md
+  - type: reading
+    title: ServiceAccounts And Bound Workload Credentials
     path: sections/section-070/module-01/course.md
+  - type: reading
+    title: API Identity And ServiceAccounts
+    path: sections/section-070/module-01/course-01-api-identity-and-serviceaccounts.md
+  - type: reading
+    title: RBAC Scope And Least Privilege
+    path: sections/section-070/module-01/course-02-rbac-scope-and-least-privilege.md
+  - type: reading
+    title: Summary
+    path: sections/section-070/module-01/course-03-summary.md
 - id: module-080
   title: Understand Application Security (SecurityContexts, Capabilities, etc.)
-  description: Planned coverage of this curriculum objective.
+  description: Developed explanations and application reasoning for Understand Application Security (SecurityContexts,
+    Capabilities, etc.).
+  draft: true
   content:
   - type: reading
-    title: Section Overview
+    title: Understand Application Security (SecurityContexts, Capabilities, etc.)
     path: sections/section-080/README.md
   - type: reading
-    title: Understand Application Security (SecurityContexts, Capabilities, etc.)
+    title: Security Contexts And Application Privilege
     path: sections/section-080/module-01/course.md
+  - type: reading
+    title: Security Contexts And Profile Requirements
+    path: sections/section-080/module-01/course-01-security-contexts-and-profile-requirements.md
+  - type: reading
+    title: Security Contexts And Pod Admission
+    path: sections/section-080/module-01/course-02-security-contexts-and-pod-admission.md
+  - type: reading
+    title: Summary
+    path: sections/section-080/module-01/course-03-summary.md

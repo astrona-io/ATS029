@@ -1,0 +1,111 @@
+schema_version: 1
+kind: question_bank
+id: ats029-section-020
+course_id: ATS029
+exam_code: CKAD
+status: draft
+provenance: Original practice material; not official examination questions.
+scope:
+  type: section
+  id: section-020
+  title: Understand authentication, authorization and admission control
+placement:
+  position: after
+  reading: sections/section-020/module-01/course-03-summary.md
+questions:
+- id: ats029-section-020-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Distinguish authentication, authorization and admission.
+  source_readings:
+  - sections/section-020/module-01/course-01-api-request-checks-and-workload-identity.md
+  prompt: A credential establishes who is making a request. Which stage is that?
+  options:
+  - id: a
+    text: Authentication
+    explanation: Authentication establishes request identity.
+  - id: b
+    text: Authorization
+    explanation: Authorization evaluates whether the established identity may perform an action.
+  - id: c
+    text: Readiness probing
+    explanation: Readiness evaluates a workload condition rather than API identity.
+  correct_option: a
+  explanation: Authentication establishes request identity.
+- id: ats029-section-020-q02
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Evaluate role scope and additive grants.
+  source_readings:
+  - sections/section-020/module-01/course-02-rbac-grants-and-their-consequences.md
+  prompt: A RoleBinding grants a namespaced Role. What scope should be evaluated?
+  options:
+  - id: a
+    text: An assumption that the same actions are allowed in every namespace
+    explanation: The namespaced binding does not universally create cluster-wide grants.
+  - id: b
+    text: Only the Service's cluster address
+    explanation: Traffic addresses do not determine API permission scope.
+  - id: c
+    text: The binding's namespace and the Role's allowed actions
+    explanation: Namespaced grants need their scope and rules interpreted together.
+  correct_option: c
+  explanation: Namespaced grants need their scope and rules interpreted together.
+- id: ats029-section-020-q03
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Evaluate role scope and additive grants.
+  source_readings:
+  - sections/section-020/module-01/course-02-rbac-grants-and-their-consequences.md
+  prompt: What is the effect of an additional applicable RBAC grant?
+  options:
+  - id: a
+    text: It rewrites the container image
+    explanation: Access grants do not change artifact identity.
+  - id: b
+    text: Its allowed actions can add to effective authority
+    explanation: RBAC grants are additive under the applicable rules.
+  - id: c
+    text: It automatically subtracts earlier grants
+    explanation: A new allow grant is not a general deny mechanism.
+  correct_option: b
+  explanation: RBAC grants are additive under the applicable rules.
+- id: ats029-section-020-q04
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Diagnose denial at the correct access-control stage.
+  source_readings:
+  - sections/section-020/module-01/course-01-api-request-checks-and-workload-identity.md
+  prompt: An admission policy rejects a workload after authentication and authorization succeed. What
+    follows?
+  options:
+  - id: a
+    text: The earlier access decisions do not bypass admission requirements
+    explanation: Admission can still validate or restrict the requested operation.
+  - id: b
+    text: The credential must necessarily be invalid
+    explanation: Identity was already established in the stated scenario.
+  - id: c
+    text: The Service must have selected the wrong Pod
+    explanation: Traffic selection is a different relationship.
+  correct_option: a
+  explanation: Admission can still validate or restrict the requested operation.
+- id: ats029-section-020-q05
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Diagnose denial at the correct access-control stage.
+  source_readings:
+  - sections/section-020/module-01/course-02-rbac-grants-and-their-consequences.md
+  prompt: A workload identity exists but cannot read an intended object. What should be examined?
+  options:
+  - id: a
+    text: Only the name of the application process
+    explanation: Process naming does not establish API grants.
+  - id: b
+    text: Only the image's EXPOSE instruction
+    explanation: Port metadata does not authorize object access.
+  - id: c
+    text: Its effective role rules, bindings and resource scope
+    explanation: Account existence does not itself provide the required action.
+  correct_option: c
+  explanation: Account existence does not itself provide the required action.

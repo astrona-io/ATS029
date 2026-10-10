@@ -1,0 +1,110 @@
+schema_version: 1
+kind: question_bank
+id: ats029-section-060
+course_id: ATS029
+exam_code: CKAD
+status: draft
+provenance: Original practice material; not official examination questions.
+scope:
+  type: section
+  id: section-060
+  title: Create & consume Secrets
+placement:
+  position: after
+  reading: sections/section-060/module-01/course-03-summary.md
+questions:
+- id: ats029-section-060-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Distinguish Secret representation from encryption.
+  source_readings:
+  - sections/section-060/module-01/course-01-secret-storage-delivery-and-rotation.md
+  prompt: Does base64 representation in a Secret establish confidentiality by itself?
+  options:
+  - id: a
+    text: No; encoding is not encryption
+    explanation: Storage, access and delivery controls determine actual protection.
+  - id: b
+    text: Yes; the representation cannot be decoded
+    explanation: Base64 is a reversible encoding.
+  - id: c
+    text: Yes; it removes the need for access controls
+    explanation: Readers and consuming workloads can still expose the values.
+  correct_option: a
+  explanation: Storage, access and delivery controls determine actual protection.
+- id: ats029-section-060-q02
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Choose mounted or environment-based Secret consumption.
+  source_readings:
+  - sections/section-060/module-01/course-01-secret-storage-delivery-and-rotation.md
+  prompt: A Secret is delivered as an environment value. What update concern remains?
+  options:
+  - id: a
+    text: Every Secret update rewrites every process environment
+    explanation: That is not the ordinary environment delivery contract.
+  - id: b
+    text: The Secret automatically becomes a ServiceAccount
+    explanation: Data storage and workload identity are different resources.
+  - id: c
+    text: The current process does not automatically receive a changed environment
+    explanation: Delivery and application reload behavior must be designed.
+  correct_option: c
+  explanation: Delivery and application reload behavior must be designed.
+- id: ats029-section-060-q03
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Evaluate who can observe or indirectly obtain confidential data.
+  source_readings:
+  - sections/section-060/module-01/course-01-secret-storage-delivery-and-rotation.md
+  prompt: Why review authority to create workloads that consume Secrets?
+  options:
+  - id: a
+    text: A Secret name alone grants no additional risk to any actor
+    explanation: Effective capabilities, not only direct resource reads, matter.
+  - id: b
+    text: It can provide indirect access to confidential values
+    explanation: Read permission is not the only relevant exposure path.
+  - id: c
+    text: Workload creation can never affect Secret access
+    explanation: A consuming workload can make confidential inputs observable.
+  correct_option: b
+  explanation: Read permission is not the only relevant exposure path.
+- id: ats029-section-060-q04
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain namespace, workload and registry credential relationships.
+  source_readings:
+  - sections/section-060/module-01/course-02-credentials-and-image-supply-chains.md
+  prompt: What role does an image-pull credential serve?
+  options:
+  - id: a
+    text: Authenticate retrieval from an image registry
+    explanation: Registry access is distinct from application API identity or business credentials.
+  - id: b
+    text: Make every application request authorized
+    explanation: Image retrieval does not grant application permissions.
+  - id: c
+    text: Automatically encrypt every mounted Secret
+    explanation: Registry authentication is not that storage protection mechanism.
+  correct_option: a
+  explanation: Registry access is distinct from application API identity or business credentials.
+- id: ats029-section-060-q05
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Evaluate who can observe or indirectly obtain confidential data.
+  source_readings:
+  - sections/section-060/module-01/course-01-secret-storage-delivery-and-rotation.md
+  prompt: Why must Secret rotation include application behavior?
+  options:
+  - id: a
+    text: A stored replacement always fixes every existing connection immediately
+    explanation: Connections and reload behavior can remain independent.
+  - id: b
+    text: Rotation changes all database permissions automatically
+    explanation: Credential updates do not universally rewrite backend grants.
+  - id: c
+    text: The consumer must actually start using the changed credential
+    explanation: Updating the object does not guarantee every running consumer reloads it.
+  correct_option: c
+  explanation: Updating the object does not guarantee every running consumer reloads it.

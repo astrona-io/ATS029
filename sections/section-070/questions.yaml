@@ -1,0 +1,111 @@
+schema_version: 1
+kind: question_bank
+id: ats029-section-070
+course_id: ATS029
+exam_code: CKAD
+status: draft
+provenance: Original practice material; not official examination questions.
+scope:
+  type: section
+  id: section-070
+  title: Understand ServiceAccounts
+placement:
+  position: after
+  reading: sections/section-070/module-01/course-03-summary.md
+questions:
+- id: ats029-section-070-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain ServiceAccount identity and namespace scope.
+  source_readings:
+  - sections/section-070/module-01/course-01-api-identity-and-serviceaccounts.md
+  prompt: What does a ServiceAccount identify?
+  options:
+  - id: a
+    text: A namespaced workload identity for relevant API use
+    explanation: The account supplies identity rather than an automatic universal access grant.
+  - id: b
+    text: A public network address
+    explanation: Services and endpoint infrastructure provide traffic access.
+  - id: c
+    text: A complete image filesystem
+    explanation: Container images provide that runtime content.
+  correct_option: a
+  explanation: The account supplies identity rather than an automatic universal access grant.
+- id: ats029-section-070-q02
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Distinguish credential delivery from permission grants.
+  source_readings:
+  - sections/section-070/module-01/course-01-api-identity-and-serviceaccounts.md
+  prompt: A Pod uses a ServiceAccount but has no suitable RoleBinding. What follows?
+  options:
+  - id: a
+    text: The account automatically receives cluster-admin
+    explanation: Account use does not universally grant broad authority.
+  - id: b
+    text: The workload cannot possibly start any process
+    explanation: API permission and application startup are different conditions.
+  - id: c
+    text: Identity can exist without the requested permission
+    explanation: Authorization requires applicable grants.
+  correct_option: c
+  explanation: Authorization requires applicable grants.
+- id: ats029-section-070-q03
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Evaluate token audience, expiry and workload use.
+  source_readings:
+  - sections/section-070/module-01/course-01-api-identity-and-serviceaccounts.md
+  prompt: Why consider token audience and expiration?
+  options:
+  - id: a
+    text: They automatically schedule the Pod
+    explanation: Credential validity is not node placement.
+  - id: b
+    text: They constrain where and when a credential should be accepted
+    explanation: Credential validity is a scoped contract rather than unlimited lifetime use.
+  - id: c
+    text: They determine the application's Service port
+    explanation: Token claims do not choose network listeners.
+  correct_option: b
+  explanation: Credential validity is a scoped contract rather than unlimited lifetime use.
+- id: ats029-section-070-q04
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Choose least-privilege access for an application role.
+  source_readings:
+  - sections/section-070/module-01/course-02-rbac-scope-and-least-privilege.md
+  prompt: An application only needs to read selected namespaced resources. Which grant best fits least
+    privilege?
+  options:
+  - id: a
+    text: A narrowly scoped grant for its required actions
+    explanation: Match authority to the actual resource and operation needs.
+  - id: b
+    text: Broad cluster-wide administrative authority
+    explanation: That exceeds the stated responsibility.
+  - id: c
+    text: Permission to modify every Secret solely for convenience
+    explanation: That introduces unrelated confidential-data authority.
+  correct_option: a
+  explanation: Match authority to the actual resource and operation needs.
+- id: ats029-section-070-q05
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Distinguish credential delivery from permission grants.
+  source_readings:
+  - sections/section-070/module-01/course-01-api-identity-and-serviceaccounts.md
+  prompt: What is the effect of disabling automatic token mounting when no API credential is needed?
+  options:
+  - id: a
+    text: It removes every network permission
+    explanation: Token delivery and network policy are different controls.
+  - id: b
+    text: It encrypts every file in the image
+    explanation: Mount selection does not provide image filesystem encryption.
+  - id: c
+    text: It can reduce unnecessary credential exposure
+    explanation: Workloads without a need for that credential need not receive it through automatic delivery.
+  correct_option: c
+  explanation: Workloads without a need for that credential need not receive it through automatic delivery.

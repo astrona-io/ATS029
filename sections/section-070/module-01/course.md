@@ -1,7 +1,25 @@
 ---
 draft: true
+exam_objectives:
+- Understand ServiceAccounts
 ---
-# Understand ServiceAccounts
+# ServiceAccounts And Bound Workload Credentials
 
-This module is an authoring placeholder. Its lesson parts, examples and
-practice environment will be planned when content work begins.
+This module develops serviceAccounts And Bound Workload Credentials. It connects the intended application behavior to declared resources and observed conditions.
+
+## Learning Goals
+
+- Explain ServiceAccount identity and namespace scope.
+- Distinguish credential delivery from permission grants.
+- Evaluate token audience, expiry and workload use.
+- Choose least-privilege access for an application role.
+
+## Before You Start
+
+Examples describe system behavior. No runtime is required. Read each field or diagnostic name as part of the stated contract.
+
+## Reading Order
+
+1. API Identity And ServiceAccounts
+2. RBAC Scope And Least Privilege
+3. Summary
