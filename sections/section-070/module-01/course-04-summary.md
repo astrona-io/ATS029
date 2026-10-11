@@ -8,3 +8,5 @@ exam_objectives:
 ServiceAccounts provide workload identities, while credential mechanisms make those identities usable for requests. Authorization comes from explicit grants and remains distinct from the existence of an account or mounted token.
 
 Token lifetime, audience and delivery influence credential use. Least privilege requires reviewing the actual resource actions and scope needed by the application, including authority obtained through workload creation or additional bindings.
+
+<!-- astrona:playground:destroy -->

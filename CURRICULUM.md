@@ -29,3 +29,7 @@ The [official objectives](https://training.linuxfoundation.org/certification/cer
 The module goals and adaptation sources are recorded in AUTHORING.yaml. Every official objective is covered. Each section starts with an introduction, and each module ends with a summary. YAML banks follow the relevant summary and remain separate from the Markdown manifest.
 
 This is a reading-only draft. No new labs, playgrounds, command output or runtime verification are included. ATP006 publication remains draft.
+
+## Hands-On Expansion
+
+Playgrounds and guided practical readings were added on 2026-10-12. Every existing module retains its concept readings and gains one practical reading before its renumbered summary. YAML bank placement follows the new summary path. Official weights, objective IDs and ATP006 links are unchanged. Runtime verification is pending; static checks do not establish successful cluster execution.

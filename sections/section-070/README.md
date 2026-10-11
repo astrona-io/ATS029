@@ -15,3 +15,5 @@ Each module begins with its goals and ends with a summary. Reusable YAML knowled
 - Distinguish credential delivery from permission grants.
 - Evaluate token audience, expiry and workload use.
 - Choose least-privilege access for an application role.
+
+Each module pairs its concept readings with a guided practical sequence in an isolated playground. Finish the practice and closing summary before moving on. The YAML knowledge checks remain separate from the environment lifecycle.

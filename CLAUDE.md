@@ -203,20 +203,18 @@ The course covers **Application Environment, Configuration and Security**, worth
 **Certified Kubernetes Application Developer (CKAD)**. It is part of **ATP006**.
 The official objectives are listed in `astrona.yaml` and mapped in `CURRICULUM.md`.
 
-### Reading-only scope
+### Playground and guided-practice scope
 
-The maintainer approved the lesson plan, asked for deeper teaching, and explicitly
-requested **no labs or playgrounds**. That instruction overrides shared examples
-about hands-on environments, graded labs and playground markers. Do not create
-runtime configurations, executable exercises or playground lifecycle markers.
-The course must be usable without a cluster or installed command-line tools.
+On 2026-10-12 the maintainer requested CKAD playgrounds and hands-on teaching. This supersedes the earlier no-playgrounds instruction for CKAD. Add one ungraded environment per module and weave concrete practice into the reading order. Keep the existing YAML knowledge checks. No new graded labs or submission workflow are added in this scope.
+
+Playgrounds use the Astrona configuration contract, isolated kubeconfigs and bounded bootstrap waits. Do not write to unrelated clusters. Landing pages carry the playground launch marker, every practical reading renews it before the first step, and the final summary ends with the destroy marker. The shared writing and lifecycle guidance above applies to these environments.
 
 ### Teaching structure and depth
 
 Every section begins with its own introduction and measurable learning outcomes.
 Every module contains a landing page, developed teaching lessons and a final
 `# Summary` page. Put the summary after all its lessons and before the next
-module. This reading-only summary has no playground destruction marker.
+module. The summary ends with `<!-- astrona:playground:destroy -->` on its own line.
 
 Explain mechanisms, responsible components, realistic examples and the limits
 of each claim. Include worked reasoning and relevant failure cases. Avoid thin
@@ -248,4 +246,4 @@ The ATP registration remains draft until publication is approved.
 Primary author sources are recorded in `SOURCES.md`. The objective list was
 verified on 2026-10-11. Detailed reading expansions were written on 2026-10-11.
 Validate manifest paths, summary ordering, curriculum coverage and question
-contracts. Do not claim runtime verification for a reading-only course.
+contracts. Record actual runtime evidence when available. Static validation is not live verification; do not invent command output.

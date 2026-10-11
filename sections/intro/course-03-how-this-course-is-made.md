@@ -7,3 +7,5 @@ Structural checks verify reading paths, section introductions, module summaries,
 The [contributors](https://github.com/astrona-io/ATS029/graphs/contributors) maintain the material. To [report a mistake](https://github.com/astrona-io/ATS029/issues), identify the page and statement, and explain the expected behavior. The repository [license](https://github.com/astrona-io/ATS029/blob/main/LICENSE) governs reuse.
 
 Official objectives belong to their respective owners. Teaching and knowledge checks are independently authored learning material.
+
+Authors validate each environment with the Astrona CLI and keep a script that replays its practical sequence. Real runtime results must be recorded before claiming that the sequence was executed successfully. The current authoring session cannot access its container engine.

@@ -15,3 +15,5 @@ Each module begins with its goals and ends with a summary. Reusable YAML knowled
 - Choose mounted or environment-based Secret consumption.
 - Explain namespace, workload and registry credential relationships.
 - Evaluate who can observe or indirectly obtain confidential data.
+
+Each module pairs its concept readings with a guided practical sequence in an isolated playground. Finish the practice and closing summary before moving on. The YAML knowledge checks remain separate from the environment lifecycle.

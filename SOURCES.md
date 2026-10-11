@@ -25,3 +25,16 @@ Objectives checked on 2026-10-11. CKAD is performance based. These references su
 - [Helm package use](https://helm.sh/docs/intro/using_helm/)
 
 Check version-specific fields and tool options against the intended platform before adding executable examples. YAML checks are original learning material, not an examination simulator.
+
+## Playground Authoring Sources
+
+Checked on 2026-10-12. The kind node image is pinned to a known practice release rather than asserted as the current examination version. Astrona runtime, addon and private-kubeconfig behavior was checked against the local astrona-cli source.
+
+- [kind node release and digest](https://github.com/kubernetes-sigs/kind/releases)
+- [Traefik Ingress provider](https://doc.traefik.io/traefik/providers/kubernetes-ingress/)
+- [Traefik v3.6.1](https://github.com/traefik/traefik/releases/tag/v3.6.1)
+- [podinfo chart release 6.7.1](https://github.com/stefanprodan/podinfo/releases/tag/6.7.1)
+- [Kubernetes container images](https://kubernetes.io/docs/concepts/containers/images/)
+- [Kubernetes Pod configuration](https://kubernetes.io/docs/tasks/configure-pod-container/)
+
+Application images use explicit release or minor tags; those tags are not content-digest guarantees. Runtime pulls and live API observations must be verified on the target environment. No successful execution output is fabricated.
