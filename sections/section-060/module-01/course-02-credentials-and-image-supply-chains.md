@@ -5,6 +5,22 @@ exam_objectives:
 ---
 # Credentials And Image Supply Chains
 
+An image has a trusted signature but includes a vulnerable dependency. The signature answers an origin question; it does not answer every content-safety question. Credential delivery and artifact verification also act at different boundaries.
+
+## Learning objectives
+
+- Distinguish artifact identity, origin, inventory and vulnerability evidence.
+- Identify credential exposure paths in builds and runtime.
+- Explain why verification must describe the exact deployed artifact.
+
+## Before you start
+
+Use a shell on your own machine with the module playground running. A Pod is Kubernetes's unit for running one or more containers together. The environment provides the `probe` Deployment, which maintains application Pods, and the `starfleet` namespace, which groups these objects.
+
+Read-only commands below use kubectl, the Kubernetes command-line tool. Select the private kubeconfig: the file that identifies this environment's cluster and credentials. The commands do not change the application.
+
+## Credentials and Image Supply Chains
+
 A database password should reach only the process that needs it. Least privilege applies to credential readers, mounted files, ServiceAccounts and network access as well as API permissions. Do not put secrets in an image merely to avoid configuring them at deployment time; image access can expose all embedded layers.
 
 A Kubernetes Secret requires access control and appropriate encryption at rest. Applications should avoid writing sensitive values into logs, error pages or diagnostic bundles. Rotation needs coordination between the credential issuer and consumers so old values stop working without causing an unnecessary outage.
@@ -32,6 +48,43 @@ A credential can leak through source files, build inputs, registry layers, mount
 Rotation must also remove old authority at the issuer. Updating a stored value while leaving the previous credential valid indefinitely does not revoke it. New consumers need to adopt the replacement according to their configuration delivery mechanism. Verification should use successful intended access and rejected old access where appropriate, without publishing the secret value.
 
 Supply chain controls and least privilege support different phases of defense. The first narrows what software and credentials enter the system; the second limits what a compromised process can do. A coherent security answer connects both rather than treating a signed artifact as permission to run with unrestricted host access.
+
+## Inspect the mechanism
+
+A digest identifies content. A signature can attest to content under a trust policy, provenance can describe build history, and a software bill of materials (SBOM) lists components. A vulnerability scan compares identified components with known issue data. Passing one of these checks cannot substitute for the others.
+
+The fixture uses a tagged upstream image and mounted application code. Its running image identity can be inspected, but that identity does not prove a signature was verified or a scan was performed. No signing or scanning service is provisioned here. Keep these conceptual controls explicit instead of writing a command that pretends the playground can demonstrate absent integrations.
+
+```mermaid
+flowchart TB
+    I["Exact artifact identity"] --> S["Signature and trust policy"]
+    I --> P["Build provenance"]
+    I --> B["Component inventory"]
+    B --> V["Known vulnerability analysis"]
+    S --> D["Delivery decision"]
+    P --> D
+    V --> D
+```
+
+A delivery decision combines evidence about distinct properties of the same intended artifact.
+
+<!-- astrona:playground:renew -->
+
+Select the private cluster connection and inspect the live state from your host shell:
+
+```sh
+export KUBECONFIG="$(astrona kubeconfig ats-029-playground-060-01)"
+if test "$(kubectl config current-context)" = "kind-astro-ats-029-playground-060-01"; then
+  kubectl -n starfleet get deployment probe -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+  kubectl -n starfleet get pods -l app=probe -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.status.containerStatuses[0].imageID}{"\n"}{end}'
+else
+  printf "Select this module's private kubeconfig before continuing.\n" >&2
+fi
+```
+
+Compare the requested reference with actual running identities. This proves only what these fields report. It does not generate provenance, inventory, scan results or trust-policy evidence. Keep the artifact identified by a future verification result linked to the artifact actually deployed; otherwise a successful check can describe different bytes.
+
+You can now state what each supply-chain control establishes and what remains uncertain. Minimal runtime privilege and careful credential handling still matter after an artifact is approved.
 
 ## Common pitfalls
 

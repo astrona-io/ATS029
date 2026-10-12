@@ -9,6 +9,10 @@ The exercise uses a disposable non-production value and demonstrates two consump
 
 Use the module playground and its private kubeconfig. The context check below prevents commands from being directed at an unrelated cluster. The helper retries a command for a bounded interval after controller or policy changes; it cannot turn a persistent failure into success. Read the actual errors when the interval expires.
 
+The demonstration credential is practice data, but its delivery still illustrates a confidential-data boundary. Check whether the consumer received the intended source without printing the value. File visibility and successful authentication are different kinds of verification.
+
+An updated Secret can require process replacement or reload depending on delivery and consumption. Rotation must also coordinate issuer acceptance and retirement of the old credential. Changing the stored object alone neither revokes earlier authority nor updates every running consumer.
+
 <!-- astrona:playground:renew -->
 
 For a timed catalog session, renew this module before continuing. Skip renewal for an untimed local author run:

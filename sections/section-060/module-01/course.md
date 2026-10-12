@@ -5,7 +5,7 @@ exam_objectives:
 ---
 # Secret Consumption And Confidentiality Limits
 
-This module connects intended application behavior to declared resources and observed conditions.
+A database stops accepting its old password before every consumer adopts the replacement. The Secret update succeeded, yet requests fail. Credential rotation must coordinate the issuer, stored value, delivery method and running consumers.
 
 ## Learning Goals
 

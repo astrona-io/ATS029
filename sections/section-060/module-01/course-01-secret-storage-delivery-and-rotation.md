@@ -5,6 +5,22 @@ exam_objectives:
 ---
 # Secret Storage, Delivery And Rotation
 
+A database stops accepting its old password before every consumer adopts the replacement. The Secret update succeeded, yet requests fail. Credential rotation must coordinate the issuer, stored value, delivery method and running consumers.
+
+## Learning objectives
+
+- Distinguish Secret encoding from confidentiality controls.
+- Explain environment and mounted-file adoption during rotation.
+- Verify credential use without displaying credential contents.
+
+## Before you start
+
+Use a shell on your own machine with the module playground running. A Pod is Kubernetes's unit for running one or more containers together. The environment provides the `probe` Deployment, which maintains application Pods, and the `starfleet` namespace, which groups these objects.
+
+Read-only commands below use kubectl, the Kubernetes command-line tool. Select the private kubeconfig: the file that identifies this environment's cluster and credentials. The commands do not change the application.
+
+## Secret Storage, Delivery and Rotation
+
 The `scout` application uses a non-sensitive log level and a sensitive database password. A ConfigMap stores configuration data that is not intended to be secret. A Secret is a Kubernetes resource for sensitive data. Keeping both outside the image lets the same application artifact run with different deployment settings.
 
 A Pod can receive values through environment variables or files mounted from a volume. Environment variables are set when the container starts; updating the source object does not rewrite the environment of that running process. Mounted configuration files can receive updates after a delay, but the application must notice or reload them. A mount using `subPath` does not receive those automatic volume updates.
@@ -30,6 +46,41 @@ For a database password, identify the issuer, the stored Secret, the delivery me
 Environment-based consumers generally need new containers to receive new values. File-based consumers may need application reload. In both cases, readiness and representative requests should confirm that consumers can use the updated credential. Avoid logging the password as proof of adoption; verify authentication behavior without exposing the secret.
 
 A Secret also needs protections beyond its resource name. Read access can reveal the credential, container access can expose mounted files and diagnostic bundles can copy them unintentionally. Handle sensitivity through permissions, storage encryption and application behavior, while preserving a clear plan for how updates become effective.
+
+## Inspect the mechanism
+
+A Secret is a resource for sensitive data, but its serialized base64 data is encoding rather than encryption. API permissions, storage encryption and consumer behavior protect different exposure paths. Avoid retrieving full Secret YAML simply to establish that a named object exists.
+
+Rotation is a sequence of changes across systems. The issuer must accept the replacement, consumers must receive and adopt it, and the earlier value must eventually lose authority. Updating the Kubernetes object alone does not update an existing process environment or revoke the credential at its issuer. Verification should test intended access and the planned retirement behavior without printing the value.
+
+```mermaid
+flowchart TB
+    I["Issuer accepts replacement"] --> S["Stored Secret update"]
+    S --> D["Consumer delivery"]
+    D --> A["Application adoption"]
+    A --> V["Access verification"]
+    V --> R["Earlier authority retired"]
+```
+
+Rotation becomes effective through coordinated adoption and retirement, rather than through one stored update.
+
+<!-- astrona:playground:renew -->
+
+Select the private cluster connection and inspect the live state from your host shell:
+
+```sh
+export KUBECONFIG="$(astrona kubeconfig ats-029-playground-060-01)"
+if test "$(kubectl config current-context)" = "kind-astro-ats-029-playground-060-01"; then
+  kubectl -n starfleet get secrets -o custom-columns=NAME:.metadata.name,TYPE:.type
+  kubectl -n starfleet get deployment probe -o jsonpath='{.spec.template.spec.containers[0].envFrom}{"\n"}{.spec.template.spec.volumes}{"\n"}'
+else
+  printf "Select this module's private kubeconfig before continuing.\n" >&2
+fi
+```
+
+The first command lists names and types without selecting data fields. The second reads consumer references, not Secret contents. The baseline may have no application Secret until practice creates one. A reference establishes intended delivery; it does not show that the issuer accepts a credential or that the application has adopted its current value.
+
+You can now describe safe credential verification without using disclosure as evidence. Each rotation plan must state how consumers adopt updates and when old authority is removed.
 
 ## Common pitfalls
 
