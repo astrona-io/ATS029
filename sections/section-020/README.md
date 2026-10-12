@@ -9,6 +9,9 @@ This section covers understand authentication, authorization and admission contr
 
 Each module begins with its goals and ends with a summary. Reusable YAML knowledge checks follow the section summary and are registered separately for future presentation.
 
+
+You will trace request acceptance through identity, permission and admission. Read all applicable bindings and their namespace scope when evaluating effective authority. A valid credential or an allowed verb does not establish that every proposed configuration will be accepted.
+
 ## Learning Outcomes
 
 - Distinguish authentication, authorization and admission.
