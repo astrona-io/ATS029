@@ -9,6 +9,10 @@ This module includes a small real controller for the namespaced ProbeSetting cus
 
 Use the module playground and its private kubeconfig. The context check below prevents commands from being directed at an unrelated cluster. The helper retries a command for a bounded interval after controller or policy changes; it cannot turn a persistent failure into success. Read the actual errors when the interval expires.
 
+The custom schema registers accepted fields, while the running controller performs ConfigMap reconciliation. Compare the requested message, resulting object and reported observed generation. These observations establish distinct stages rather than one automatic effect of installing a definition.
+
+The practice controller is intentionally small. It polls custom objects, updates configuration and status, and has narrow namespace permissions. It does not implement backups, production leader election or external deletion cleanup. Do not infer those capabilities from the Operator pattern alone.
+
 <!-- astrona:playground:renew -->
 
 For a timed catalog session, renew this module before continuing. Skip renewal for an untimed local author run:

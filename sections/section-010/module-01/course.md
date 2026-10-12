@@ -5,7 +5,7 @@ exam_objectives:
 ---
 # Custom Types And Application Reconciliation
 
-This module connects intended application behavior to declared resources and observed conditions.
+The playground accepts a `ProbeSetting`, then a small controller turns its requested message into a ConfigMap. Registering that custom type and implementing its behavior are separate operations. This separation explains why an accepted custom object can still have no useful result.
 
 ## Learning Goals
 

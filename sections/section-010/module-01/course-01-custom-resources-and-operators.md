@@ -5,6 +5,22 @@ exam_objectives:
 ---
 # Custom Resources And Operators
 
+The playground accepts a `ProbeSetting`, then a small controller turns its requested message into a ConfigMap. Registering that custom type and implementing its behavior are separate operations. This separation explains why an accepted custom object can still have no useful result.
+
+## Learning objectives
+
+- Distinguish custom type registration from controller execution.
+- Trace desired custom configuration into a reconciled object.
+- Identify permissions and prerequisites needed by a controller.
+
+## Before you start
+
+Use a shell on your own machine with the module playground running. A Pod is Kubernetes's unit for running one or more containers together. The environment provides the `probe` Deployment, which maintains application Pods, and the `starfleet` namespace, which groups these objects.
+
+Read-only commands below use kubectl, the Kubernetes command-line tool. Select the private kubeconfig: the file that identifies this environment's cluster and credentials. The commands do not change the application.
+
+## Custom Resources and Operators
+
 A team wants Kubernetes to manage a database using a resource named `Database`. A CustomResourceDefinition (CRD) extends the Kubernetes API with a new resource type and its schema. Creating a CRD makes that type available; it does not install database software or implement database behavior by itself.
 
 A custom resource is an instance of the new type. It can describe a requested database version or replica count. A custom controller watches those instances and reconciles actual resources toward their requested state. An Operator is an approach that uses controllers and custom resources to encode application-specific operational knowledge.
@@ -39,6 +55,42 @@ The Operator runs as a workload or other process with credentials. It needs appr
 If the controller stops, existing database processes may continue while new changes and recovery actions stall. If the CRD is missing, the API may reject the resource type before any controller can see an instance. If the controller has insufficient permissions, objects can exist without expected children being created.
 
 Diagnose the boundary supported by evidence: type registration, accepted custom intent, controller execution, child-resource reconciliation or application health. This sequence explains both the power and limits of Operators without treating an extension as automatic operational expertise.
+
+## Inspect the mechanism
+
+A CustomResourceDefinition (CRD) registers a type in the application programming interface (API). The fixture's `ProbeSetting` belongs to `training.astrona.io/v1` and has a message field. Its custom controller polls accepted objects and creates or updates a corresponding ConfigMap. The controller, not the CRD schema, performs that operation.
+
+This is a deliberately small example of reconciliation. It does not implement database upgrades, backups or external cleanup. If the controller stops, the custom object and existing ConfigMap may remain while new requested messages stop progressing. Diagnose type registration, controller state and output separately instead of assuming that successful object creation completed the operation.
+
+```mermaid
+flowchart TB
+    D["CustomResourceDefinition"] --> A["Registered API type"]
+    A --> R["Accepted ProbeSetting"]
+    R --> C["Custom controller"]
+    C --> M["Reconciled ConfigMap"]
+```
+
+Type registration enables the request, while executable controller logic produces its result.
+
+<!-- astrona:playground:renew -->
+
+Select the private cluster connection and inspect the live state from your host shell:
+
+```sh
+export KUBECONFIG="$(astrona kubeconfig ats-029-playground-010-01)"
+if test "$(kubectl config current-context)" = "kind-astro-ats-029-playground-010-01"; then
+  kubectl get customresourcedefinition probesettings.training.astrona.io
+  kubectl -n starfleet get deployments
+  kubectl -n starfleet get probesettings.training.astrona.io
+  kubectl -n starfleet get configmaps
+else
+  printf "Select this module's private kubeconfig before continuing.\n" >&2
+fi
+```
+
+Read the registered type, the controller Deployment and any accepted instances. The initial environment need not have a ProbeSetting instance until you create one. ConfigMaps already present include the application fixture, so do not attribute every ConfigMap to custom reconciliation. A later controller-created object needs a clear relationship to the custom request.
+
+You can now distinguish an extension schema from an operational implementation. Controller availability, permissions and supported behavior determine how accepted intent becomes useful application state.
 
 ## Common pitfalls
 
