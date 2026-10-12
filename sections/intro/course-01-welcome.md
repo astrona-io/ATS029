@@ -1,7 +1,13 @@
 # Welcome To The Course
 
-This course is being prepared for the Application Environment, Configuration and Security domain of the
-Certified Kubernetes Application Developer (CKAD) exam.
+This course prepares the concepts and reasoning for Application Environment, Configuration and Security in the Certified Kubernetes Application Developer (CKAD) curriculum. CKAD is a performance-based examination. This draft combines resource definitions, component behavior and diagnostic reasoning with guided practice in ungraded module playgrounds. It does not claim to simulate the examination.
 
-Lessons and exercises are planned. The finished welcome will explain the
-audience, terminology, example application and reading order.
+Every section begins with an introduction and outcomes. Every module starts with a landing page, continues through developed lessons and closes with a summary before the next module. Lesson counts follow topic needs rather than a fixed number.
+
+Original YAML knowledge checks review the taught concepts after selected summaries. They contain supported answers and feedback for future application presentation and are separate from the reading manifest.
+
+At the end, you can explain the resource and configuration choices in the official objectives and reason through relevant failure cases. Application names identify examples and have no special technical meaning.
+
+The hands-on expansion lets you write resources, run commands and diagnose controlled failures. Finish each practical sequence before its summary. The YAML knowledge checks remain reusable question data rather than graded cluster submissions.
+
+The concept readings begin with a concrete problem, state their learning objectives and explain the required starting knowledge. Read the explanation before using its short inspection step. The separate practical readings provide longer application changes, while the final summary collects the conclusions. Command results come from your environment; names, addresses and timing can differ between runs.
