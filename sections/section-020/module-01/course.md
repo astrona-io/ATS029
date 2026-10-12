@@ -5,7 +5,7 @@ exam_objectives:
 ---
 # Identity And API Access Decisions
 
-This module connects intended application behavior to declared resources and observed conditions.
+A caller can have a valid identity and still be forbidden to read Pods. It can also be allowed to create Pods while admission rejects a privileged configuration. Identity, permission and accepted configuration are distinct decisions.
 
 ## Learning Goals
 

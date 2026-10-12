@@ -9,6 +9,10 @@ Role-Based Access Control adds permitted operations to an identity. You will cre
 
 Use the module playground and its private kubeconfig. The context check below prevents commands from being directed at an unrelated cluster. The helper retries a command for a bounded interval after controller or policy changes; it cannot turn a persistent failure into success. Read the actual errors when the interval expires.
 
+The permission check evaluates an exact identity, verb, resource and namespace. A RoleBinding supplies its namespace scope even when it references a ClusterRole. Read subject namespace and roleRef separately so the grant reaches the intended account.
+
+Impersonation checks use the author identity's permission to evaluate another subject. They do not deliver a token to an application. A yes authorization result also leaves schema and admission decisions unresolved. These boundaries explain why a grant can be correct while a particular Pod request is still rejected.
+
 <!-- astrona:playground:renew -->
 
 For a timed catalog session, renew this module before continuing. Skip renewal for an untimed local author run:
