@@ -9,4 +9,6 @@ ServiceAccounts provide workload identities, while credential mechanisms make th
 
 Token lifetime, audience and delivery influence credential use. Least privilege requires reviewing the actual resource actions and scope needed by the application, including authority obtained through workload creation or additional bindings.
 
+Workload identity, projected credential delivery and effective permission are separate contracts. Least privilege includes both the API operations granted and whether a process needs credentials at all.
+
 <!-- astrona:playground:destroy -->

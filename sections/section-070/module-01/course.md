@@ -5,7 +5,7 @@ exam_objectives:
 ---
 # ServiceAccounts And Bound Workload Credentials
 
-This module connects intended application behavior to declared resources and observed conditions.
+The `probe` application can run without reading Kubernetes resources, while a controller needs a workload identity to call the API. Giving both the same mounted credentials exposes authority where it may not be needed.
 
 ## Learning Goals
 

@@ -9,6 +9,10 @@ A ServiceAccount supplies workload identity, while RBAC separately grants operat
 
 Use the module playground and its private kubeconfig. The context check below prevents commands from being directed at an unrelated cluster. The helper retries a command for a bounded interval after controller or policy changes; it cannot turn a persistent failure into success. Read the actual errors when the interval expires.
 
+The ServiceAccount name belongs to a namespace-qualified identity. A Pod's admitted account and projected volume describe identity selection and delivery, while bindings define authority. None of those observations requires displaying the token.
+
+The practice compares a narrow reader grant with the result after that grant changes. RBAC is additive, so other applicable bindings can affect the result. Disabling automatic token mounting reduces credential availability to the process but does not remove the account's grants.
+
 <!-- astrona:playground:renew -->
 
 For a timed catalog session, renew this module before continuing. Skip renewal for an untimed local author run:
