@@ -38,3 +38,17 @@ Checked on 2026-10-12. The kind node image is pinned to a known practice release
 - [Kubernetes Pod configuration](https://kubernetes.io/docs/tasks/configure-pod-container/)
 
 Application images use explicit release or minor tags; those tags are not content-digest guarantees. Runtime pulls and live API observations must be verified on the target environment. No successful execution output is fabricated.
+
+## Material expansion review — 2026-10-12
+
+Applied the local astrona-course-expand-material skill with CLAUDE.md prose and lifecycle rules. Author references reviewed for image policy, sidecar lifecycle, volume access/reclaim, resource accounting, identity and request-path behavior:
+
+- https://kubernetes.io/docs/concepts/containers/images/
+- https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/
+- https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+- https://kubernetes.io/docs/reference/access-authn-authz/rbac/
+- https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+- https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+- https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+- https://kubernetes.io/docs/concepts/services-networking/network-policies/
+- https://helm.sh/docs/helm/helm_upgrade/
