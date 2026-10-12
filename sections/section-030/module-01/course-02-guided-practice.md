@@ -9,6 +9,10 @@ Quota limits namespace consumption according to selected resource dimensions. Yo
 
 Use the module playground and its private kubeconfig. The context check below prevents commands from being directed at an unrelated cluster. The helper retries a command for a bounded interval after controller or policy changes; it cannot turn a persistent failure into success. Read the actual errors when the interval expires.
 
+A LimitRange can add defaults or reject a container setting, while ResourceQuota limits namespace totals. Inspect the admitted Pod values after applying policy. The source definition alone may omit values that admission supplies.
+
+A request within quota can still exceed every eligible node's available capacity. A running process can separately reach its enforced limit. These failures occur during admission, scheduling and execution, so changing one boundary's budget does not repair every resource symptom.
+
 <!-- astrona:playground:renew -->
 
 For a timed catalog session, renew this module before continuing. Skip renewal for an untimed local author run:

@@ -5,7 +5,7 @@ exam_objectives:
 ---
 # Allocation, Enforcement And Namespace Policy
 
-This module connects intended application behavior to declared resources and observed conditions.
+A Pod passes its namespace budget but cannot fit on any eligible node. Another Pod runs and then reaches a memory limit. Both concern resources, yet admission, placement and runtime enforcement require different corrections.
 
 ## Learning Goals
 
