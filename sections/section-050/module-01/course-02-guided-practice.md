@@ -9,6 +9,10 @@ A multi-container Pod needs deliberate resource settings for each container. You
 
 Use the module playground and its private kubeconfig. The context check below prevents commands from being directed at an unrelated cluster. The helper retries a command for a bounded interval after controller or policy changes; it cannot turn a persistent failure into success. Read the actual errors when the interval expires.
 
+The resource example includes a supporting container because the main process is not the whole scheduling demand. Inspect each admitted container's values and any defaults. Avoid treating a source definition or idle usage snapshot as a complete accounting result.
+
+The deliberately oversized request demonstrates placement failure, rather than memory-limit termination. Restore the intended value after reading scheduling evidence. Real sizing needs measured application peaks and initialization behavior, not a smaller number chosen only to make the Pod schedule.
+
 <!-- astrona:playground:renew -->
 
 For a timed catalog session, renew this module before continuing. Skip renewal for an untimed local author run:

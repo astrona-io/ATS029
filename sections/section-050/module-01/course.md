@@ -5,7 +5,7 @@ exam_objectives:
 ---
 # Complete Container Resource Requirements
 
-This module connects intended application behavior to declared resources and observed conditions.
+The main process requests little memory, but its supporting container buffers a large amount of data. Scheduling and resource enforcement need the complete workload. A familiar request-to-limit ratio cannot replace that accounting.
 
 ## Learning Goals
 

@@ -5,6 +5,22 @@ exam_objectives:
 ---
 # Expressing Resource Needs For Every Container
 
+The main process requests little memory, but its supporting container buffers a large amount of data. Scheduling and resource enforcement need the complete workload. A familiar request-to-limit ratio cannot replace that accounting.
+
+## Learning objectives
+
+- Interpret CPU and memory quantities correctly.
+- Account for ordinary containers and supported init-container semantics.
+- Distinguish realistic sizing from an attempt to force scheduling.
+
+## Before you start
+
+Use a shell on your own machine with the module playground running. A Pod is Kubernetes's unit for running one or more containers together. The environment provides the `probe` Deployment, which maintains application Pods, and the `starfleet` namespace, which groups these objects.
+
+Read-only commands below use kubectl, the Kubernetes command-line tool. Select the private kubeconfig: the file that identifies this environment's cluster and credentials. The commands do not change the application.
+
+## Expressing Resource Needs For Every Container
+
 A resource request declares capacity used in Kubernetes scheduling and related allocation behavior. A resource limit constrains allowed usage according to the resource and runtime. Application developers must express the needs of the complete Pod, including supporting containers, rather than assigning one memorable value to every workload.
 
 ## Understand CPU And Memory Units
@@ -38,6 +54,41 @@ Use expected steady use, initialization behavior and meaningful peaks to form a 
 Limits should reflect intended protection and application tolerance. A restrictive CPU limit can increase response time through throttling, while no limit can leave shared capacity exposed to high demand. The correct choice depends on the workload and platform policy rather than a universal ratio between request and limit.
 
 After expressing requirements, review the complete admitted workload and its observed scheduling and execution. Resource definitions are part of an application contract, not a guarantee that every future input fits. Preserve a distinction among allocation, enforcement, defaults and namespace policy when explaining a failure.
+
+## Inspect the mechanism
+
+For ordinary containers running together, resource demand includes each container's requests. Regular sequential init containers use different accounting from simultaneous application containers, and restartable init sidecars add ongoing demand. Pod overhead and version-supported Pod resource settings can further affect the effective requirement.
+
+Inspect the admitted Pod as well as the Deployment template. Namespace defaults can fill omitted values when Pods are created. That makes a short source definition insufficient evidence for exact scheduling demand. Central processing unit (CPU) and memory also fail differently: CPU limits can throttle execution, while memory exhaustion can terminate a process. Raising one resource does not solve the other's failure.
+
+```mermaid
+flowchart TB
+    C["Container requirements"] --> P["Effective Pod demand"]
+    I["Init and sidecar semantics"] --> P
+    D["Admitted defaults and overhead"] --> P
+    P --> S["Scheduling feasibility"]
+    C --> R["Runtime limits"]
+```
+
+Effective scheduling demand and runtime limits are related declarations with different jobs.
+
+<!-- astrona:playground:renew -->
+
+Select the private cluster connection and inspect the live state from your host shell:
+
+```sh
+export KUBECONFIG="$(astrona kubeconfig ats-029-playground-050-01)"
+if test "$(kubectl config current-context)" = "kind-astro-ats-029-playground-050-01"; then
+  kubectl -n starfleet get pods -l app=probe -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{range .spec.containers[*]}{.name}{" "}{.resources}{"\n"}{end}{end}'
+  kubectl -n starfleet get limitranges,resourcequotas
+else
+  printf "Select this module's private kubeconfig before continuing.\n" >&2
+fi
+```
+
+Compare per-container admitted values with any defaults and namespace constraints. The fixture has one ordinary application container; do not pretend it demonstrates every init-container accounting case. Its values are declared needs and boundaries, not a performance benchmark. Real sizing requires measured steady and peak behavior for the intended input.
+
+You can now account for the actual admitted workload and classify a resource failure. A justified size preserves application requirements rather than merely making a Pending status disappear.
 
 ## Common pitfalls
 
