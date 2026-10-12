@@ -9,6 +9,9 @@ This section covers understand requests, limits, quotas. You will study Allocati
 
 Each module begins with its goals and ends with a summary. Reusable YAML knowledge checks follow the section summary and are registered separately for future presentation.
 
+
+You will interpret resource policy at admission, capacity at scheduling and usage boundaries during execution. Read defaults in the admitted object before calculating requirements. A namespace allowance does not reserve a node or remove a runtime memory limit.
+
 ## Learning Outcomes
 
 - Distinguish resource requests from usage and limits.
