@@ -9,6 +9,9 @@ This section covers understand ConfigMaps. You will study ConfigMaps And Applica
 
 Each module begins with its goals and ends with a summary. Reusable YAML knowledge checks follow the section summary and are registered separately for future presentation.
 
+
+You will trace configuration from its object through the declared delivery method into the process. Environment, mounts, reload behavior and application precedence can produce different update results. Verification establishes adoption rather than merely a successful stored write.
+
 ## Learning Outcomes
 
 - Choose ConfigMap delivery through files or environment.
