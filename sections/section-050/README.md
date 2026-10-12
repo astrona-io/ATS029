@@ -9,6 +9,9 @@ This section covers define resource requirements. You will study Complete Contai
 
 Each module begins with its goals and ends with a summary. Reusable YAML knowledge checks follow the section summary and are registered separately for future presentation.
 
+
+You will express the needs of the complete workload, including its supporting and initialization behavior. Correct units and admitted defaults matter as much as the main container value. Sizing needs realistic peaks and capacity evidence rather than a universal ratio.
+
 ## Learning Outcomes
 
 - Interpret CPU and memory quantities correctly.
