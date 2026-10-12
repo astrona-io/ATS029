@@ -19,4 +19,4 @@ The longer guided practices have additional explanations; their existing shell a
 
 Static checks: skill chapter validation, shell syntax, curriculum and manifest mapping, reading order, lifecycle expansion and all 35 playground configuration checks pass. Live replay is not verified: kind could not access the Podman socket from this session. No new playground was built, so no new CLI version is claimed.
 
-Commits are separated by module and section, with course introduction changes separate. GitHub pushing is pending because github.com could not be resolved in this session.
+Commits are separated by module and section, with course introduction changes separate. The initial ordinary push attempt failed on GitHub DNS resolution. A later lease-protected fast-forward push succeeded; remote publication status is recorded in the preparation report.
