@@ -9,6 +9,10 @@ The Pod declares a numeric non-root identity, drops capabilities and provides on
 
 Use the module playground and its private kubeconfig. The context check below prevents commands from being directed at an unrelated cluster. The helper retries a command for a bounded interval after controller or policy changes; it cannot turn a persistent failure into success. Read the actual errors when the interval expires.
 
+The hardened application needs a writable temporary mount while keeping its image filesystem read-only. Its non-root identity must also have suitable access to the required files. These are compatible requirements when the workload is designed for them.
+
+The namespace policy test evaluates new admission, not a retroactive rewrite of an existing process. Enforce, warn and audit have different actions. An accepted Pod still needs runtime verification, while a rejected declaration must be corrected at the policy boundary without casually removing its protections.
+
 <!-- astrona:playground:renew -->
 
 For a timed catalog session, renew this module before continuing. Skip renewal for an untimed local author run:

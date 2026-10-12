@@ -5,7 +5,7 @@ exam_objectives:
 ---
 # Security Contexts And Application Privilege
 
-This module connects intended application behavior to declared resources and observed conditions.
+An application runs as a non-root user but still needs a writable temporary directory. Making its root filesystem read-only does not create that directory. Hardening must restrict unnecessary behavior while preserving the files and operations the application needs.
 
 ## Learning Goals
 
