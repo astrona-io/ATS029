@@ -9,3 +9,5 @@ Original YAML knowledge checks review the taught concepts after selected summari
 At the end, you can explain the resource and configuration choices in the official objectives and reason through relevant failure cases. Application names identify examples and have no special technical meaning.
 
 The hands-on expansion lets you write resources, run commands and diagnose controlled failures. Finish each practical sequence before its summary. The YAML knowledge checks remain reusable question data rather than graded cluster submissions.
+
+The concept readings begin with a concrete problem, state their learning objectives and explain the required starting knowledge. Read the explanation before using its short inspection step. The separate practical readings provide longer application changes, while the final summary collects the conclusions. Command results come from your environment; names, addresses and timing can differ between runs.
