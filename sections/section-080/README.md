@@ -9,6 +9,9 @@ This section covers understand Application Security (SecurityContexts, Capabilit
 
 Each module begins with its goals and ends with a summary. Reusable YAML knowledge checks follow the section summary and are registered separately for future presentation.
 
+
+You will combine execution restrictions with the actual files and operations an application requires. Admission profiles check declared settings, while runtime controls act on accepted processes. A protection should be explained through its effect, scope and remaining limits.
+
 ## Learning Outcomes
 
 - Distinguish Pod and container security settings.
