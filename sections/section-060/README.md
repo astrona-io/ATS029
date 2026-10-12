@@ -9,6 +9,9 @@ This section covers create & consume Secrets. You will study Secret Consumption 
 
 Each module begins with its goals and ends with a summary. Reusable YAML knowledge checks follow the section summary and are registered separately for future presentation.
 
+
+You will separate sensitive-data storage, delivery, adoption and retirement. Verify credential behavior without printing the value. Artifact identity, origin and vulnerability evidence answer additional supply-chain questions and must describe the exact content being deployed.
+
 ## Learning Outcomes
 
 - Distinguish Secret representation from encryption.
