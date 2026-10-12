@@ -9,6 +9,9 @@ This section covers discover and use resources that extend Kubernetes (CRD, Oper
 
 Each module begins with its goals and ends with a summary. Reusable YAML knowledge checks follow the section summary and are registered separately for future presentation.
 
+
+You will distinguish registering an API type from implementing its reconciliation. Read scope, schema, desired generation, observed status and output permissions through the actual controller contract. Accepted custom intent does not automatically supply the advanced operations an application might need.
+
 ## Learning Outcomes
 
 - Distinguish type registration from controller behavior.
