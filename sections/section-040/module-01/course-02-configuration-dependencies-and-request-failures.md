@@ -5,6 +5,22 @@ exam_objectives:
 ---
 # Configuration, Dependencies And Request Failures
 
+The `probe` greeting remains unchanged after a configuration edit because the process reads a different source. The request succeeds, but it exposes the wrong effective value. Trace precedence and delivery before treating every configuration problem as a startup failure.
+
+## Learning objectives
+
+- Distinguish stored configuration from effective request behavior.
+- Explain the fixture's file-over-environment precedence.
+- Verify a correction through the original request operation.
+
+## Before you start
+
+Use a shell on your own machine with the module playground running. A Pod is Kubernetes's unit for running one or more containers together. The environment provides the `probe` Deployment, which maintains application Pods, and the `starfleet` namespace, which groups these objects.
+
+Read-only commands below use kubectl, the Kubernetes command-line tool. Select the private kubeconfig: the file that identifies this environment's cluster and credentials. The commands do not change the application.
+
+## Configuration, Dependencies and Request Failures
+
 The `scout` Pod is Running and Ready, but some requests return server errors. Process health does not prove that every application operation works. A request can fail in input validation, internal logic, authentication, a downstream connection or response handling.
 
 Trace a representative failing request from the affected caller. Record its method, route, relevant non-sensitive inputs, timing and correlation identifier. A correlation identifier connects related records across components. A distributed trace can add the request's timed operations across services when the system is instrumented for it.
@@ -32,6 +48,40 @@ The stored ConfigMap may show a valid address while the process still uses an ol
 Reproduction should retain the failing caller's permissions, meaningful input and relevant dependency versions. Use a controlled data case that does not trigger unwanted production side effects. For a write request, distinguish a safe repeated test from an operation that creates another transaction.
 
 After a correction, repeat the representative operation and verify both its response and intended external effect. A successful response can still conceal a missing durable result; a timeout can still follow a completed effect. Application-level debugging needs the operation's contract, not only the transport status.
+
+## Inspect the mechanism
+
+This application reads `/settings/greeting` when the file exists; otherwise it uses `GREETING` or a default. That order comes from its code. Kubernetes delivers sources but does not impose one universal precedence across every application's files and environment variables.
+
+Two ConfigMaps with correct-looking values can therefore yield the same unintended response if neither is referenced at the required path. Likewise, a referenced file can update while an application that caches startup values remains unchanged. Compare reference, visible delivery and application adoption as separate facts. A valid ConfigMap object alone proves none of the later facts.
+
+```mermaid
+flowchart TB
+    F["Greeting file exists"] --> P["Application precedence"]
+    E["Greeting environment"] --> P
+    D["Application default"] --> P
+    P --> R["Observed greeting response"]
+```
+
+The response reflects the source chosen by application logic, not merely the newest stored object.
+
+<!-- astrona:playground:renew -->
+
+Select the private cluster connection and inspect the live state from your host shell:
+
+```sh
+export KUBECONFIG="$(astrona kubeconfig ats-029-playground-040-01)"
+if test "$(kubectl config current-context)" = "kind-astro-ats-029-playground-040-01"; then
+  kubectl -n starfleet get deployment probe -o jsonpath='{.spec.template.spec.containers[0].env}{"\n"}{.spec.template.spec.containers[0].volumeMounts}{"\n"}'
+  kubectl -n starfleet get configmaps
+else
+  printf "Select this module's private kubeconfig before continuing.\n" >&2
+fi
+```
+
+Inspect the actual environment and mounts. The baseline has no settings mount until the practice creates one, so a missing greeting file does not indicate failed ConfigMap propagation. A later response comparison must use the intended caller and path. These commands read declared inputs without dumping confidential values or changing the consumer.
+
+You can now diagnose stale or unexpected settings through the actual consumer contract. Verify adoption using the original operation, rather than assuming a successful configuration write repaired request behavior.
 
 ## Common pitfalls
 

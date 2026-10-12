@@ -9,6 +9,10 @@ One ConfigMap is consumed through an environment reference and a projected volum
 
 Use the module playground and its private kubeconfig. The context check below prevents commands from being directed at an unrelated cluster. The helper retries a command for a bounded interval after controller or policy changes; it cannot turn a persistent failure into success. Read the actual errors when the interval expires.
 
+The application reads its mounted greeting before the environment greeting when the file exists. That precedence is implemented by the process. Updating an unrelated ConfigMap cannot change it, and changing a stored environment source cannot rewrite an existing process environment.
+
+Read the references and the delivered path before interpreting the response. Mounted-file propagation and application adoption are separate events. The practice deliberately compares these delivery paths so the correction is tied to the consumer's behavior rather than merely to the newest object value.
+
 <!-- astrona:playground:renew -->
 
 For a timed catalog session, renew this module before continuing. Skip renewal for an untimed local author run:

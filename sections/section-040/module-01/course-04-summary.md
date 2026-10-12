@@ -9,4 +9,6 @@ Configuration delivery connects declared objects and keys to the application’s
 
 A correctly stored value can still be unsuitable for the application’s expected format or dependency. Object changes do not universally create workload revisions, so the intended reload or replacement behavior must be explicit.
 
+Effective configuration follows object references, delivery semantics and application precedence. Verification must establish consumer adoption, because a successful stored update does not by itself change a running process.
+
 <!-- astrona:playground:destroy -->

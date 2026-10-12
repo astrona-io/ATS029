@@ -5,7 +5,7 @@ exam_objectives:
 ---
 # ConfigMaps And Application Configuration Delivery
 
-This module connects intended application behavior to declared resources and observed conditions.
+A ConfigMap changes, but the running process keeps its startup environment value. The object was updated successfully; adoption did not occur through that delivery method. Configuration maintenance needs both delivery and consumption to be explained.
 
 ## Learning Goals
 
