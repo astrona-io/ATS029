@@ -1,0 +1,275 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+  labels:
+    project: ckad
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: outpost
+  labels:
+    project: outpost
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: probe-code
+  namespace: starfleet
+data:
+  server.py: "from http.server import BaseHTTPRequestHandler, HTTPServer\nfrom pathlib import Path\nimport\
+    \ os\nimport socket\n\nclass Handler(BaseHTTPRequestHandler):\n    def do_GET(self):\n        marker\
+    \ = {\"/ready\": \"/tmp/not-ready\", \"/health\": \"/tmp/unhealthy\"}.get(self.path)\n        status\
+    \ = 503 if marker and Path(marker).exists() else 200\n        settings = Path(\"/settings/greeting\"\
+    )\n        greeting = settings.read_text().strip() if settings.exists() else os.getenv(\"GREETING\"\
+    , \"hello\")\n        body = f\"version={os.getenv('VERSION', 'v1')} host={socket.gethostname()} greeting={greeting}\\\
+    n\"\n        self.send_response(status)\n        self.send_header(\"Content-Type\", \"text/plain\"\
+    )\n        self.end_headers()\n        self.wfile.write(body.encode())\n\nHTTPServer((\"0.0.0.0\"\
+    , 8080), Handler).serve_forever()\n"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: probe
+  namespace: starfleet
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: probe
+      release: probe
+  template:
+    metadata:
+      labels:
+        app: probe
+        release: probe
+    spec:
+      containers:
+      - name: probe
+        image: docker.io/library/python:3.13-alpine
+        command:
+        - python
+        - /app/server.py
+        env:
+        - name: VERSION
+          value: v1
+        ports:
+        - name: http
+          containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          periodSeconds: 2
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+        volumeMounts:
+        - name: app
+          mountPath: /app
+          readOnly: true
+      volumes:
+      - name: app
+        configMap:
+          name: probe-code
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: probe
+  namespace: starfleet
+spec:
+  selector:
+    app: probe
+    release: probe
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: shuttle
+  namespace: starfleet
+  labels:
+    app: shuttle
+spec:
+  containers:
+  - name: client
+    image: docker.io/library/busybox:1.37.0
+    command:
+    - sh
+    - -c
+    - sleep 3600
+  restartPolicy: Never
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: drifter
+  namespace: outpost
+  labels:
+    app: drifter
+spec:
+  containers:
+  - name: client
+    image: docker.io/library/busybox:1.37.0
+    command:
+    - sh
+    - -c
+    - sleep 3600
+  restartPolicy: Never
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: probesettings.training.astrona.io
+spec:
+  group: training.astrona.io
+  scope: Namespaced
+  names:
+    plural: probesettings
+    singular: probesetting
+    kind: ProbeSetting
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    subresources:
+      status: {}
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            required:
+            - message
+            properties:
+              message:
+                type: string
+          status:
+            type: object
+            properties:
+              ready:
+                type: boolean
+              observedGeneration:
+                type: integer
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: settings-controller-code
+  namespace: starfleet
+data:
+  controller.py: "from pathlib import Path\nimport json, ssl, time, urllib.request, urllib.error\nroot\
+    \ = Path('/var/run/secrets/kubernetes.io/serviceaccount')\ncontext = ssl.create_default_context(cafile=str(root\
+    \ / 'ca.crt'))\nbase = 'https://kubernetes.default.svc'\ndef request(path, method='GET', data=None):\n\
+    \    token = (root / 'token').read_text()\n    headers = {'Authorization': 'Bearer ' + token, 'Content-Type':\
+    \ 'application/json'}\n    body = None if data is None else json.dumps(data).encode()\n    req = urllib.request.Request(base\
+    \ + path, data=body, method=method, headers=headers)\n    with urllib.request.urlopen(req, context=context,\
+    \ timeout=10) as response:\n        return json.load(response)\nwhile True:\n    try:\n        prefix\
+    \ = '/apis/training.astrona.io/v1/namespaces/starfleet/probesettings'\n        for item in request(prefix)['items']:\n\
+    \            name = item['metadata']['name']\n            message = item['spec']['message']\n    \
+    \        target = '/api/v1/namespaces/starfleet/configmaps'\n            cm = {'apiVersion': 'v1',\
+    \ 'kind': 'ConfigMap', 'metadata': {'name': 'settings-' + name}, 'data': {'message': message}}\n \
+    \           try:\n                old = request(target + '/settings-' + name)\n                if\
+    \ old.get('data') != cm['data']:\n                    cm['metadata']['resourceVersion'] = old['metadata']['resourceVersion']\n\
+    \                    request(target + '/settings-' + name, 'PUT', cm)\n            except urllib.error.HTTPError\
+    \ as error:\n                if error.code != 404:\n                    raise\n                request(target,\
+    \ 'POST', cm)\n            generation = item['metadata'].get('generation', 1)\n            desired\
+    \ = {'ready': True, 'observedGeneration': generation}\n            if item.get('status') != desired:\n\
+    \                item['status'] = desired\n                request(prefix + '/' + name + '/status',\
+    \ 'PUT', item)\n                print('reconciled ' + name + ' generation ' + str(generation), flush=True)\n\
+    \    except Exception as error:\n        print('reconciliation failed: ' + type(error).__name__, flush=True)\n\
+    \    time.sleep(2)\n"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: settings-controller
+  namespace: starfleet
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: settings-controller
+  namespace: starfleet
+rules:
+- apiGroups:
+  - training.astrona.io
+  resources:
+  - probesettings
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - training.astrona.io
+  resources:
+  - probesettings/status
+  verbs:
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - create
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: settings-controller
+  namespace: starfleet
+subjects:
+- kind: ServiceAccount
+  name: settings-controller
+  namespace: starfleet
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: settings-controller
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: settings-controller
+  namespace: starfleet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: settings-controller
+  template:
+    metadata:
+      labels:
+        app: settings-controller
+    spec:
+      serviceAccountName: settings-controller
+      containers:
+      - name: controller
+        image: docker.io/library/python:3.13-alpine
+        command:
+        - python
+        - /app/controller.py
+        volumeMounts:
+        - name: code
+          mountPath: /app
+          readOnly: true
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+      volumes:
+      - name: code
+        configMap:
+          name: settings-controller-code

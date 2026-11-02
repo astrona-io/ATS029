@@ -1,0 +1,245 @@
+version: 1
+approval: CKAD playgrounds and guided practice requested 2026-10-12; no new graded labs.
+course:
+  id: ATS029
+  certification:
+    name: Certified Kubernetes Application Developer
+    code: CKAD
+    provider: CNCF / Linux Foundation
+    domain: Application Environment, Configuration and Security
+    weight: 25
+    competencies:
+    - Discover and use resources that extend Kubernetes (CRD, Operators)
+    - Understand authentication, authorization and admission control
+    - Understand requests, limits, quotas
+    - Understand ConfigMaps
+    - Define resource requirements
+    - Create & consume Secrets
+    - Understand ServiceAccounts
+    - Understand Application Security (SecurityContexts, Capabilities, etc.)
+defaults:
+  playground: true
+  module_lab: false
+  capstone: false
+  section_quiz: true
+  final_quiz: true
+assessment_format: YAML question banks, schema version 1; indexed in assessments/index.yaml
+sections:
+- id: section-010
+  title: Discover and use resources that extend Kubernetes (CRD, Operators)
+  curriculum_item: Discover and use resources that extend Kubernetes (CRD, Operators)
+  capstone: false
+  section_quiz: true
+  modules:
+  - id: module-01
+    title: Custom Types And Application Reconciliation
+    objectives:
+    - Distinguish type registration from controller behavior.
+    - Read scope, versions and schema of a custom type.
+    - Interpret desired fields and controller observations.
+    - Explain prerequisite, permission and finalizer failures.
+    outline:
+    - Custom Resources And Operators
+    - Reading A Custom Resource And Its Controller Contract
+    - Create A Custom Resource And Observe Its Controller
+    playground: true
+    module_lab: false
+    sources:
+    - reading: sections/section-010/module-01/course-01-custom-resources-and-operators.md
+      adapted_from: ATS037/sections/section-020/module-03/course-02-custom-resources-and-operators.md
+    - reading: sections/section-010/module-01/course-02-reading-a-custom-resource-and-its-controller-contract.md
+      adapted_from: null
+    - reading: sections/section-010/module-01/course-03-guided-practice.md
+      adapted_from: null
+    practice_readings:
+    - sections/section-010/module-01/course-03-guided-practice.md
+- id: section-020
+  title: Understand authentication, authorization and admission control
+  curriculum_item: Understand authentication, authorization and admission control
+  capstone: false
+  section_quiz: true
+  modules:
+  - id: module-01
+    title: Identity And API Access Decisions
+    objectives:
+    - Distinguish authentication, authorization and admission.
+    - Explain workload identity in API requests.
+    - Evaluate role scope and additive grants.
+    - Diagnose denial at the correct access-control stage.
+    outline:
+    - API Request Checks And Workload Identity
+    - RBAC Grants And Their Consequences
+    - Grant One Namespace Permission And Verify A Denial
+    playground: true
+    module_lab: false
+    sources:
+    - reading: sections/section-020/module-01/course-01-api-request-checks-and-workload-identity.md
+      adapted_from: ATS038/sections/section-020/module-01/course-01-api-request-checks-and-workload-identity.md
+    - reading: sections/section-020/module-01/course-02-rbac-grants-and-their-consequences.md
+      adapted_from: ATS043/sections/section-040/module-01/course-01-rbac-grants-and-their-consequences.md
+    - reading: sections/section-020/module-01/course-03-guided-practice.md
+      adapted_from: null
+    practice_readings:
+    - sections/section-020/module-01/course-03-guided-practice.md
+- id: section-030
+  title: Understand requests, limits, quotas
+  curriculum_item: Understand requests, limits, quotas
+  capstone: false
+  section_quiz: true
+  modules:
+  - id: module-01
+    title: Allocation, Enforcement And Namespace Policy
+    objectives:
+    - Distinguish resource requests from usage and limits.
+    - Explain CPU and memory enforcement differences.
+    - Identify defaults and quota admission effects.
+    - Diagnose allocation policy separately from placement.
+    outline:
+    - Requests, Limits And Namespace Budgets
+    - Observe Quota Rejection And Resource Accounting
+    playground: true
+    module_lab: false
+    sources:
+    - reading: sections/section-030/module-01/course-01-requests-limits-and-namespace-budgets.md
+      adapted_from: ATS037/sections/section-020/module-02/course-02-requests-limits-and-namespace-budgets.md
+    - reading: sections/section-030/module-01/course-02-guided-practice.md
+      adapted_from: null
+    practice_readings:
+    - sections/section-030/module-01/course-02-guided-practice.md
+- id: section-040
+  title: Understand ConfigMaps
+  curriculum_item: Understand ConfigMaps
+  capstone: false
+  section_quiz: true
+  modules:
+  - id: module-01
+    title: ConfigMaps And Application Configuration Delivery
+    objectives:
+    - Choose ConfigMap delivery through files or environment.
+    - Explain namespace and key references.
+    - Distinguish object updates from process configuration reload.
+    - Diagnose missing or incompatible application configuration.
+    outline:
+    - ConfigMaps, Secrets And Configuration Delivery
+    - Configuration, Dependencies And Request Failures
+    - Compare Environment And Mounted ConfigMap Updates
+    playground: true
+    module_lab: false
+    sources:
+    - reading: sections/section-040/module-01/course-01-configmaps-secrets-and-configuration-delivery.md
+      adapted_from: ATS037/sections/section-020/module-02/course-01-configmaps-secrets-and-configuration-delivery.md
+    - reading: sections/section-040/module-01/course-02-configuration-dependencies-and-request-failures.md
+      adapted_from: ATS039/sections/section-020/module-01/course-02-configuration-dependencies-and-request-failures.md
+    - reading: sections/section-040/module-01/course-03-guided-practice.md
+      adapted_from: null
+    practice_readings:
+    - sections/section-040/module-01/course-03-guided-practice.md
+- id: section-050
+  title: Define resource requirements
+  curriculum_item: Define resource requirements
+  capstone: false
+  section_quiz: true
+  modules:
+  - id: module-01
+    title: Complete Container Resource Requirements
+    objectives:
+    - Interpret CPU and memory quantities correctly.
+    - Account for helpers and initialization lifecycle.
+    - Explain admitted defaults and complete Pod needs.
+    - Distinguish scheduling, throttling and memory termination.
+    outline:
+    - Expressing Resource Needs For Every Container
+    - Declare Resources For Every Ordinary Container
+    playground: true
+    module_lab: false
+    sources:
+    - reading: sections/section-050/module-01/course-01-expressing-resource-needs-for-every-container.md
+      adapted_from: null
+    - reading: sections/section-050/module-01/course-02-guided-practice.md
+      adapted_from: null
+    practice_readings:
+    - sections/section-050/module-01/course-02-guided-practice.md
+- id: section-060
+  title: Create & consume Secrets
+  curriculum_item: Create & consume Secrets
+  capstone: false
+  section_quiz: true
+  modules:
+  - id: module-01
+    title: Secret Consumption And Confidentiality Limits
+    objectives:
+    - Distinguish Secret representation from encryption.
+    - Choose mounted or environment-based Secret consumption.
+    - Explain namespace, workload and registry credential relationships.
+    - Evaluate who can observe or indirectly obtain confidential data.
+    outline:
+    - Secret Storage, Delivery And Rotation
+    - Credentials And Image Supply Chains
+    - Consume A Disposable Secret Without Printing Its Value
+    playground: true
+    module_lab: false
+    sources:
+    - reading: sections/section-060/module-01/course-01-secret-storage-delivery-and-rotation.md
+      adapted_from: ATS043/sections/section-050/module-01/course-01-secret-storage-delivery-and-rotation.md
+    - reading: sections/section-060/module-01/course-02-credentials-and-image-supply-chains.md
+      adapted_from: ATS038/sections/section-020/module-02/course-02-credentials-and-image-supply-chains.md
+    - reading: sections/section-060/module-01/course-03-guided-practice.md
+      adapted_from: null
+    practice_readings:
+    - sections/section-060/module-01/course-03-guided-practice.md
+- id: section-070
+  title: Understand ServiceAccounts
+  curriculum_item: Understand ServiceAccounts
+  capstone: false
+  section_quiz: true
+  modules:
+  - id: module-01
+    title: ServiceAccounts And Bound Workload Credentials
+    objectives:
+    - Explain ServiceAccount identity and namespace scope.
+    - Distinguish credential delivery from permission grants.
+    - Evaluate token audience, expiry and workload use.
+    - Choose least-privilege access for an application role.
+    outline:
+    - API Identity And ServiceAccounts
+    - RBAC Scope And Least Privilege
+    - Use A Workload ServiceAccount For A Real API Request
+    playground: true
+    module_lab: false
+    sources:
+    - reading: sections/section-070/module-01/course-01-api-identity-and-serviceaccounts.md
+      adapted_from: ATS043/sections/section-030/module-01/course-01-api-identity-and-serviceaccounts.md
+    - reading: sections/section-070/module-01/course-02-rbac-scope-and-least-privilege.md
+      adapted_from: ATS038/sections/section-020/module-01/course-02-rbac-scope-and-least-privilege.md
+    - reading: sections/section-070/module-01/course-03-guided-practice.md
+      adapted_from: null
+    practice_readings:
+    - sections/section-070/module-01/course-03-guided-practice.md
+- id: section-080
+  title: Understand Application Security (SecurityContexts, Capabilities, etc.)
+  curriculum_item: Understand Application Security (SecurityContexts, Capabilities, etc.)
+  capstone: false
+  section_quiz: true
+  modules:
+  - id: module-01
+    title: Security Contexts And Application Privilege
+    objectives:
+    - Distinguish Pod and container security settings.
+    - Explain non-root identity, privilege and capabilities.
+    - Evaluate filesystem access and writable paths.
+    - Distinguish admission profile checks from runtime isolation.
+    outline:
+    - Security Contexts And Profile Requirements
+    - Security Contexts And Pod Admission
+    - Run Non-Root With A Read-Only Root Filesystem
+    playground: true
+    module_lab: false
+    sources:
+    - reading: sections/section-080/module-01/course-01-security-contexts-and-profile-requirements.md
+      adapted_from: ATS043/sections/section-010/module-01/course-01-security-contexts-and-profile-requirements.md
+    - reading: sections/section-080/module-01/course-02-security-contexts-and-pod-admission.md
+      adapted_from: ATS038/sections/section-020/module-02/course-01-security-contexts-and-pod-admission.md
+    - reading: sections/section-080/module-01/course-03-guided-practice.md
+      adapted_from: null
+    practice_readings:
+    - sections/section-080/module-01/course-03-guided-practice.md

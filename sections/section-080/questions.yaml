@@ -1,0 +1,110 @@
+schema_version: 1
+kind: question_bank
+id: ats029-section-080
+course_id: ATS029
+exam_code: CKAD
+status: draft
+provenance: Original practice material; not official examination questions.
+scope:
+  type: section
+  id: section-080
+  title: Understand Application Security (SecurityContexts, Capabilities, etc.)
+placement:
+  position: after
+  reading: sections/section-080/module-01/course-04-summary.md
+questions:
+- id: ats029-section-080-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Distinguish Pod and container security settings.
+  source_readings:
+  - sections/section-080/module-01/course-01-security-contexts-and-profile-requirements.md
+  prompt: Why review Pod-level and container-level security settings separately?
+  options:
+  - id: a
+    text: Their scope and applicable override behavior differ
+    explanation: Effective process behavior depends on which field applies to which container.
+  - id: b
+    text: They always mean identical settings for every process
+    explanation: Container-specific settings can differ.
+  - id: c
+    text: Pod-level settings configure only public DNS
+    explanation: They govern more than name resolution.
+  correct_option: a
+  explanation: Effective process behavior depends on which field applies to which container.
+- id: ats029-section-080-q02
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain non-root identity, privilege and capabilities.
+  source_readings:
+  - sections/section-080/module-01/course-01-security-contexts-and-profile-requirements.md
+  prompt: Does choosing a non-root process identity remove every privilege risk?
+  options:
+  - id: a
+    text: Yes; no other security fields are relevant
+    explanation: Additional privileges and mounts can still expose authority.
+  - id: b
+    text: Yes; it automatically validates application business permissions
+    explanation: Process identity does not implement every application authorization rule.
+  - id: c
+    text: No; capabilities and other runtime privileges still matter
+    explanation: Effective authority includes more than the numeric user identity.
+  correct_option: c
+  explanation: Effective authority includes more than the numeric user identity.
+- id: ats029-section-080-q03
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Evaluate filesystem access and writable paths.
+  source_readings:
+  - sections/section-080/module-01/course-01-security-contexts-and-profile-requirements.md
+  prompt: A required non-root identity cannot write to the application's data path. What must be reconciled?
+  options:
+  - id: a
+    text: Only the display name of the Deployment
+    explanation: Object names do not establish process filesystem permissions.
+  - id: b
+    text: The path's ownership, permissions and intended writable storage
+    explanation: Security settings and image filesystem requirements must agree.
+  - id: c
+    text: Only the Ingress hostname
+    explanation: Host routing does not grant filesystem writes.
+  correct_option: b
+  explanation: Security settings and image filesystem requirements must agree.
+- id: ats029-section-080-q04
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Distinguish admission profile checks from runtime isolation.
+  source_readings:
+  - sections/section-080/module-01/course-02-security-contexts-and-pod-admission.md
+  prompt: What does a Pod admission profile check most directly?
+  options:
+  - id: a
+    text: Whether the declaration satisfies the profile's requirements
+    explanation: Admission policy evaluates workload settings under its configured contract.
+  - id: b
+    text: Whether every report request is authorized correctly
+    explanation: Application business checks are separate.
+  - id: c
+    text: Whether all future node vulnerabilities are impossible
+    explanation: Profile acceptance is not a universal infrastructure security guarantee.
+  correct_option: a
+  explanation: Admission policy evaluates workload settings under its configured contract.
+- id: ats029-section-080-q05
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain non-root identity, privilege and capabilities.
+  source_readings:
+  - sections/section-080/module-01/course-01-security-contexts-and-profile-requirements.md
+  prompt: Why drop unnecessary Linux capabilities?
+  options:
+  - id: a
+    text: Capabilities are only decorative labels
+    explanation: They affect supported privileged operations.
+  - id: b
+    text: Dropping them automatically creates backups
+    explanation: Privilege reduction does not implement data recovery.
+  - id: c
+    text: They grant specific privileges the process may not need
+    explanation: Reducing unused privilege narrows effective authority.
+  correct_option: c
+  explanation: Reducing unused privilege narrows effective authority.
