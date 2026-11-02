@@ -39,7 +39,7 @@ modules:
   title: Discover and use resources that extend Kubernetes (CRD, Operators)
   description: Developed explanations and application reasoning for Discover and use
     resources that extend Kubernetes (CRD, Operators).
-  status: alpha
+  maturity: alpha
   content:
   - type: reading
     title: Discover and use resources that extend Kubernetes (CRD, Operators)
@@ -81,7 +81,7 @@ modules:
   title: Understand authentication, authorization and admission control
   description: Developed explanations and application reasoning for Understand authentication,
     authorization and admission control.
-  status: alpha
+  maturity: alpha
   content:
   - type: reading
     title: Understand authentication, authorization and admission control
@@ -124,7 +124,7 @@ modules:
   title: Understand requests, limits, quotas
   description: Developed explanations and application reasoning for Understand requests,
     limits, quotas.
-  status: alpha
+  maturity: alpha
   content:
   - type: reading
     title: Understand requests, limits, quotas
@@ -162,7 +162,7 @@ modules:
 - id: module-040
   title: Understand ConfigMaps
   description: Developed explanations and application reasoning for Understand ConfigMaps.
-  status: alpha
+  maturity: alpha
   content:
   - type: reading
     title: Understand ConfigMaps
@@ -204,7 +204,7 @@ modules:
   title: Define resource requirements
   description: Developed explanations and application reasoning for Define resource
     requirements.
-  status: alpha
+  maturity: alpha
   content:
   - type: reading
     title: Define resource requirements
@@ -244,7 +244,7 @@ modules:
   title: Create & consume Secrets
   description: Developed explanations and application reasoning for Create & consume
     Secrets.
-  status: alpha
+  maturity: alpha
   content:
   - type: reading
     title: Create & consume Secrets
@@ -285,7 +285,7 @@ modules:
 - id: module-070
   title: Understand ServiceAccounts
   description: Developed explanations and application reasoning for Understand ServiceAccounts.
-  status: alpha
+  maturity: alpha
   content:
   - type: reading
     title: Understand ServiceAccounts
@@ -328,7 +328,7 @@ modules:
   title: Understand Application Security (SecurityContexts, Capabilities, etc.)
   description: Developed explanations and application reasoning for Understand Application
     Security (SecurityContexts, Capabilities, etc.).
-  status: alpha
+  maturity: alpha
   content:
   - type: reading
     title: Understand Application Security (SecurityContexts, Capabilities, etc.)
