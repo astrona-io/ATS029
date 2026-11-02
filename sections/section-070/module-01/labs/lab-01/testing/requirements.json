@@ -1,0 +1,203 @@
+{
+  "context": "kind-astro-ats-029-lab-070-01-01",
+  "resources": [
+    {
+      "kind": "serviceaccount",
+      "name": "observer",
+      "expected": {
+        "apiVersion": "v1",
+        "kind": "ServiceAccount",
+        "metadata": {
+          "name": "observer",
+          "namespace": "starfleet"
+        }
+      }
+    },
+    {
+      "kind": "role",
+      "name": "observer-reader",
+      "expected": {
+        "apiVersion": "rbac.authorization.k8s.io/v1",
+        "kind": "Role",
+        "metadata": {
+          "name": "observer-reader",
+          "namespace": "starfleet"
+        },
+        "rules": [
+          {
+            "apiGroups": [
+              ""
+            ],
+            "resources": [
+              "pods"
+            ],
+            "verbs": [
+              "get",
+              "list"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "rolebinding",
+      "name": "observer-read",
+      "expected": {
+        "apiVersion": "rbac.authorization.k8s.io/v1",
+        "kind": "RoleBinding",
+        "metadata": {
+          "name": "observer-read",
+          "namespace": "starfleet"
+        },
+        "roleRef": {
+          "apiGroup": "rbac.authorization.k8s.io",
+          "kind": "Role",
+          "name": "observer-reader"
+        },
+        "subjects": [
+          {
+            "kind": "ServiceAccount",
+            "name": "observer",
+            "namespace": "starfleet"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "deployment",
+      "name": "probe",
+      "expected": {
+        "apiVersion": "apps/v1",
+        "kind": "Deployment",
+        "metadata": {
+          "name": "probe",
+          "namespace": "starfleet"
+        },
+        "spec": {
+          "replicas": 2,
+          "selector": {
+            "matchLabels": {
+              "app": "probe",
+              "release": "probe"
+            }
+          },
+          "template": {
+            "metadata": {
+              "labels": {
+                "app": "probe",
+                "release": "probe"
+              }
+            },
+            "spec": {
+              "containers": [
+                {
+                  "name": "probe",
+                  "image": "docker.io/library/python:3.13-alpine",
+                  "command": [
+                    "python",
+                    "/app/server.py"
+                  ],
+                  "env": [
+                    {
+                      "name": "VERSION",
+                      "value": "v1"
+                    }
+                  ],
+                  "ports": [
+                    {
+                      "name": "http",
+                      "containerPort": 8080
+                    }
+                  ],
+                  "readinessProbe": {
+                    "httpGet": {
+                      "path": "/ready",
+                      "port": "http"
+                    },
+                    "periodSeconds": 2
+                  },
+                  "resources": {
+                    "requests": {
+                      "cpu": "10m",
+                      "memory": "32Mi"
+                    },
+                    "limits": {
+                      "memory": "128Mi"
+                    }
+                  },
+                  "volumeMounts": [
+                    {
+                      "name": "app",
+                      "mountPath": "/app",
+                      "readOnly": true
+                    }
+                  ]
+                }
+              ],
+              "volumes": [
+                {
+                  "name": "app",
+                  "configMap": {
+                    "name": "probe-code"
+                  }
+                }
+              ],
+              "serviceAccountName": "observer"
+            }
+          }
+        }
+      },
+      "state": "deployment"
+    }
+  ],
+  "behavior": [
+    {
+      "args": [
+        "kubectl",
+        "-n",
+        "starfleet",
+        "exec",
+        "deployment/probe",
+        "--",
+        "python",
+        "-c",
+        "from pathlib import Path; import ssl,urllib.request,json; root=Path('/var/run/secrets/kubernetes.io/serviceaccount'); request=urllib.request.Request('https://kubernetes.default.svc/api/v1/namespaces/starfleet/pods',headers={'Authorization':'Bearer '+(root/'token').read_text()}); context=ssl.create_default_context(cafile=str(root/'ca.crt')); result=json.load(urllib.request.urlopen(request,context=context,timeout=5)); print(result['kind'])"
+      ],
+      "equals": "PodList"
+    },
+    {
+      "args": [
+        "kubectl",
+        "auth",
+        "can-i",
+        "get",
+        "secrets",
+        "-n",
+        "starfleet",
+        "--as=system:serviceaccount:starfleet:observer"
+      ],
+      "denied": true,
+      "failure_markers": [
+        "no"
+      ],
+      "equals": "no"
+    },
+    {
+      "args": [
+        "kubectl",
+        "auth",
+        "can-i",
+        "create",
+        "pods",
+        "-n",
+        "starfleet",
+        "--as=system:serviceaccount:starfleet:observer"
+      ],
+      "denied": true,
+      "failure_markers": [
+        "no"
+      ],
+      "equals": "no"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+apiVersion: training.astrona.io/v1
+kind: ProbeSetting
+metadata:
+  name: greeting
+  namespace: starfleet
+spec:
+  message: configured

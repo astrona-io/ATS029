@@ -1,0 +1,30 @@
+{
+  "context": "kind-astro-ats-029-lab-010-01-01",
+  "resources": [
+    {
+      "kind": "probesetting",
+      "name": "greeting",
+      "expected": {
+        "apiVersion": "training.astrona.io/v1",
+        "kind": "ProbeSetting",
+        "metadata": {
+          "name": "greeting",
+          "namespace": "starfleet"
+        },
+        "spec": {
+          "message": "configured"
+        }
+      }
+    },
+    {
+      "kind": "configmap",
+      "name": "settings-greeting",
+      "expected": {
+        "data": {
+          "message": "configured"
+        }
+      }
+    }
+  ],
+  "behavior": []
+}

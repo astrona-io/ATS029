@@ -1,0 +1,58 @@
+{
+  "context": "kind-astro-ats-029-lab-030-01-01",
+  "resources": [
+    {
+      "kind": "resourcequota",
+      "name": "practice-budget",
+      "expected": {
+        "apiVersion": "v1",
+        "kind": "ResourceQuota",
+        "metadata": {
+          "name": "practice-budget",
+          "namespace": "starfleet"
+        },
+        "spec": {
+          "hard": {
+            "pods": "5"
+          }
+        }
+      }
+    },
+    {
+      "kind": "configmap",
+      "name": "quota-plan",
+      "expected": {
+        "apiVersion": "v1",
+        "kind": "ConfigMap",
+        "metadata": {
+          "name": "quota-plan",
+          "namespace": "starfleet"
+        },
+        "data": {
+          "capacity": "5"
+        }
+      }
+    }
+  ],
+  "behavior": [
+    {
+      "args": [
+        "kubectl",
+        "-n",
+        "starfleet",
+        "exec",
+        "shuttle",
+        "--",
+        "wget",
+        "-q",
+        "-T",
+        "3",
+        "-O-",
+        "http://probe/"
+      ],
+      "contains": [
+        "version=v1"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "context": "kind-astro-ats-029-lab-060-01-01",
+  "resources": [
+    {
+      "kind": "pod",
+      "name": "secret-consumer",
+      "expected": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "metadata": {
+          "name": "secret-consumer",
+          "namespace": "starfleet"
+        },
+        "spec": {
+          "restartPolicy": "Never",
+          "containers": [
+            {
+              "name": "reader",
+              "image": "docker.io/library/busybox:1.37.0",
+              "command": [
+                "sh",
+                "-c",
+                "sleep 3600"
+              ],
+              "env": [
+                {
+                  "name": "PRACTICE_TOKEN",
+                  "valueFrom": {
+                    "secretKeyRef": {
+                      "name": "practice-token",
+                      "key": "token"
+                    }
+                  }
+                }
+              ],
+              "volumeMounts": [
+                {
+                  "name": "secret",
+                  "mountPath": "/credentials",
+                  "readOnly": true
+                }
+              ]
+            }
+          ],
+          "volumes": [
+            {
+              "name": "secret",
+              "secret": {
+                "secretName": "practice-token"
+              }
+            }
+          ]
+        }
+      },
+      "state": "pod"
+    },
+    {
+      "kind": "secret",
+      "name": "practice-token",
+      "expected": {
+        "type": "Opaque",
+        "data": {
+          "token": "ZGlzcG9zYWJsZS1leGFtcGxl"
+        }
+      }
+    }
+  ],
+  "behavior": [
+    {
+      "args": [
+        "kubectl",
+        "-n",
+        "starfleet",
+        "exec",
+        "secret-consumer",
+        "--",
+        "sh",
+        "-c",
+        "test -n \"$PRACTICE_TOKEN\" && test \"$PRACTICE_TOKEN\" = \"$(cat /credentials/token)\""
+      ]
+    }
+  ]
+}
