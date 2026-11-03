@@ -1,0 +1,105 @@
+# Starting workloads for the seccomp, host access and Pod Security Admission
+# playground. `starfleet` has no Pod Security labels. `outpost` enforces the
+# baseline level and warns at the restricted level.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: outpost
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scout
+  namespace: starfleet
+  labels:
+    app: scout
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scout
+  template:
+    metadata:
+      labels:
+        app: scout
+    spec:
+      containers:
+        - name: scout
+          image: ghcr.io/stefanprodan/podinfo:6.15.0
+          ports:
+            - name: http
+              containerPort: 9898
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shuttle
+  namespace: starfleet
+  labels:
+    app: shuttle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shuttle
+  template:
+    metadata:
+      labels:
+        app: shuttle
+    spec:
+      containers:
+        - name: shuttle
+          image: docker.io/library/busybox:1.37.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drifter
+  namespace: outpost
+  labels:
+    app: drifter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: drifter
+  template:
+    metadata:
+      labels:
+        app: drifter
+    spec:
+      containers:
+        - name: drifter
+          image: docker.io/library/busybox:1.37.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi

@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Right-Size Workloads Under A Namespace Quota (CAPSTONE LAB). Graded against the live cluster.
+# UNTESTED: authored with static checks only.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-capstone-050
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - busybox:1.37.0
+
+# Starting state: starfleet has a ResourceQuota and three faulty Deployments.
+# bridge is killed for memory, scout is refused by the quota because of its
+# sidecar, shuttle has no resources and is refused too.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the namespace, the quota and the faulty Deployments
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: bridge-memory-fixed
+      description: bridge runs without memory kills and has a sensible memory limit
+      type: file
+      source: validation/validate-bridge-memory-fixed.sh
+      hint: The process needs about 100 MiB at its peak. Use a memory limit between 192Mi and 512Mi and keep the request at or below the limit.
+    - name: scout-admitted-and-guaranteed
+      description: scout Pods exist, are Ready and have the Guaranteed class
+      type: file
+      source: validation/validate-scout-admitted-and-guaranteed.sh
+      hint: Read the ReplicaSet events. The effective request of the Pod includes the sidecar. Lower the sidecar, and give every container including the init container equal requests and limits.
+    - name: shuttle-uses-defaults
+      description: shuttle gets its values from a LimitRange named starfleet-defaults
+      type: file
+      source: validation/validate-shuttle-uses-defaults.sh
+      hint: Create the LimitRange with the defaults from the task and restart shuttle. Do not write resources into the shuttle Deployment.
+    - name: quota-unchanged
+      description: The quota keeps its values and the namespace stays inside it
+      type: file
+      source: validation/validate-quota-unchanged.sh
+      hint: Do not raise or delete starfleet-quota. Right-size the workloads to fit it.
+    - name: no-besteffort-and-images
+      description: No Pod is BestEffort and the images and sidecar are unchanged
+      type: file
+      source: validation/validate-no-besteffort-and-images.sh
+      hint: Change only resources and add the LimitRange. Keep the log-shipper sidecar in the scout Pod.
+
+teardown:
+  keepCluster: false

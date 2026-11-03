@@ -1,0 +1,17 @@
+# Starting state for the "Creating ConfigMaps" lab: the starfleet namespace and
+# a probe-settings ConfigMap with an old LOG_LEVEL value and a probe.conf key.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: probe-settings
+  namespace: starfleet
+data:
+  LOG_LEVEL: trace
+  probe.conf: |
+    interval=10
+    timeout=2

@@ -1,0 +1,66 @@
+# Starting state for the Secret consumption lab: the probe Deployment keeps its
+# database password as a plain value in the pod template. The Secrets exist and
+# nothing uses them yet. The auditor service account has no permissions.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: probe
+  namespace: starfleet
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: auditor
+  namespace: starfleet
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: probe-credentials
+  namespace: starfleet
+type: Opaque
+stringData:
+  username: probe-operator
+  password: Plain-3030
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: probe-certificate
+  namespace: starfleet
+type: Opaque
+stringData:
+  tls.crt: placeholder-certificate-for-the-lab
+  tls.key: placeholder-key-for-the-lab
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: probe
+  namespace: starfleet
+  labels:
+    app: probe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: probe
+  template:
+    metadata:
+      labels:
+        app: probe
+    spec:
+      serviceAccountName: probe
+      terminationGracePeriodSeconds: 1
+      containers:
+        - name: probe
+          image: busybox:1.37.0
+          command: ["sh", "-c", "sleep 3600"]
+          env:
+            - name: DB_PASSWORD
+              value: Plain-3030

@@ -1,0 +1,123 @@
+# scout runs. bridge is killed for memory (limit 32Mi, needs about 100 MiB).
+# shuttle stays Pending (cpu "50" is fifty cores). drifter runs in outpost.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scout
+  namespace: starfleet
+  labels:
+    app: scout
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scout
+  template:
+    metadata:
+      labels:
+        app: scout
+    spec:
+      containers:
+        - name: scout
+          image: ghcr.io/stefanprodan/podinfo:6.15.0
+          ports:
+            - name: http
+              containerPort: 9898
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bridge
+  namespace: starfleet
+  labels:
+    app: bridge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bridge
+  template:
+    metadata:
+      labels:
+        app: bridge
+    spec:
+      containers:
+        - name: bridge
+          image: busybox:1.37.0
+          command: ["sh", "-c", "head -c 40000000 /dev/zero | tail > /dev/null; sleep 3600"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 32Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shuttle
+  namespace: starfleet
+  labels:
+    app: shuttle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shuttle
+  template:
+    metadata:
+      labels:
+        app: shuttle
+    spec:
+      containers:
+        - name: shuttle
+          image: busybox:1.37.0
+          command: ["sh", "-c", "sleep 3600"]
+          resources:
+            requests:
+              cpu: "50"
+              memory: 32Mi
+            limits:
+              cpu: "50"
+              memory: 64Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drifter
+  namespace: outpost
+  labels:
+    app: drifter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: drifter
+  template:
+    metadata:
+      labels:
+        app: drifter
+    spec:
+      containers:
+        - name: drifter
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi

@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Requests, Limits And Quality Of Service (PLAYGROUND) — playground environment.
+# A clean sandbox: it starts three Deployments with three different resource
+# settings, then stays running for free exploration. No task, no grading, no
+# `astrona submit`.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-playground-050-02
+  docs:
+    guide: docs/overview.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - mccutchen/go-httpbin:2.25.0
+      - curlimages/curl:8.22.0
+      - busybox:1.37.0
+
+# What the learner starts with: scout (Guaranteed), probe (Burstable) and
+# shuttle (BestEffort) in the starfleet namespace.
+bootstrap:
+  manifests:
+    - name: starfleet
+      type: file
+      source: manifests/starfleet.yaml
+  waitFor:
+    - resource: deploy/scout
+      namespace: starfleet
+    - resource: deploy/probe
+      namespace: starfleet
+    - resource: deploy/shuttle
+      namespace: starfleet
+
+teardown:
+  keepCluster: false

@@ -1,0 +1,303 @@
+# Knowledge check for section 040. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats029-040
+course_id: ATS029
+exam_code: CKAD
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-040
+  title: "Understand ConfigMaps"
+questions:
+  - id: ats029-040-q01
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Choose the kubectl create configmap source flag that produces the wanted keys"
+    source_readings:
+      - sections/section-040/module-02/course-01-creating-configmaps-from-sources.md
+    prompt: |-
+      A file `scout.env` has a comment line, an empty line and the lines `MODE=fast` and `RETRIES=3`. You need a ConfigMap with exactly the keys `MODE` and `RETRIES`. Which command does that?
+    options:
+      - id: a
+        text: "`kubectl create configmap scout-env --from-file=scout.env`"
+        explanation: "This option creates one key named `scout.env` that holds the whole file."
+      - id: b
+        text: "`kubectl create configmap scout-env --from-literal=scout.env`"
+        explanation: "This option is not a valid literal, because a literal needs the form `key=value`, and it would not read the file."
+      - id: c
+        text: "`kubectl create configmap scout-env --from-env-file=scout.env`"
+        explanation: "Correct. `--from-env-file` creates one key for each `NAME=value` line and skips comment lines and empty lines."
+      - id: d
+        text: "`kubectl create configmap scout-env --from-file=MODE=scout.env`"
+        explanation: "This option stores the whole file under the single key `MODE`."
+    correct_option: c
+    explanation: "Correct. `--from-env-file` creates one key for each `NAME=value` line and skips comment lines and empty lines."
+
+  - id: ats029-040-q02
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Predict the keys that a directory source produces"
+    source_readings:
+      - sections/section-040/module-02/course-01-creating-configmaps-from-sources.md
+    prompt: |-
+      The directory `conf.d` holds the files `banner.txt` and `limits.conf`, and a subdirectory `extra` with the file `more.conf`. You run `kubectl create configmap scout-dir --from-file=conf.d`. Which keys does the ConfigMap have?
+    options:
+      - id: a
+        text: "`banner.txt` and `limits.conf` only."
+        explanation: "Correct. kubectl creates one key for every regular file directly inside the directory. It does not enter subdirectories."
+      - id: b
+        text: "`banner.txt`, `limits.conf` and `extra/more.conf`."
+        explanation: "This option is wrong, because a key cannot contain a slash and kubectl does not enter subdirectories."
+      - id: c
+        text: "`conf.d`, with all file contents joined into one value."
+        explanation: "This option is wrong, because the directory name is never a key."
+      - id: d
+        text: "`banner.txt`, `limits.conf` and `more.conf`."
+        explanation: "This option is wrong, because kubectl skips the subdirectory and the files in it."
+    correct_option: a
+    explanation: "Correct. kubectl creates one key for every regular file directly inside the directory. It does not enter subdirectories."
+
+  - id: ats029-040-q03
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain where binary content is stored and which rules apply to keys"
+    source_readings:
+      - sections/section-040/module-02/course-02-data-binarydata-limits-and-immutability.md
+    prompt: |-
+      You create a ConfigMap with `--from-file=blob.bin`, and the file holds random bytes that are not valid UTF-8. What does the API server store?
+    options:
+      - id: a
+        text: "The command fails, because a ConfigMap can only hold text."
+        explanation: "This option is wrong. A ConfigMap can hold bytes in the `binaryData` field."
+      - id: b
+        text: "The bytes appear in `data` as escaped text."
+        explanation: "This option is wrong. The `data` field only holds valid UTF-8 text."
+      - id: c
+        text: "The bytes go to `data`, and a copy goes to `binaryData`."
+        explanation: "This option is wrong. One key lives in one field, and the same key cannot exist in both."
+      - id: d
+        text: "The key goes to `binaryData` with a base64 value, and a key name must be unique across `data` and `binaryData`."
+        explanation: "Correct. kubectl puts files that are not valid UTF-8 into `binaryData` as base64, and a pod that mounts the ConfigMap still receives the original bytes."
+    correct_option: d
+    explanation: "Correct. kubectl puts files that are not valid UTF-8 into `binaryData` as base64, and a pod that mounts the ConfigMap still receives the original bytes."
+
+  - id: ats029-040-q04
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Change the content of an immutable ConfigMap safely"
+    source_readings:
+      - sections/section-040/module-02/course-02-data-binarydata-limits-and-immutability.md
+      - sections/section-040/module-03/course-03-projected-volumes-and-rollouts-on-change.md
+    prompt: |-
+      The ConfigMap `probe-locked` has `immutable: true`, and a Deployment uses it. The `LOG_LEVEL` value must change. Which approach works?
+    options:
+      - id: a
+        text: "Run `kubectl patch` to set `immutable: false`, then change the value."
+        explanation: "This option is wrong. You cannot set `immutable` back to `false`."
+      - id: b
+        text: "Create a new ConfigMap with a new name, for example `probe-locked-v2`, and point the Deployment at it so that a rollout replaces the pods."
+        explanation: "Correct. The content of an immutable ConfigMap never changes. A new name changes the pod template, which starts a rollout, and the old object stays for a rollback."
+      - id: c
+        text: "Run `kubectl edit configmap probe-locked` and change the value, because the kubelet updates immutable ConfigMaps."
+        explanation: "This option is wrong. The API server refuses the edit, and the kubelet does not watch immutable ConfigMaps."
+      - id: d
+        text: "Add `optional: true` to the volume so that the new value is accepted."
+        explanation: "This option is wrong. The `optional` field only decides what happens when the object is missing."
+    correct_option: b
+    explanation: "Correct. The content of an immutable ConfigMap never changes. A new name changes the pod template, which starts a rollout, and the old object stays for a rollback."
+
+  - id: ats029-040-q05
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Use replace and patch correctly on an existing ConfigMap"
+    source_readings:
+      - sections/section-040/module-02/course-02-data-binarydata-limits-and-immutability.md
+    prompt: |-
+      The ConfigMap `probe-settings` has the keys `LOG_LEVEL` and `probe.conf`. A teammate runs `kubectl replace -f settings.yaml`, and the file contains only `LOG_LEVEL`. What is the result?
+    options:
+      - id: a
+        text: "The object has only `LOG_LEVEL`, because `replace` swaps the whole object and drops keys that are not in the file."
+        explanation: "Correct. `kubectl replace` swaps the complete object. Use `kubectl patch`, `kubectl edit` or `kubectl apply` to change single keys."
+      - id: b
+        text: "The object keeps `probe.conf`, because `replace` merges keys."
+        explanation: "This option describes `kubectl patch` and `kubectl apply`, not `replace`."
+      - id: c
+        text: "The command fails with `AlreadyExists`."
+        explanation: "This error comes from `kubectl create` on an existing name, not from `replace`."
+      - id: d
+        text: "The object becomes immutable, because the file has fewer keys."
+        explanation: "This option is wrong. Immutability only changes when the field `immutable: true` is set."
+    correct_option: a
+    explanation: "Correct. `kubectl replace` swaps the complete object. Use `kubectl patch`, `kubectl edit` or `kubectl apply` to change single keys."
+
+  - id: ats029-040-q06
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Predict what envFrom does with keys that are not valid variable names"
+    source_readings:
+      - sections/section-040/module-03/course-01-configmap-values-as-environment-variables.md
+    prompt: |-
+      A pod uses `envFrom` with the ConfigMap `scout-settings`, which has the keys `LOG_LEVEL`, `REGION` and `app.properties`. What happens?
+    options:
+      - id: a
+        text: "The pod stays in `CreateContainerConfigError`, because `app.properties` is not a valid variable name."
+        explanation: "This option is wrong. With `envFrom` an invalid key is skipped and does not block the pod."
+      - id: b
+        text: "The pod starts and the variable `app_properties` is created from the key."
+        explanation: "This option is wrong. The kubelet never renames keys."
+      - id: c
+        text: "The pod starts with `LOG_LEVEL` and `REGION`. The kubelet skips `app.properties` and records an `InvalidEnvironmentVariableNames` event."
+        explanation: "Correct. A variable name may only contain letters, digits and underscores. An invalid key is skipped and the event shows it."
+      - id: d
+        text: "The pod starts and all three keys become variables, because the kubelet accepts dots."
+        explanation: "This option is wrong. A dot is not valid in a variable name."
+    correct_option: c
+    explanation: "Correct. A variable name may only contain letters, digits and underscores. An invalid key is skipped and the event shows it."
+
+  - id: ats029-040-q07
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Diagnose CreateContainerConfigError for a missing ConfigMap key"
+    source_readings:
+      - sections/section-040/module-03/course-01-configmap-values-as-environment-variables.md
+    prompt: |-
+      A pod uses `configMapKeyRef` with the key `LOG_LEVELL`, which has a typing mistake and does not exist in the ConfigMap. The pod status is `CreateContainerConfigError`. What is the right fix?
+    options:
+      - id: a
+        text: "Delete the node so that the pod moves."
+        explanation: "This option is wrong. The error comes from the missing key, not from the node."
+      - id: b
+        text: "Correct the key name to `LOG_LEVEL`. Alternatively set `optional: true` only if the application has a safe default."
+        explanation: "Correct. The kubelet cannot create the container without the key. Read the pod events to see which key is missing."
+      - id: c
+        text: "Add `imagePullPolicy: Always` to the container."
+        explanation: "This option is wrong. The image is not the problem."
+      - id: d
+        text: "Mount the ConfigMap as a volume, because variables cannot come from a ConfigMap."
+        explanation: "This option is wrong. Variables can come from a ConfigMap with `configMapKeyRef` and `envFrom`."
+    correct_option: b
+    explanation: "Correct. The kubelet cannot create the container without the key. Read the pod events to see which key is missing."
+
+  - id: ats029-040-q08
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Explain which delivery methods receive ConfigMap updates"
+    source_readings:
+      - sections/section-040/module-03/course-02-configmap-volumes-file-modes-and-update-propagation.md
+      - sections/section-040/module-01/course-01-configmaps-secrets-and-configuration-delivery.md
+    prompt: |-
+      A ConfigMap changes. Which statement about the running containers is correct?
+    options:
+      - id: a
+        text: "Environment variables update at once, because the kubelet rewrites them."
+        explanation: "This option is wrong. A process cannot change its environment from outside, and the kubelet reads the values once at container start."
+      - id: b
+        text: "Every volume mount updates at once, including `subPath` mounts."
+        explanation: "This option is wrong. A `subPath` mount bypasses the symbolic link that the kubelet updates."
+      - id: c
+        text: "Environment variables update after the kubelet sync, and files never update."
+        explanation: "This option reverses the facts. Variables stay fixed and a plain volume can update."
+      - id: d
+        text: "Files in a plain ConfigMap volume update after a delay, while environment variables and `subPath` mounts never update."
+        explanation: "Correct. The kubelet updates a plain volume after its sync period and cache delay, and the application must read the file again."
+    correct_option: d
+    explanation: "Correct. The kubelet updates a plain volume after its sync period and cache delay, and the application must read the file again."
+
+  - id: ats029-040-q09
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Select keys and set a file mode with a ConfigMap volume"
+    source_readings:
+      - sections/section-040/module-03/course-02-configmap-volumes-file-modes-and-update-propagation.md
+    prompt: |-
+      The container must see only the key `app.properties` as `/etc/scout/probe.conf`, readable only by its owner. Which volume definition does that?
+    options:
+      - id: a
+        text: "A `configMap` volume with `items: [{key: app.properties, path: probe.conf, mode: 0400}]`, mounted at `/etc/scout`."
+        explanation: "Correct. `items` selects the key and renames it with `path`, and `mode` sets the permissions. The leading zero makes the number octal."
+      - id: b
+        text: "A `configMap` volume with `defaultMode: 400` and no `items`."
+        explanation: "This option is wrong. Without `items` all keys appear, and `400` without the leading zero is a different decimal number."
+      - id: c
+        text: "A `configMap` volume with `items` and `subPath: probe.conf`, which makes the file read-only."
+        explanation: "This option is wrong. `subPath` belongs to the `volumeMount`, and it does not set permissions."
+      - id: d
+        text: "An `envFrom` entry with `prefix: probe.conf`."
+        explanation: "This option is wrong. `envFrom` creates variables, not files."
+    correct_option: a
+    explanation: "Correct. `items` selects the key and renames it with `path`, and `mode` sets the permissions. The leading zero makes the number octal."
+
+  - id: ats029-040-q10
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain why editing a ConfigMap does not start a rollout and how to start one"
+    source_readings:
+      - sections/section-040/module-03/course-03-projected-volumes-and-rollouts-on-change.md
+    prompt: |-
+      A Deployment reads `LOG_LEVEL` through `envFrom`. You edit the ConfigMap, but the pods still show the old value. Which action makes the pods use the new value?
+    options:
+      - id: a
+        text: "Wait, because the kubelet rewrites the environment after one minute."
+        explanation: "This option is wrong. Environment variables never update in a running container."
+      - id: b
+        text: "Run `kubectl rollout restart deployment/NAME`, because the pod template does not change when a ConfigMap changes and new pods read the ConfigMap again."
+        explanation: "Correct. A rollout starts only when the pod template changes. The restart command adds an annotation to the template, and the new pods read the new value."
+      - id: c
+        text: "Run `kubectl scale` to zero and back with `--force`, because it is the only method."
+        explanation: "This option is wrong. Scaling works but is not the only method, and `--force` is not part of it."
+      - id: d
+        text: "Add `subPath` to the container so that the variable updates."
+        explanation: "This option is wrong. `subPath` is a volume option and has no effect on variables."
+    correct_option: b
+    explanation: "Correct. A rollout starts only when the pod template changes. The restart command adds an annotation to the template, and the new pods read the new value."
+
+  - id: ats029-040-q11
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Merge several sources in one directory with a projected volume"
+    source_readings:
+      - sections/section-040/module-03/course-03-projected-volumes-and-rollouts-on-change.md
+    prompt: |-
+      An application needs the file `app.properties` from one ConfigMap, `limits.conf` from another and the pod's own name in one directory. Which volume type does that?
+    options:
+      - id: a
+        text: "Two `configMap` volumes mounted at the same `mountPath`."
+        explanation: "This option is wrong. Two mounts at one path conflict and the second hides the first."
+      - id: b
+        text: "A `hostPath` volume."
+        explanation: "This option is wrong. `hostPath` reads the node file system and is not a ConfigMap source."
+      - id: c
+        text: "An `emptyDir` volume with an init container that copies the files."
+        explanation: "This option is possible but it is not the purpose-built Kubernetes feature, and it adds work."
+      - id: d
+        text: "A `projected` volume with two `configMap` sources and a `downwardAPI` source."
+        explanation: "Correct. A projected volume maps several sources into one directory. The file paths must be unique."
+    correct_option: d
+    explanation: "Correct. A projected volume maps several sources into one directory. The file paths must be unique."
+
+  - id: ats029-040-q12
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Reason about configuration reload in the application"
+    source_readings:
+      - sections/section-040/module-01/course-01-configmaps-secrets-and-configuration-delivery.md
+      - sections/section-040/module-01/course-02-configuration-dependencies-and-request-failures.md
+    prompt: |-
+      A mounted ConfigMap file shows the new value inside the container, but the application still behaves as before. What is the most likely explanation?
+    options:
+      - id: a
+        text: "The ConfigMap was never updated."
+        explanation: "This option is wrong. The file inside the container already shows the new value."
+      - id: b
+        text: "The application read the file at startup and keeps the value in memory, so it needs a reload or a restart."
+        explanation: "Correct. Delivery changed the file, but adoption depends on the application. Many applications read configuration once at startup."
+      - id: c
+        text: "The kubelet cannot update files."
+        explanation: "This option is wrong. The kubelet updates files of a plain volume."
+      - id: d
+        text: "ConfigMap files are always cached by the API server."
+        explanation: "This option is wrong. The API server does not cache the files of a pod."
+    correct_option: b
+    explanation: "Correct. Delivery changed the file, but adoption depends on the application. Many applications read configuration once at startup."

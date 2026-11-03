@@ -1,0 +1,8 @@
+apiVersion: signals.astrona.io/v1
+kind: Beacon
+metadata:
+  name: scout-beacon
+  namespace: starfleet
+spec:
+  frequencyMhz: 120
+  mode: pulse

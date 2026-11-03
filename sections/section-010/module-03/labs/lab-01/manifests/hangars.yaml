@@ -1,0 +1,17 @@
+apiVersion: fleet.astrona.io/v1
+kind: Hangar
+metadata:
+  name: scout-bay
+  namespace: starfleet
+spec:
+  replicas: 2
+---
+apiVersion: fleet.astrona.io/v1
+kind: Hangar
+metadata:
+  name: old-bay
+  namespace: starfleet
+  finalizers:
+  - legacy.astrona.io/archive
+spec:
+  replicas: 1

@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Consuming ConfigMaps (PLAYGROUND) — playground environment.
+# A clean sandbox: it starts the starfleet namespace, the scout-settings ConfigMap and a viewer Deployment,
+# then stays running for free exploration. No task, no grading, no
+# `astrona submit`. UNTESTED: authored with static checks only.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-playground-040-03
+  docs:
+    guide: docs/overview.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - docker.io/library/busybox:1.37.0
+
+# What the learner starts with: the starfleet namespace, scout-settings and a viewer
+# Deployment. No ConfigMaps of their own exist yet.
+bootstrap:
+  manifests:
+    - name: starfleet
+      type: file
+      source: manifests/starfleet.yaml
+  waitFor:
+    - resource: deploy/viewer
+      namespace: starfleet
+
+teardown:
+  keepCluster: false

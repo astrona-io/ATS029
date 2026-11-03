@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# ConfigMaps Capstone: Create, Consume And Change Configuration (LAB).
+# Graded against the live cluster. UNTESTED: authored with static checks only.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-capstone-040
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - docker.io/library/busybox:1.37.0
+
+# Starting state: the scout Deployment without any configuration.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the starfleet namespace and the scout Deployment
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: versioned-immutable-configmaps
+      description: scout-config-v1 and scout-config-v2 are immutable with the right keys
+      type: file
+      source: validation/validate-configmaps.sh
+      hint: Write both ConfigMaps as YAML with immutable true. v1 has LOG_LEVEL info and v2 has LOG_LEVEL debug. Do not edit v1 into v2.
+    - name: deployment-uses-v2
+      description: The pod template uses scout-config-v2 for the variable, envFrom and the volume
+      type: file
+      source: validation/validate-deployment-references.sh
+      hint: configMapKeyRef for LOG_LEVEL, envFrom with prefix SCOUT_ and a configMap volume with items must all name scout-config-v2. Nothing may name v1 or use subPath.
+    - name: pods-have-environment
+      description: Every running pod has the new variables
+      type: file
+      source: validation/validate-pod-environment.sh
+      hint: Environment variables are read at container start. A new ConfigMap name in the template starts a rollout that replaces the pods.
+    - name: pods-have-only-scout-conf
+      description: /etc/scout holds only scout.conf with mode 440
+      type: file
+      source: validation/validate-pod-files.sh
+      hint: Use items with key scout.conf, path scout.conf and mode 0440. A mode written as 440 is a different number.
+    - name: rollout-complete
+      description: The rollout is complete with two available replicas
+      type: file
+      source: validation/validate-rollout.sh
+      hint: Wait for kubectl rollout status. Do not scale the Deployment.
+
+teardown:
+  keepCluster: false

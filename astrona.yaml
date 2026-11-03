@@ -1,3 +1,4 @@
+---
 training:
   id: ATS029
   title: 'CKAD: Application Environment, Configuration and Security'
@@ -39,7 +40,7 @@ modules:
   title: Discover and use resources that extend Kubernetes (CRD, Operators)
   description: Developed explanations and application reasoning for Discover and use
     resources that extend Kubernetes (CRD, Operators).
-  maturity: alpha
+  status: alpha
   content:
   - type: reading
     title: Discover and use resources that extend Kubernetes (CRD, Operators)
@@ -77,11 +78,125 @@ modules:
   - type: reading
     title: Summary
     path: sections/section-010/module-01/course-04-summary.md
+  - type: reading
+    title: Define A CustomResourceDefinition
+    path: sections/section-010/module-02/course.md
+  - type: reading
+    title: Writing A CustomResourceDefinition
+    path: sections/section-010/module-02/course-01-writing-a-crd.md
+  - type: reading
+    title: Validation, Defaults, Printer Columns And Status
+    path: sections/section-010/module-02/course-02-validation-defaults-and-status.md
+  - type: reading
+    title: Versions And Removing A CRD
+    path: sections/section-010/module-02/course-03-versions-and-removing-a-crd.md
+  - type: reading
+    title: Register A Beacon CustomResourceDefinition — Task
+    path: sections/section-010/module-02/labs/lab-01/question.md
+  - type: lab
+    title: Register A Beacon CustomResourceDefinition
+    path: sections/section-010/module-02/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 25m
+    topic: custom-resource-definition
+    task_kind: build
+    tags:
+    - ckad
+    - crd
+    - schema
+    - validation
+    - defaults
+    - printer-columns
+    learning_goals:
+    - Register a namespaced CustomResourceDefinition with a structural schema
+    - Enforce required fields, a numeric range and an enumeration, and set a default
+    - Add printer columns and create a custom resource that kubectl lists with them
+  - type: reading
+    title: Register A Beacon CustomResourceDefinition — Solution
+    path: sections/section-010/module-02/labs/lab-01/solution.md
+  - type: reading
+    title: Summary
+    path: sections/section-010/module-02/course-04-summary.md
+  - type: reading
+    title: Discover And Operate With Operators
+    path: sections/section-010/module-03/course.md
+  - type: reading
+    title: Discovering Custom Types And Operators
+    path: sections/section-010/module-03/course-01-discovering-custom-types-and-operators.md
+  - type: reading
+    title: Creating A Custom Resource And Reading Its Status
+    path: sections/section-010/module-03/course-02-creating-a-custom-resource-and-reading-status.md
+  - type: reading
+    title: Ownership, Garbage Collection And Finalizers
+    path: sections/section-010/module-03/course-03-ownership-and-finalizers.md
+  - type: reading
+    title: Troubleshooting A Custom Resource That Does Not Reconcile
+    path: sections/section-010/module-03/course-04-troubleshooting-a-resource-that-does-not-reconcile.md
+  - type: reading
+    title: Fix A Hangar That Does Not Reconcile — Task
+    path: sections/section-010/module-03/labs/lab-01/question.md
+  - type: lab
+    title: Fix A Hangar That Does Not Reconcile
+    path: sections/section-010/module-03/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 25m
+    topic: operators
+    task_kind: build
+    tags:
+    - ckad
+    - operator
+    - rbac
+    - owner-reference
+    - finalizer
+    - troubleshooting
+    learning_goals:
+    - Trace a custom resource that does not reconcile to a missing operator permission
+    - Fix the permission with the least privilege and confirm it with kubectl auth
+      can-i
+    - Verify the owner reference of the managed Deployment and clear a stuck finalizer
+  - type: reading
+    title: Fix A Hangar That Does Not Reconcile — Solution
+    path: sections/section-010/module-03/labs/lab-01/solution.md
+  - type: reading
+    title: Summary
+    path: sections/section-010/module-03/course-05-summary.md
+  - type: reading
+    title: Repair A Hangar API And Its Operator — Task
+    path: sections/section-010/capstone/labs/lab-01/question.md
+  - type: lab
+    title: Repair A Hangar API And Its Operator
+    path: sections/section-010/capstone/labs/lab-01
+    difficulty: advanced
+    estimated_duration: 40m
+    topic: custom-resource-definition
+    task_kind: build
+    tags:
+    - ckad
+    - crd
+    - operator
+    - status-subresource
+    - printer-columns
+    - rbac
+    - finalizer
+    learning_goals:
+    - Repair a CustomResourceDefinition with a status subresource, a status schema,
+      replica limits and printer columns
+    - Give an operator only the missing permission and confirm that it reconciles
+      a custom resource
+    - Clear a stuck finalizer without deleting the CustomResourceDefinition
+  - type: reading
+    title: Repair A Hangar API And Its Operator — Solution
+    path: sections/section-010/capstone/labs/lab-01/solution.md
+  - type: quiz
+    title: 'Knowledge Check: Discover and use resources that extend Kubernetes (CRD,
+      Operators)'
+    path: sections/section-010/quiz.yaml
+    pass_score: 70
 - id: module-020
   title: Understand authentication, authorization and admission control
   description: Developed explanations and application reasoning for Understand authentication,
     authorization and admission control.
-  maturity: alpha
+  status: alpha
   content:
   - type: reading
     title: Understand authentication, authorization and admission control
@@ -101,7 +216,7 @@ modules:
   - type: lab
     title: Grant Namespace Pod Read Access
     path: sections/section-020/module-01/labs/lab-01
-    difficulty: beginner
+    difficulty: intermediate
     estimated_duration: 20m
     topic: rbac
     task_kind: build
@@ -120,11 +235,120 @@ modules:
   - type: reading
     title: Summary
     path: sections/section-020/module-01/course-04-summary.md
+  - type: reading
+    title: Authentication, Client Certificates And kubeconfig
+    path: sections/section-020/module-02/course.md
+  - type: reading
+    title: How The API Server Authenticates A Request
+    path: sections/section-020/module-02/course-01-how-the-api-server-authenticates.md
+  - type: reading
+    title: Issue A Client Certificate With A CertificateSigningRequest
+    path: sections/section-020/module-02/course-02-issue-a-client-certificate-with-a-csr.md
+  - type: reading
+    title: kubeconfig Contexts And Access Checks
+    path: sections/section-020/module-02/course-03-kubeconfig-contexts-and-access-checks.md
+  - type: reading
+    title: Create A User With A CertificateSigningRequest — Task
+    path: sections/section-020/module-02/labs/lab-01/question.md
+  - type: lab
+    title: Create A User With A CertificateSigningRequest
+    path: sections/section-020/module-02/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 25m
+    topic: authentication
+    task_kind: build
+    tags:
+    - ckad
+    - authentication
+    - certificatesigningrequest
+    - kubeconfig
+    - auth-can-i
+    learning_goals:
+    - Issue a client certificate for a user through an approved CertificateSigningRequest
+    - Add the user and a context to the kubeconfig and verify the identity with auth
+      whoami
+    - Give the user read access to pods in one namespace and verify the denials
+  - type: reading
+    title: Create A User With A CertificateSigningRequest — Solution
+    path: sections/section-020/module-02/labs/lab-01/solution.md
+  - type: reading
+    title: Summary
+    path: sections/section-020/module-02/course-04-summary.md
+  - type: reading
+    title: 'Admission Control: Mutation, Defaults, Quotas And Policies'
+    path: sections/section-020/module-03/course.md
+  - type: reading
+    title: 'The Admission Chain: Mutating And Validating Steps'
+    path: sections/section-020/module-03/course-01-the-admission-chain-mutating-and-validating.md
+  - type: reading
+    title: LimitRange, ResourceQuota And Server-Side Dry Run
+    path: sections/section-020/module-03/course-02-limitrange-resourcequota-and-dry-run.md
+  - type: reading
+    title: Write A ValidatingAdmissionPolicy
+    path: sections/section-020/module-03/course-03-validating-admission-policy.md
+  - type: reading
+    title: Set Container Defaults And Limit Replicas With Admission — Task
+    path: sections/section-020/module-03/labs/lab-01/question.md
+  - type: lab
+    title: Set Container Defaults And Limit Replicas With Admission
+    path: sections/section-020/module-03/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 25m
+    topic: admission-control
+    task_kind: build
+    tags:
+    - ckad
+    - admission-control
+    - limitrange
+    - validatingadmissionpolicy
+    - cel
+    - dry-run
+    learning_goals:
+    - Set default container requests and limits with a LimitRange
+    - Write a ValidatingAdmissionPolicy and a binding that rejects requests in one
+      namespace
+    - Preview admission decisions with a server-side dry run
+  - type: reading
+    title: Set Container Defaults And Limit Replicas With Admission — Solution
+    path: sections/section-020/module-03/labs/lab-01/solution.md
+  - type: reading
+    title: Summary
+    path: sections/section-020/module-03/course-04-summary.md
+  - type: reading
+    title: Authentication, Authorization And Admission Capstone — Task
+    path: sections/section-020/capstone/labs/lab-01/question.md
+  - type: lab
+    title: Authentication, Authorization And Admission Capstone
+    path: sections/section-020/capstone/labs/lab-01
+    difficulty: advanced
+    estimated_duration: 40m
+    topic: access-control
+    task_kind: build
+    tags:
+    - ckad
+    - certificatesigningrequest
+    - rbac
+    - group
+    - validatingadmissionpolicy
+    - kubeconfig
+    learning_goals:
+    - Issue a certificate with a group and build a kubeconfig context for the user
+    - Grant the group narrow rights in one namespace with a Role and a RoleBinding
+    - Reject unpinned images with a ValidatingAdmissionPolicy and prove it through
+      the user context
+  - type: reading
+    title: Authentication, Authorization And Admission Capstone — Solution
+    path: sections/section-020/capstone/labs/lab-01/solution.md
+  - type: quiz
+    title: 'Knowledge Check: Understand authentication, authorization and admission
+      control'
+    path: sections/section-020/quiz.yaml
+    pass_score: 70
 - id: module-030
   title: Understand requests, limits, quotas
   description: Developed explanations and application reasoning for Understand requests,
     limits, quotas.
-  maturity: alpha
+  status: alpha
   content:
   - type: reading
     title: Understand requests, limits, quotas
@@ -159,10 +383,121 @@ modules:
   - type: reading
     title: Summary
     path: sections/section-030/module-01/course-03-summary.md
+  - type: reading
+    title: Enforce Namespace Budgets With ResourceQuota
+    path: sections/section-030/module-02/course.md
+  - type: reading
+    title: Compute Quota And Admission Rejection
+    path: sections/section-030/module-02/course-01-compute-quota-and-admission.md
+  - type: reading
+    title: Object Count And Storage Quotas
+    path: sections/section-030/module-02/course-02-object-count-and-storage-quotas.md
+  - type: reading
+    title: Quota Scopes
+    path: sections/section-030/module-02/course-03-quota-scopes.md
+  - type: reading
+    title: Quota With Deployments And Changing A Quota
+    path: sections/section-030/module-02/course-04-quota-with-controllers.md
+  - type: reading
+    title: 'Lab: Fit A Workload Into A Namespace Quota — Task'
+    path: sections/section-030/module-02/labs/lab-01/question.md
+  - type: lab
+    title: 'Lab: Fit A Workload Into A Namespace Quota'
+    path: sections/section-030/module-02/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 25m
+    topic: resource-quota
+    task_kind: build
+    tags:
+    - ckad
+    - resource-quota
+    - compute-quota
+    - storage-quota
+    - admission
+    learning_goals:
+    - Write a ResourceQuota with compute, object count and storage limits
+    - Size a Deployment so every replica is admitted under the quota
+    - Recognise the exceeded quota admission error
+  - type: reading
+    title: 'Lab: Fit A Workload Into A Namespace Quota — Solution'
+    path: sections/section-030/module-02/labs/lab-01/solution.md
+  - type: reading
+    title: Summary
+    path: sections/section-030/module-02/course-05-summary.md
+  - type: reading
+    title: Defaults, QoS Classes And Runtime Limits
+    path: sections/section-030/module-03/course.md
+  - type: reading
+    title: 'LimitRange: Defaults And Per-Object Limits'
+    path: sections/section-030/module-03/course-01-limitrange.md
+  - type: reading
+    title: QoS Classes
+    path: sections/section-030/module-03/course-02-qos-classes.md
+  - type: reading
+    title: CPU Throttling And OOMKilled
+    path: sections/section-030/module-03/course-03-cpu-throttling-and-oom-kills.md
+  - type: reading
+    title: Scheduling, Pending And Eviction
+    path: sections/section-030/module-03/course-04-scheduling-pending-and-eviction.md
+  - type: reading
+    title: 'Lab: Set Namespace Defaults And Fix An OOM-Killed Workload — Task'
+    path: sections/section-030/module-03/labs/lab-01/question.md
+  - type: lab
+    title: 'Lab: Set Namespace Defaults And Fix An OOM-Killed Workload'
+    path: sections/section-030/module-03/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 25m
+    topic: limit-range
+    task_kind: build
+    tags:
+    - ckad
+    - limitrange
+    - qos
+    - oomkilled
+    - requests
+    - limits
+    learning_goals:
+    - Create a LimitRange with defaults, minimum, maximum and a ratio
+    - Let new pods receive defaults without editing the Deployment
+    - Fix an OOM-killed workload so its pod is Guaranteed
+  - type: reading
+    title: 'Lab: Set Namespace Defaults And Fix An OOM-Killed Workload — Solution'
+    path: sections/section-030/module-03/labs/lab-01/solution.md
+  - type: reading
+    title: Summary
+    path: sections/section-030/module-03/course-05-summary.md
+  - type: reading
+    title: 'Capstone: Requests, Limits And Quotas — Task'
+    path: sections/section-030/capstone/labs/lab-01/question.md
+  - type: lab
+    title: 'Capstone: Requests, Limits And Quotas'
+    path: sections/section-030/capstone/labs/lab-01
+    difficulty: advanced
+    estimated_duration: 30m
+    topic: resource-quota
+    task_kind: build
+    tags:
+    - ckad
+    - resource-quota
+    - limitrange
+    - qos
+    - requests
+    - limits
+    learning_goals:
+    - Combine a LimitRange and a ResourceQuota so new pods are admitted with defaults
+    - Fix an OOM-killed workload so its pod is Guaranteed and fits the quota
+    - Prove that the quota and the maximum still refuse oversized pods
+  - type: reading
+    title: 'Capstone: Requests, Limits And Quotas — Solution'
+    path: sections/section-030/capstone/labs/lab-01/solution.md
+  - type: quiz
+    title: 'Knowledge Check: Allocation, Enforcement And Namespace Policy'
+    path: sections/section-030/quiz.yaml
+    pass_score: 70
 - id: module-040
   title: Understand ConfigMaps
   description: Developed explanations and application reasoning for Understand ConfigMaps.
-  maturity: alpha
+  status: alpha
   content:
   - type: reading
     title: Understand ConfigMaps
@@ -200,11 +535,107 @@ modules:
   - type: reading
     title: Summary
     path: sections/section-040/module-01/course-04-summary.md
+  - type: reading
+    title: Creating ConfigMaps
+    path: sections/section-040/module-02/course.md
+  - type: reading
+    title: Creating ConfigMaps From Literals, Files And Directories
+    path: sections/section-040/module-02/course-01-creating-configmaps-from-sources.md
+  - type: reading
+    title: Create ConfigMaps From Different Sources — Task
+    path: sections/section-040/module-02/labs/lab-01/question.md
+  - type: lab
+    title: Create ConfigMaps From Different Sources
+    path: sections/section-040/module-02/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 20m
+    topic: configmap-creation
+    task_kind: build
+    tags:
+    - ckad
+    - configmap
+    - immutable
+    - from-env-file
+    learning_goals:
+    - Create ConfigMaps from an environment file and from files with a chosen key
+    - Write an immutable ConfigMap and change one key of an existing ConfigMap without
+      losing other keys
+  - type: reading
+    title: Create ConfigMaps From Different Sources — Solution
+    path: sections/section-040/module-02/labs/lab-01/solution.md
+  - type: reading
+    title: Data, Binary Data, Limits And Immutability
+    path: sections/section-040/module-02/course-02-data-binarydata-limits-and-immutability.md
+  - type: reading
+    title: Summary
+    path: sections/section-040/module-02/course-03-summary.md
+  - type: reading
+    title: Consuming ConfigMaps In Pods
+    path: sections/section-040/module-03/course.md
+  - type: reading
+    title: ConfigMap Values As Environment Variables
+    path: sections/section-040/module-03/course-01-configmap-values-as-environment-variables.md
+  - type: reading
+    title: ConfigMap Volumes, File Modes And Update Propagation
+    path: sections/section-040/module-03/course-02-configmap-volumes-file-modes-and-update-propagation.md
+  - type: reading
+    title: Consume ConfigMaps In A Deployment — Task
+    path: sections/section-040/module-03/labs/lab-01/question.md
+  - type: lab
+    title: Consume ConfigMaps In A Deployment
+    path: sections/section-040/module-03/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 25m
+    topic: configmap-consumption
+    task_kind: build
+    tags:
+    - ckad
+    - configmap
+    - envfrom
+    - volume-items
+    learning_goals:
+    - Set a variable with configMapKeyRef and load all keys with envFrom and a prefix
+    - Mount one key as a file with a chosen path and mode, and roll out the change
+  - type: reading
+    title: Consume ConfigMaps In A Deployment — Solution
+    path: sections/section-040/module-03/labs/lab-01/solution.md
+  - type: reading
+    title: Projected Volumes And Rollouts On Change
+    path: sections/section-040/module-03/course-03-projected-volumes-and-rollouts-on-change.md
+  - type: reading
+    title: Summary
+    path: sections/section-040/module-03/course-04-summary.md
+  - type: reading
+    title: 'ConfigMaps Capstone: Create, Consume And Change Configuration — Task'
+    path: sections/section-040/capstone/labs/lab-01/question.md
+  - type: lab
+    title: 'ConfigMaps Capstone: Create, Consume And Change Configuration'
+    path: sections/section-040/capstone/labs/lab-01
+    difficulty: advanced
+    estimated_duration: 35m
+    topic: configmap-capstone
+    task_kind: build
+    tags:
+    - ckad
+    - configmap
+    - immutable
+    - rollout
+    learning_goals:
+    - Create versioned immutable ConfigMaps and consume them as variables and files
+    - Change configuration with a new ConfigMap name and verify the rollout inside
+      the pods
+  - type: reading
+    title: 'ConfigMaps Capstone: Create, Consume And Change Configuration — Solution'
+    path: sections/section-040/capstone/labs/lab-01/solution.md
+  - type: quiz
+    title: 'Knowledge Check: Understand ConfigMaps'
+    path: sections/section-040/quiz.yaml
+    pass_score: 70
 - id: module-050
   title: Define resource requirements
   description: Developed explanations and application reasoning for Define resource
     requirements.
-  maturity: alpha
+  status: alpha
   content:
   - type: reading
     title: Define resource requirements
@@ -240,11 +671,106 @@ modules:
   - type: reading
     title: Summary
     path: sections/section-050/module-01/course-03-summary.md
+  - type: reading
+    title: Requests, Limits And Quality Of Service
+    path: sections/section-050/module-02/course.md
+  - type: reading
+    title: CPU And Memory Requests And Limits
+    path: sections/section-050/module-02/course-01-cpu-and-memory-requests-and-limits.md
+  - type: reading
+    title: Quality Of Service And Node Allocation
+    path: sections/section-050/module-02/course-02-quality-of-service-and-node-allocation.md
+  - type: reading
+    title: Init And Sidecar Container Resources
+    path: sections/section-050/module-02/course-03-init-and-sidecar-container-resources.md
+  - type: reading
+    title: Fix Resource Settings And Quality Of Service — Task
+    path: sections/section-050/module-02/labs/lab-01/question.md
+  - type: lab
+    title: Fix Resource Settings And Quality Of Service
+    path: sections/section-050/module-02/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 30m
+    topic: resource-qos
+    task_kind: build
+    learning_goals:
+    - Fix an out-of-memory container, make a Pod Guaranteed and correct a CPU unit
+      mistake without removing resource settings.
+    tags:
+    - ckad
+    - container-resources
+    - qos
+  - type: reading
+    title: Fix Resource Settings And Quality Of Service — Solution
+    path: sections/section-050/module-02/labs/lab-01/solution.md
+  - type: reading
+    title: Summary
+    path: sections/section-050/module-02/course-04-summary.md
+  - type: reading
+    title: Namespace Policy, Storage And Right-Sizing
+    path: sections/section-050/module-03/course.md
+  - type: reading
+    title: LimitRange And ResourceQuota
+    path: sections/section-050/module-03/course-01-limitrange-and-resourcequota.md
+  - type: reading
+    title: Ephemeral Storage, Extended Resources And Pod-Level Resources
+    path: sections/section-050/module-03/course-02-ephemeral-storage-extended-resources-and-pod-level-resources.md
+  - type: reading
+    title: Right-Sizing And Fixing Failing Workloads
+    path: sections/section-050/module-03/course-03-right-sizing-and-fixing-failing-workloads.md
+  - type: reading
+    title: Apply Namespace Defaults And Quota — Task
+    path: sections/section-050/module-03/labs/lab-01/question.md
+  - type: lab
+    title: Apply Namespace Defaults And Quota
+    path: sections/section-050/module-03/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 30m
+    topic: limitrange-resourcequota
+    task_kind: build
+    learning_goals:
+    - Create a LimitRange, fit workloads inside its maximum and extend a quota to
+      track ephemeral storage.
+    tags:
+    - ckad
+    - limitrange
+    - resourcequota
+  - type: reading
+    title: Apply Namespace Defaults And Quota — Solution
+    path: sections/section-050/module-03/labs/lab-01/solution.md
+  - type: reading
+    title: Summary
+    path: sections/section-050/module-03/course-04-summary.md
+  - type: reading
+    title: Right-Size Workloads Under A Namespace Quota — Task
+    path: sections/section-050/capstone/labs/lab-01/question.md
+  - type: lab
+    title: Right-Size Workloads Under A Namespace Quota
+    path: sections/section-050/capstone/labs/lab-01
+    difficulty: advanced
+    estimated_duration: 45m
+    topic: resource-right-sizing
+    task_kind: build
+    learning_goals:
+    - Fix an OOM workload, admit a Pod under a quota with Guaranteed class and set
+      namespace defaults.
+    tags:
+    - ckad
+    - container-resources
+    - resourcequota
+    - limitrange
+  - type: reading
+    title: Right-Size Workloads Under A Namespace Quota — Solution
+    path: sections/section-050/capstone/labs/lab-01/solution.md
+  - type: quiz
+    title: 'Knowledge Check: Define resource requirements'
+    path: sections/section-050/quiz.yaml
+    pass_score: 70
 - id: module-060
   title: Create & consume Secrets
   description: Developed explanations and application reasoning for Create & consume
     Secrets.
-  maturity: alpha
+  status: alpha
   content:
   - type: reading
     title: Create & consume Secrets
@@ -282,10 +808,112 @@ modules:
   - type: reading
     title: Summary
     path: sections/section-060/module-01/course-04-summary.md
+  - type: reading
+    title: Create Secrets With kubectl And YAML
+    path: sections/section-060/module-02/course.md
+  - type: reading
+    title: Creating Generic Secrets
+    path: sections/section-060/module-02/course-01-creating-generic-secrets.md
+  - type: reading
+    title: Create Secrets With kubectl — Task
+    path: sections/section-060/module-02/labs/lab-01/question.md
+  - type: lab
+    title: Create Secrets With kubectl
+    path: sections/section-060/module-02/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 25m
+    topic: secrets
+    task_kind: build
+    tags:
+    - secrets
+    - kubectl-create-secret
+    - from-env-file
+    - docker-registry
+    - immutable
+    learning_goals:
+    - Create a generic Secret with an exact value and make a waiting pod start
+    - Create a Secret from an environment file and a docker-registry Secret
+    - Make a Secret immutable
+  - type: reading
+    title: Create Secrets With kubectl — Solution
+    path: sections/section-060/module-02/labs/lab-01/solution.md
+  - type: reading
+    title: Secret Types, stringData And Immutability
+    path: sections/section-060/module-02/course-02-secret-types-stringdata-and-immutability.md
+  - type: reading
+    title: Summary
+    path: sections/section-060/module-02/course-03-summary.md
+  - type: reading
+    title: Consume Secrets In Pods
+    path: sections/section-060/module-03/course.md
+  - type: reading
+    title: Secrets As Environment Variables
+    path: sections/section-060/module-03/course-01-secrets-as-environment-variables.md
+  - type: reading
+    title: Secrets As Volumes And Pull Credentials
+    path: sections/section-060/module-03/course-02-secrets-as-volumes-and-pull-credentials.md
+  - type: reading
+    title: Consume Secrets In Pods — Task
+    path: sections/section-060/module-03/labs/lab-01/question.md
+  - type: lab
+    title: Consume Secrets In Pods
+    path: sections/section-060/module-03/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 25m
+    topic: secrets
+    task_kind: build
+    tags:
+    - secrets
+    - secretkeyref
+    - secret-volume
+    - defaultmode
+    - rbac
+    - resourcenames
+    learning_goals:
+    - Replace a plain environment value with a secretKeyRef
+    - Mount a Secret read-only with file mode 0400
+    - Allow a service account to get exactly one Secret
+  - type: reading
+    title: Consume Secrets In Pods — Solution
+    path: sections/section-060/module-03/labs/lab-01/solution.md
+  - type: reading
+    title: Access Control And The Limits Of Secrets
+    path: sections/section-060/module-03/course-03-access-control-and-the-limits-of-secrets.md
+  - type: reading
+    title: Summary
+    path: sections/section-060/module-03/course-04-summary.md
+  - type: reading
+    title: Create & Consume Secrets Capstone — Task
+    path: sections/section-060/capstone/labs/lab-01/question.md
+  - type: lab
+    title: Create & Consume Secrets Capstone
+    path: sections/section-060/capstone/labs/lab-01
+    difficulty: advanced
+    estimated_duration: 30m
+    topic: secrets
+    task_kind: build
+    tags:
+    - secrets
+    - rotation
+    - secretkeyref
+    - secret-volume
+    - imagepullsecrets
+    - rbac
+    learning_goals:
+    - Rotate a Secret value and deliver it to a running Deployment
+    - Consume a Secret as an environment variable and as a restricted file
+    - Add an image pull Secret and limit a service account to one Secret
+  - type: reading
+    title: Create & Consume Secrets Capstone — Solution
+    path: sections/section-060/capstone/labs/lab-01/solution.md
+  - type: quiz
+    title: 'Knowledge Check: Create & consume Secrets'
+    path: sections/section-060/quiz.yaml
+    pass_score: 70
 - id: module-070
   title: Understand ServiceAccounts
   description: Developed explanations and application reasoning for Understand ServiceAccounts.
-  maturity: alpha
+  status: alpha
   content:
   - type: reading
     title: Understand ServiceAccounts
@@ -324,11 +952,96 @@ modules:
   - type: reading
     title: Summary
     path: sections/section-070/module-01/course-04-summary.md
+  - type: reading
+    title: Create And Assign ServiceAccounts
+    path: sections/section-070/module-02/course.md
+  - type: reading
+    title: Create And Assign A ServiceAccount
+    path: sections/section-070/module-02/course-01-create-and-assign-a-serviceaccount.md
+  - type: reading
+    title: Token Mounting And Image Pull Secrets
+    path: sections/section-070/module-02/course-02-token-mounting-and-image-pull-secrets.md
+  - type: reading
+    title: Create And Assign ServiceAccounts — Task
+    path: sections/section-070/module-02/labs/lab-01/question.md
+  - type: lab
+    title: Create And Assign ServiceAccounts
+    path: sections/section-070/module-02/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 20m
+    topic: serviceaccount-assignment
+    task_kind: build
+    learning_goals:
+    - Create ServiceAccounts, assign them to Deployments, switch a token mount off
+      and attach image pull secrets.
+    tags:
+    - ckad
+    - serviceaccount-assignment
+  - type: reading
+    title: Create And Assign ServiceAccounts — Solution
+    path: sections/section-070/module-02/labs/lab-01/solution.md
+  - type: reading
+    title: Summary
+    path: sections/section-070/module-02/course-03-summary.md
+  - type: reading
+    title: ServiceAccount Tokens And API Access
+    path: sections/section-070/module-03/course.md
+  - type: reading
+    title: ServiceAccount Tokens
+    path: sections/section-070/module-03/course-01-serviceaccount-tokens.md
+  - type: reading
+    title: Call The API As A ServiceAccount
+    path: sections/section-070/module-03/course-02-call-the-api-as-a-serviceaccount.md
+  - type: reading
+    title: ServiceAccount Tokens And API Access — Task
+    path: sections/section-070/module-03/labs/lab-01/question.md
+  - type: lab
+    title: ServiceAccount Tokens And API Access
+    path: sections/section-070/module-03/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 20m
+    topic: serviceaccount-tokens
+    task_kind: build
+    learning_goals:
+    - Give a ServiceAccount read-only access to pods with a Role and a RoleBinding
+      and prove it with a request from the pod.
+    tags:
+    - ckad
+    - serviceaccount-tokens
+  - type: reading
+    title: ServiceAccount Tokens And API Access — Solution
+    path: sections/section-070/module-03/labs/lab-01/solution.md
+  - type: reading
+    title: Summary
+    path: sections/section-070/module-03/course-03-summary.md
+  - type: reading
+    title: ServiceAccounts Capstone — Task
+    path: sections/section-070/capstone/labs/lab-01/question.md
+  - type: lab
+    title: ServiceAccounts Capstone
+    path: sections/section-070/capstone/labs/lab-01
+    difficulty: advanced
+    estimated_duration: 30m
+    topic: serviceaccount-capstone
+    task_kind: build
+    learning_goals:
+    - Remove excess authority from a default account, give workloads dedicated accounts
+      with least privilege, and control token mounting and pull secrets.
+    tags:
+    - ckad
+    - serviceaccount-capstone
+  - type: reading
+    title: ServiceAccounts Capstone — Solution
+    path: sections/section-070/capstone/labs/lab-01/solution.md
+  - type: quiz
+    title: 'Knowledge Check: Understand ServiceAccounts'
+    path: sections/section-070/quiz.yaml
+    pass_score: 70
 - id: module-080
   title: Understand Application Security (SecurityContexts, Capabilities, etc.)
   description: Developed explanations and application reasoning for Understand Application
     Security (SecurityContexts, Capabilities, etc.).
-  maturity: alpha
+  status: alpha
   content:
   - type: reading
     title: Understand Application Security (SecurityContexts, Capabilities, etc.)
@@ -367,3 +1080,107 @@ modules:
   - type: reading
     title: Summary
     path: sections/section-080/module-01/course-04-summary.md
+  - type: reading
+    title: Users, Groups, Capabilities And Privilege
+    path: sections/section-080/module-02/course.md
+  - type: reading
+    title: User, Group And Volume Ownership
+    path: sections/section-080/module-02/course-01-user-group-and-volume-ownership.md
+  - type: reading
+    title: Capabilities, Privilege Escalation And Privileged Containers
+    path: sections/section-080/module-02/course-02-capabilities-and-privilege.md
+  - type: reading
+    title: Fix User, Group, Volume Ownership And Privilege — Task
+    path: sections/section-080/module-02/labs/lab-01/question.md
+  - type: lab
+    title: Fix User, Group, Volume Ownership And Privilege
+    path: sections/section-080/module-02/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 25m
+    topic: security-context
+    task_kind: build
+    tags:
+    - ckad
+    - security-context
+    - capabilities
+    - fsgroup
+    learning_goals:
+    - Set pod-level and container-level user and group IDs and predict which value
+      applies.
+    - Give a shared volume group ownership with fsGroup.
+    - Remove privileged mode and drop all capabilities while the workload keeps running.
+  - type: reading
+    title: Fix User, Group, Volume Ownership And Privilege — Solution
+    path: sections/section-080/module-02/labs/lab-01/solution.md
+  - type: reading
+    title: Summary
+    path: sections/section-080/module-02/course-03-summary.md
+  - type: reading
+    title: Seccomp, Host Access And Pod Security Admission
+    path: sections/section-080/module-03/course.md
+  - type: reading
+    title: Seccomp And A Read-Only Root Filesystem
+    path: sections/section-080/module-03/course-01-seccomp-and-read-only-filesystem.md
+  - type: reading
+    title: Host Access And Sysctls
+    path: sections/section-080/module-03/course-02-host-access-and-sysctls.md
+  - type: reading
+    title: Pod Security Admission And A Rejected Deployment
+    path: sections/section-080/module-03/course-03-pod-security-admission-and-a-rejected-deployment.md
+  - type: reading
+    title: Fix A Deployment Rejected By Pod Security Admission — Task
+    path: sections/section-080/module-03/labs/lab-01/question.md
+  - type: lab
+    title: Fix A Deployment Rejected By Pod Security Admission
+    path: sections/section-080/module-03/labs/lab-01
+    difficulty: intermediate
+    estimated_duration: 25m
+    topic: pod-security
+    task_kind: build
+    tags:
+    - ckad
+    - pod-security-admission
+    - security-context
+    - seccomp
+    learning_goals:
+    - Find the PodSecurity rejection in the events of a ReplicaSet.
+    - Replace host network and hostPath with a compliant pod template.
+    - Keep a read-only root filesystem working with emptyDir volumes.
+  - type: reading
+    title: Fix A Deployment Rejected By Pod Security Admission — Solution
+    path: sections/section-080/module-03/labs/lab-01/solution.md
+  - type: reading
+    title: Summary
+    path: sections/section-080/module-03/course-04-summary.md
+  - type: reading
+    title: Application Security Capstone — Task
+    path: sections/section-080/capstone/labs/lab-01/question.md
+  - type: lab
+    title: Application Security Capstone
+    path: sections/section-080/capstone/labs/lab-01
+    difficulty: advanced
+    estimated_duration: 30m
+    topic: application-security
+    task_kind: build
+    tags:
+    - ckad
+    - security-context
+    - pod-security-admission
+    - capabilities
+    - seccomp
+    learning_goals:
+    - Fix a Deployment rejected by a restricted namespace without changing the namespace.
+    - Combine user, group, volume, capability, seccomp, filesystem, host access and
+      sysctl settings.
+  - type: reading
+    title: Application Security Capstone — Solution
+    path: sections/section-080/capstone/labs/lab-01/solution.md
+  - type: quiz
+    title: 'Knowledge Check: Understand Application Security (SecurityContexts, Capabilities,
+      etc.)'
+    path: sections/section-080/quiz.yaml
+    pass_score: 70
+  - type: quiz
+    title: 'Final Knowledge Check: Application Environment, Configuration and Security'
+    path: sections/final-domain-quiz.yaml
+    pass_score: 70

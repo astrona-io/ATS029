@@ -1,0 +1,56 @@
+# Starting state: drifter declares no resources, beacon allocates about 143Mi
+# of memory but has a 128Mi limit (so it is killed and restarts), and no
+# LimitRange exists in outpost.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: outpost
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drifter
+  namespace: outpost
+  labels:
+    app: drifter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: drifter
+  template:
+    metadata:
+      labels:
+        app: drifter
+    spec:
+      containers:
+        - name: drifter
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beacon
+  namespace: outpost
+  labels:
+    app: beacon
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beacon
+  template:
+    metadata:
+      labels:
+        app: beacon
+    spec:
+      containers:
+        - name: beacon
+          image: docker.io/library/python:3.13-alpine
+          command: ["python", "-c", "data = b'x' * 150000000; import time; time.sleep(86400)"]
+          resources:
+            requests:
+              memory: 64Mi
+            limits:
+              memory: 128Mi

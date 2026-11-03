@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Create Secrets With kubectl And YAML (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-lab-060-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - busybox:1.37.0
+      - curlimages/curl:8.22.0
+
+# Starting state: a scout Deployment whose pod cannot start because the Secret
+# it needs (scout-credentials) does not exist.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the namespace and the scout Deployment that waits for a Secret
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: scout-credentials-in-use
+      description: scout-credentials holds the exact value and scout runs with it
+      type: file
+      source: validation/validate-scout-credentials.sh
+      hint: Use --from-literal so no newline is added. The key must be api-key. A ConfigMap of the same name does not work.
+    - name: bridge-settings-keys
+      description: bridge-settings has the keys REGION and TIER
+      type: file
+      source: validation/validate-bridge-settings.sh
+      hint: Write the two lines to an environment file and use --from-env-file. --from-file stores the whole file under one key.
+    - name: bridge-registry-login
+      description: bridge-registry is a docker-registry Secret with the right login
+      type: file
+      source: validation/validate-bridge-registry.sh
+      hint: Use kubectl create secret docker-registry with --docker-server, --docker-username and --docker-password.
+    - name: scout-credentials-immutable
+      description: scout-credentials is immutable
+      type: file
+      source: validation/validate-scout-credentials-immutable.sh
+      hint: Patch the Secret with {"immutable":true} after the value is correct. An immutable Secret cannot be fixed later.
+
+teardown:
+  keepCluster: false

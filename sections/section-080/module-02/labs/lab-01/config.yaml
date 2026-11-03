@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Fix User, Group, Volume Ownership And Privilege (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-lab-080-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - docker.io/library/busybox:1.37.0
+
+# Starting state: the `shuttle` Deployment in `starfleet` runs as root, one
+# container is privileged and the shared volume has no group ownership.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the shuttle Deployment with a privileged container
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: no-privilege
+      description: No privileged container, no escalation and no capabilities in every shuttle pod
+      type: file
+      source: validation/validate-no-privilege.sh
+      hint: Both containers need allowPrivilegeEscalation false and capabilities drop ALL, and neither may be privileged or add a capability. Check the running pods, not only the Deployment.
+    - name: identity
+      description: shuttle runs as 1500:3000 and relay as 2500:3000
+      type: file
+      source: validation/validate-identity.sh
+      hint: Set runAsUser and runAsGroup in the pod securityContext, then override only runAsUser in the relay container.
+    - name: volume-group
+      description: The shared volume belongs to group 4000
+      type: file
+      source: validation/validate-volume-group.sh
+      hint: fsGroup is a pod-level field. Check the group of /data with stat -c '%g'.
+    - name: shuttle-running
+      description: The Deployment is available and the heartbeat file is updated
+      type: file
+      source: validation/validate-shuttle-running.sh
+      hint: Keep the images, the container names, the command and one replica. Wait for the rollout to finish.
+
+teardown:
+  keepCluster: false

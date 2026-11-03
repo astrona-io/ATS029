@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Fix A Hangar That Does Not Reconcile (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-lab-010-03
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - docker.io/library/python:3.13-alpine
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+
+# Starting state: the Hangar CRD and the hangar-operator, whose ClusterRole
+# lacks the `create` verb on deployments, a Hangar `scout-bay` that cannot
+# reconcile, and a Hangar `old-bay` that is deleted but held by a finalizer.
+# The faults are left in place on purpose.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Install the Hangar CRD and the faulty operator, then create the two Hangars
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: operator-permission-least-privilege
+      description: The operator may create and patch Deployments and has no extra rights
+      type: file
+      source: validation/validate-operator-permission.sh
+      hint: Read the operator log, then add only the missing verb on deployments in the apps group to the hangar-operator ClusterRole. Do not bind cluster-admin, admin or edit and do not use a wildcard.
+    - name: scout-bay-ready
+      description: scout-bay is Ready and the status matches the current generation
+      type: file
+      source: validation/validate-scout-bay-ready.sh
+      hint: After the permission is fixed the operator creates the Deployment and writes the status by itself. Wait for it. Do not delete and recreate scout-bay.
+    - name: deployment-owned-by-hangar
+      description: hangar-scout-bay is created by the operator and owned by scout-bay
+      type: file
+      source: validation/validate-owned-by-hangar.sh
+      hint: Do not create the Deployment by hand. The operator sets the owner reference when it creates it.
+    - name: old-bay-removed
+      description: old-bay is gone and the CRD is untouched
+      type: file
+      source: validation/validate-old-bay-removed.sh
+      hint: old-bay has a finalizer that nothing removes. Check metadata.deletionTimestamp and metadata.finalizers, then clear the list with kubectl patch. Do not delete the CRD.
+    - name: operator-reconciles-new-hangars
+      description: A new Hangar gets an owned Deployment, a scale change is applied and deletion cleans up
+      type: file
+      source: validation/validate-reconcile-and-cleanup.sh
+      hint: The operator must be running with the fixed role. Create a Hangar, wait for the Deployment, scale it with a patch of the Hangar, and delete the Hangar.
+
+teardown:
+  keepCluster: false

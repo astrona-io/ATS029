@@ -1,0 +1,16 @@
+# Reference solution: the two service accounts. The Deployments are pointed at
+# them with `kubectl set serviceaccount` in apply.sh.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: scout
+  namespace: starfleet
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: probe
+  namespace: starfleet
+imagePullSecrets:
+  - name: regcred

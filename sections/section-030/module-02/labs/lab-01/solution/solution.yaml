@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: fleet-budget
+  namespace: starfleet
+spec:
+  hard:
+    requests.cpu: "1"
+    requests.memory: 1Gi
+    limits.cpu: "2"
+    limits.memory: 2Gi
+    pods: "6"
+    persistentvolumeclaims: "2"
+    requests.storage: 3Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logbook
+  namespace: starfleet
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 2Gi

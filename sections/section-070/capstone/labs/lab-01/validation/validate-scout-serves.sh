@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Check: behaviour. bridge can still call the scout Service, so the new scout
+# pod is running and ready.
+set -uo pipefail
+
+code="$(kubectl -n starfleet exec deploy/bridge -- curl -s -o /dev/null -m 5 -w '%{http_code}' http://scout.starfleet.svc.cluster.local/healthz 2>/dev/null || true)"
+if [ "$code" != "200" ]; then
+  echo "FAIL: bridge got HTTP '${code}' from scout, expected 200"
+  exit 1
+fi
+
+echo "PASS: bridge reaches scout (HTTP 200)"

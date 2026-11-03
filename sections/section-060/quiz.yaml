@@ -1,0 +1,302 @@
+# Knowledge check for section 060. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats029-060
+course_id: ATS029
+exam_code: CKAD
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-060
+  title: "Create & consume Secrets"
+questions:
+  - id: ats029-060-q01
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Create a generic Secret from a literal value without adding a trailing newline"
+    source_readings:
+      - sections/section-060/module-02/course-01-creating-generic-secrets.md
+    prompt: |-
+      An application compares its password byte by byte. You must store the password `Nebula-7421` in a Secret named `probe-credentials` under the key `password`. Which command stores exactly those 11 characters?
+    options:
+      - id: a
+        text: "`echo 'Nebula-7421' | base64`, then paste the result into a YAML `data` field."
+        explanation: "This option encodes the password plus a trailing newline, so the stored value has 12 bytes and the comparison fails."
+      - id: b
+        text: "`kubectl create secret generic probe-credentials --from-file=password` with a file that an editor saved."
+        explanation: "This option stores the whole file, and most editors add a newline at the end of the last line."
+      - id: c
+        text: "`kubectl create secret generic probe-credentials --from-literal=password='Nebula-7421'`"
+        explanation: "Correct. The `--from-literal` flag stores the value exactly as typed and adds no newline. The single quotes stop the shell from changing special characters."
+      - id: d
+        text: "`kubectl create configmap probe-credentials --from-literal=password='Nebula-7421'`"
+        explanation: "This option creates a ConfigMap, not a Secret, so a `secretKeyRef` cannot read it."
+    correct_option: c
+    explanation: "The `--from-literal` flag stores the value exactly as typed. Encoding with plain `echo` or saving through an editor can add a trailing newline."
+
+  - id: ats029-060-q02
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Choose between --from-file and --from-env-file for the keys a Secret receives"
+    source_readings:
+      - sections/section-060/module-02/course-01-creating-generic-secrets.md
+    prompt: |-
+      A file `scout.env` has the two lines `REGION=outpost-4` and `TIER=gold`. The application expects two environment variables named `REGION` and `TIER`. Which command creates a Secret that makes this possible?
+    options:
+      - id: a
+        text: "`kubectl create secret generic scout-settings --from-env-file=scout.env`"
+        explanation: "Correct. The `--from-env-file` flag creates one key for each `NAME=value` line, so the Secret has the keys `REGION` and `TIER`."
+      - id: b
+        text: "`kubectl create secret generic scout-settings --from-file=scout.env`"
+        explanation: "This option creates one key named `scout.env` that holds both lines, so no variable named `REGION` exists."
+      - id: c
+        text: "`kubectl create secret tls scout-settings --cert=scout.env --key=scout.env`"
+        explanation: "This option creates a TLS Secret, which is meant for a certificate and a key."
+      - id: d
+        text: "`kubectl create secret docker-registry scout-settings --docker-server=scout.env`"
+        explanation: "This option creates a registry login Secret, which has a single `.dockerconfigjson` key."
+    correct_option: a
+    explanation: "The `--from-env-file` flag turns each line into its own key. The `--from-file` flag stores the whole file under one key."
+
+  - id: ats029-060-q03
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain how stringData is stored and returned by the API server"
+    source_readings:
+      - sections/section-060/module-02/course-02-secret-types-stringdata-and-immutability.md
+    prompt: |-
+      You apply a Secret whose YAML has `stringData: {api-key: ion-4471}`. Then you run `kubectl get secret scout-credentials -o yaml`. What does the output show?
+    options:
+      - id: a
+        text: "A `stringData` field with the plain text `ion-4471`."
+        explanation: "This option is wrong because `stringData` is write-only and the API server never returns it."
+      - id: b
+        text: "Both a `stringData` field and a `data` field."
+        explanation: "This option is wrong because only `data` is stored, and only `data` is returned."
+      - id: c
+        text: "No value at all, because Secret values are always hidden from `kubectl get`."
+        explanation: "This option is wrong because `kubectl get -o yaml` shows the base64 value in `data`."
+      - id: d
+        text: "A `data` field with the key `api-key` and the base64 encoded value."
+        explanation: "Correct. The API server converts `stringData` into base64 `data` when it stores the object, and it never returns `stringData`."
+    correct_option: d
+    explanation: "The API server converts `stringData` into `data` at write time. Anyone who can read the Secret can decode the value with `base64 --decode`."
+
+  - id: ats029-060-q04
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Make a Secret immutable and change an immutable Secret correctly"
+    source_readings:
+      - sections/section-060/module-02/course-02-secret-types-stringdata-and-immutability.md
+    prompt: |-
+      The Secret `scout-credentials` has `immutable: true`. The password must change. Which action works?
+    options:
+      - id: a
+        text: "Run `kubectl patch` with the new value in `stringData`."
+        explanation: "This option is rejected, because an immutable Secret does not accept changes to its data."
+      - id: b
+        text: "Delete the Secret, create it again with the new value, and restart the pods that use it."
+        explanation: "Correct. An immutable Secret cannot be changed or set back to mutable. You replace the object, and pods that already run must restart to use the new object."
+      - id: c
+        text: "Patch the Secret with `{\"immutable\":false}` and then change the value."
+        explanation: "This option is rejected, because the field cannot be set back to false once it is true."
+      - id: d
+        text: "Run `kubectl apply` with a changed `data` field, which overrides immutability."
+        explanation: "This option is rejected, because `kubectl apply` goes through the same validation as a patch."
+    correct_option: b
+    explanation: "Immutability is permanent for the object. Delete and create the Secret again, and restart the pods that use it."
+
+  - id: ats029-060-q05
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Name the keys that a kubernetes.io/tls Secret requires"
+    source_readings:
+      - sections/section-060/module-02/course-02-secret-types-stringdata-and-immutability.md
+    prompt: |-
+      You run `kubectl create secret tls bridge-tls --cert=bridge.crt --key=bridge.key`. Which keys does the Secret contain, and which type does it have?
+    options:
+      - id: a
+        text: "The keys `bridge.crt` and `bridge.key`, with the type `Opaque`."
+        explanation: "This option is wrong because the command always uses the fixed key names and the TLS type."
+      - id: b
+        text: "The single key `.dockerconfigjson`, with the type `kubernetes.io/dockerconfigjson`."
+        explanation: "This option describes a registry login Secret, not a TLS Secret."
+      - id: c
+        text: "The keys `tls.crt` and `tls.key`, with the type `kubernetes.io/tls`."
+        explanation: "Correct. The `tls` form stores the two files under the required key names and sets the type that the API server checks."
+      - id: d
+        text: "The keys `cert` and `key`, with the type `kubernetes.io/basic-auth`."
+        explanation: "This option is wrong because `basic-auth` uses the keys `username` and `password`."
+    correct_option: c
+    explanation: "A `kubernetes.io/tls` Secret must have `tls.crt` and `tls.key`, and `kubectl create secret tls` sets both."
+
+  - id: ats029-060-q06
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Diagnose a pod stuck in CreateContainerConfigError after adding a secretKeyRef"
+    source_readings:
+      - sections/section-060/module-03/course-01-secrets-as-environment-variables.md
+    prompt: |-
+      You add an environment variable with `secretKeyRef` to a Deployment. The new pod stays in `CreateContainerConfigError`. Which cause fits this status?
+    options:
+      - id: a
+        text: "The referenced Secret or key does not exist in the namespace of the pod."
+        explanation: "Correct. The kubelet cannot build the container configuration without the value, and the pod events name the missing Secret or key."
+      - id: b
+        text: "The image is in a private registry and no pull Secret is set."
+        explanation: "This option causes `ErrImagePull` or `ImagePullBackOff`, not `CreateContainerConfigError`."
+      - id: c
+        text: "The Secret type is `Opaque` instead of `kubernetes.io/tls`."
+        explanation: "This option is wrong because a `secretKeyRef` works with any Secret type."
+      - id: d
+        text: "The node has run out of memory."
+        explanation: "This option would show scheduling or eviction events, not a configuration error."
+    correct_option: a
+    explanation: "A reference to a missing Secret or key stops the container from starting. Read the events with `kubectl describe pod`."
+
+  - id: ats029-060-q07
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Deliver a rotated Secret value to a container that reads it from an environment variable"
+    source_readings:
+      - sections/section-060/module-03/course-01-secrets-as-environment-variables.md
+      - sections/section-060/module-01/course-01-secret-storage-delivery-and-rotation.md
+    prompt: |-
+      A Deployment reads `DB_PASSWORD` with `secretKeyRef`. You patch the Secret with a new password. Ten minutes later the running pod still prints the old password. What must you do?
+    options:
+      - id: a
+        text: "Wait longer, because the kubelet updates environment variables during its sync."
+        explanation: "This option is wrong because the kubelet never changes the environment of a running process."
+      - id: b
+        text: "Add `optional: true` to the `secretKeyRef`."
+        explanation: "This option only decides what happens when the Secret or key is missing."
+      - id: c
+        text: "Delete and create the Secret again with the same name."
+        explanation: "This option does not change the environment of pods that already run."
+      - id: d
+        text: "Restart the pods, for example with `kubectl rollout restart deployment`, so the kubelet builds a new environment."
+        explanation: "Correct. The environment is fixed at container start, so only a new container receives the new value."
+    correct_option: d
+    explanation: "Environment variables are fixed when the container starts. A rotation needs the Secret update and a rollout."
+
+  - id: ats029-060-q08
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Mount a single Secret key as a read-only file with a restrictive mode"
+    source_readings:
+      - sections/section-060/module-03/course-02-secrets-as-volumes-and-pull-credentials.md
+    prompt: |-
+      A Secret has the keys `username` and `password`. The container must see only a file `password` that only its owner can read. Which volume definition does this?
+    options:
+      - id: a
+        text: "A `secret` volume with `secretName` only, and `readOnly: true` on the mount."
+        explanation: "This option mounts both keys with the default mode `0644`, so the `username` file is present and the mode is not restrictive."
+      - id: b
+        text: "A `secret` volume with `items` listing only the key `password`, and `defaultMode: 0400`."
+        explanation: "Correct. The `items` list limits which keys become files, and `defaultMode: 0400` lets only the owner read them."
+      - id: c
+        text: "An `emptyDir` volume filled by the entrypoint of the container."
+        explanation: "This option does not use the Secret and copies the value into a writable directory."
+      - id: d
+        text: "A `secret` volume with `defaultMode: 0777`."
+        explanation: "This option gives every user read, write and execute permission, which is the opposite of restrictive."
+    correct_option: b
+    explanation: "Use `items` to choose keys and `defaultMode` or a per-item `mode` to set permissions."
+
+  - id: ats029-060-q09
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Explain which Secret delivery methods follow later changes of the Secret"
+    source_readings:
+      - sections/section-060/module-03/course-02-secrets-as-volumes-and-pull-credentials.md
+    prompt: |-
+      A Secret changes while pods run. Pod A mounts the Secret as a normal volume. Pod B mounts one key with `subPath`. Pod C reads a key as an environment variable. Which pods see the new value without a restart?
+    options:
+      - id: a
+        text: "All three pods, after the kubelet sync."
+        explanation: "This option is wrong because the environment variable and the `subPath` file never update."
+      - id: b
+        text: "Pod B and Pod C only."
+        explanation: "This option is wrong because those are exactly the two delivery methods that do not update."
+      - id: c
+        text: "Pod A only, after a delay of the kubelet sync period and cache time."
+        explanation: "Correct. A normal Secret volume updates in place. A `subPath` mount is a copy taken at start, and an environment variable is fixed at container start."
+      - id: d
+        text: "No pod, because Secrets are copied when the pod starts."
+        explanation: "This option is wrong because a normal Secret volume is refreshed by the kubelet."
+    correct_option: c
+    explanation: "Only a normal Secret volume follows changes, with a delay. The application must also read the file again."
+
+  - id: ats029-060-q10
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Write a Role that allows reading one named Secret only"
+    source_readings:
+      - sections/section-060/module-03/course-03-access-control-and-the-limits-of-secrets.md
+    prompt: |-
+      The ServiceAccount `auditor` must read the Secret `bridge-credentials` in `starfleet` and no other Secret. Which Role rule fits?
+    options:
+      - id: a
+        text: "`apiGroups: [\"\"]`, `resources: [\"secrets\"]`, `resourceNames: [\"bridge-credentials\"]`, `verbs: [\"get\"]`"
+        explanation: "Correct. The rule names one Secret and allows only `get`, which returns that one object."
+      - id: b
+        text: "`apiGroups: [\"\"]`, `resources: [\"secrets\"]`, `verbs: [\"get\", \"list\"]`"
+        explanation: "This option covers every Secret in the namespace, and `list` returns all their values."
+      - id: c
+        text: "`apiGroups: [\"apps\"]`, `resources: [\"secrets\"]`, `resourceNames: [\"bridge-credentials\"]`, `verbs: [\"get\"]`"
+        explanation: "This option uses the wrong API group. Secrets are in the core group, written as an empty string."
+      - id: d
+        text: "`apiGroups: [\"\"]`, `resources: [\"pods\"]`, `verbs: [\"create\"]`"
+        explanation: "This option does not mention Secrets, and it lets the account mount any Secret by creating a pod."
+    correct_option: a
+    explanation: "Use `get` with `resourceNames` for one Secret. The verb `list` returns all values in the namespace."
+
+  - id: ats029-060-q11
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "State what encryption at rest protects and what it does not"
+    source_readings:
+      - sections/section-060/module-03/course-03-access-control-and-the-limits-of-secrets.md
+      - sections/section-060/module-01/course-01-secret-storage-delivery-and-rotation.md
+    prompt: |-
+      A cluster administrator enables encryption at rest for Secrets with an `EncryptionConfiguration`. Which statement is true afterward?
+    options:
+      - id: a
+        text: "A user with `get` permission on a Secret can no longer read its value."
+        explanation: "This option is wrong because the API server decrypts the value for every authorized request."
+      - id: b
+        text: "Secrets that were stored before the change are encrypted automatically."
+        explanation: "This option is wrong because existing Secrets stay plain until they are written again."
+      - id: c
+        text: "A process inside a pod can no longer read the mounted Secret file."
+        explanation: "This option is wrong because the kubelet gives the container the decrypted value."
+      - id: d
+        text: "The Secret data in etcd files and etcd backups is encrypted for newly written Secrets."
+        explanation: "Correct. Encryption at rest protects the stored data. It does not change who may read the Secret through the API server."
+    correct_option: d
+    explanation: "Encryption at rest covers etcd storage for new writes. RBAC and careful handling still control who sees the value."
+
+  - id: ats029-060-q12
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Explain why credentials do not belong in container images"
+    source_readings:
+      - sections/section-060/module-01/course-02-credentials-and-image-supply-chains.md
+    prompt: |-
+      A team builds a database password into an image layer so that no Secret is needed at deployment. What is the main problem?
+    options:
+      - id: a
+        text: "Kubernetes rejects images that contain passwords."
+        explanation: "This option is wrong because Kubernetes does not inspect image contents."
+      - id: b
+        text: "Anyone who can pull the image can read the password from its layers, and rotating it needs a new image."
+        explanation: "Correct. Image access exposes every embedded layer, so the password reaches everyone who can pull the image."
+      - id: c
+        text: "The password is only readable by the root user of the container."
+        explanation: "This option is wrong because file permissions inside the image do not protect it from people who pull the image."
+      - id: d
+        text: "The image becomes too large for the registry to store."
+        explanation: "This option is wrong because a password adds only a few bytes."
+    correct_option: b
+    explanation: "Credentials in an image reach everyone who can pull it. Deliver them with a Secret at deployment time."

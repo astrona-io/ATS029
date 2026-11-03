@@ -1,0 +1,922 @@
+# Final domain knowledge check across all eight sections.
+schema_version: 1
+kind: question_bank
+id: ats029-final
+course_id: ATS029
+exam_code: CKAD
+status: draft
+provenance: Original practice material written for this course; not official exam
+  questions.
+scope:
+  type: domain
+  id: application-environment-configuration-and-security
+  title: Application Environment, Configuration and Security
+questions:
+- id: ats029-final-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Distinguish registering a custom type from implementing its
+    behavior
+  source_readings:
+  - sections/section-010/module-01/course-01-custom-resources-and-operators.md
+  prompt: A team applies a CustomResourceDefinition for the kind `Cache` and then
+    creates a `Cache` object. The API server accepts the object and `kubectl get caches`
+    lists it, but no pods ever appear. What is the most likely reason?
+  options:
+  - id: a
+    text: The API server only stores custom resources after an administrator approves
+      them.
+    explanation: The API server stores a valid custom resource immediately. The object
+      is already listed, which shows that it was stored.
+  - id: b
+    text: The CustomResourceDefinition only registers the type. No controller is running
+      that watches `Cache` objects and creates pods for them.
+    explanation: Correct. Registering a type gives the API server a place to store
+      and validate the objects. Behavior comes from a controller, which is the part
+      of an operator that watches the objects and creates the workload.
+  - id: c
+    text: Custom resources can only create pods when they are in the `kube-system`
+      namespace.
+    explanation: No such rule exists. A custom resource creates nothing by itself
+      in any namespace.
+  - id: d
+    text: The `Cache` object needs a `spec.replicas` field, because without it the
+      scheduler ignores the object.
+    explanation: The scheduler places pods and never reads custom resources.
+  correct_option: b
+  explanation: A CustomResourceDefinition registers the type and nothing more. A controller
+    must watch the objects and create the pods, and none is running.
+- id: ats029-final-q02
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Discover the custom types in a cluster and read their schema
+    with kubectl
+  source_readings:
+  - sections/section-010/module-03/course-01-discovering-custom-types-and-operators.md
+  prompt: You join a cluster and need to find which custom types exist and what the
+    fields of one of them mean. Which pair of commands does this?
+  options:
+  - id: a
+    text: "`kubectl get pods -A` to list the types, and `kubectl logs` to read the
+      fields."
+    explanation: Pods are not types, and logs do not describe an API schema.
+  - id: b
+    text: "`kubectl get namespaces` to list the types, and `kubectl top` to read the
+      fields."
+    explanation: Namespaces are objects, and `kubectl top` shows resource usage.
+  - id: c
+    text: "`kubectl get crd` to list the registered custom types, and `kubectl explain
+      <plural>.spec` to read the documented fields."
+    explanation: Correct. Each CustomResourceDefinition is one registered type, and
+      `kubectl explain` reads the schema that the CustomResourceDefinition publishes.
+  - id: d
+    text: "`kubectl describe node` to list the types, and `kubectl cluster-info` to
+      read the fields."
+    explanation: Nodes and the cluster endpoint information do not list API types.
+  correct_option: c
+  explanation: "`kubectl get crd` lists the custom types, and `kubectl explain` reads
+    the schema of one type."
+- id: ats029-final-q03
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: State the effect of deleting a CustomResourceDefinition
+  source_readings:
+  - sections/section-010/module-02/course-03-versions-and-removing-a-crd.md
+  prompt: An administrator runs `kubectl delete crd gates.fleet.astrona.io` while
+    40 `Gate` objects exist in several namespaces. What happens?
+  options:
+  - id: a
+    text: The type is removed and the API server also deletes all 40 `Gate` objects.
+    explanation: Correct. Deleting the definition deletes every custom resource of
+      that type, in every namespace.
+  - id: b
+    text: The type is removed, and the 40 objects stay in storage and return when
+      the CustomResourceDefinition is created again.
+    explanation: The objects are deleted together with the definition.
+  - id: c
+    text: The request is refused until all `Gate` objects are deleted first.
+    explanation: Kubernetes does not require that. The delete succeeds and removes
+      the objects.
+  - id: d
+    text: Only the objects in the `default` namespace are deleted.
+    explanation: The deletion covers every namespace.
+  correct_option: a
+  explanation: Deleting a CustomResourceDefinition deletes all custom resources of
+    that type in all namespaces.
+- id: ats029-final-q04
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain owner references and the effect of the cascade option
+    on dependents
+  source_readings:
+  - sections/section-010/module-03/course-03-ownership-and-finalizers.md
+  prompt: An operator created the Deployment `hangar-probe-bay` with an owner reference
+    to the `Hangar` `probe-bay`. You run `kubectl delete hangar probe-bay --cascade=orphan`.
+    What happens to the Deployment?
+  options:
+  - id: a
+    text: It is deleted by the garbage collector, as it is with the default option.
+    explanation: The default option deletes the dependents. The option `orphan` does
+      not.
+  - id: b
+    text: It is deleted first, and the `Hangar` is deleted after it.
+    explanation: That order describes the option `foreground`.
+  - id: c
+    text: The delete request is refused, because an owned object exists.
+    explanation: An owner can be deleted while it has dependents.
+  - id: d
+    text: It stays, and the owner reference is removed from it, so nothing deletes
+      it later.
+    explanation: Correct. The option `orphan` deletes only the owner and removes the
+      owner references from the dependents.
+  correct_option: d
+  explanation: With `--cascade=orphan` only the owner is deleted. The dependents stay
+    and lose their owner reference.
+- id: ats029-final-q05
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Distinguish authentication, authorization and admission and
+    select the failed stage from an error message
+  source_readings:
+  - sections/section-020/module-01/course-01-api-request-checks-and-workload-identity.md
+  - sections/section-020/module-03/course-01-the-admission-chain-mutating-and-validating.md
+  prompt: 'A developer creates a pod and receives: `Error from server (Forbidden):
+    pods "probe" is forbidden: violates PodSecurity "baseline:latest"`. Which stage
+    rejected the request?'
+  options:
+  - id: a
+    text: Authentication, because the credential was not accepted.
+    explanation: Authentication failures return `401 Unauthorized` and never name
+      a pod.
+  - id: b
+    text: Authorization, because the Role lacks the create verb.
+    explanation: An RBAC refusal names a user, a verb and a resource, such as `User
+      "x" cannot create resource "pods"`.
+  - id: c
+    text: Admission, because the pod content broke a validating check after the caller
+      was allowed to create pods.
+    explanation: Correct. The message names PodSecurity, an admission plugin. RBAC
+      allowed the request, and admission refused the pod content.
+  - id: d
+    text: Schema validation, because the pod YAML has a wrong field name.
+    explanation: A schema error is reported as an invalid field, not as a PodSecurity
+      violation.
+  correct_option: c
+  explanation: The message names an admission plugin and not a user and a verb, so
+    the request passed authentication and authorization and admission rejected the
+    object.
+- id: ats029-final-q06
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Describe how an X.509 client certificate becomes a username
+    and groups
+  source_readings:
+  - sections/section-020/module-02/course-01-how-the-api-server-authenticates.md
+  prompt: A certificate has the subject `CN=ensign-chen,O=bridge-crew,O=survey-team`.
+    What identity does the API server assign?
+  options:
+  - id: a
+    text: The user `bridge-crew` in the group `ensign-chen`.
+    explanation: The common name is the username and the organization fields are groups.
+  - id: b
+    text: The user `ensign-chen` in the group `bridge-crew` only, because the last
+      `O` is ignored.
+    explanation: Every organization field becomes a group.
+  - id: c
+    text: The user `ensign-chen` in the groups `bridge-crew` and `survey-team`.
+    explanation: Correct. `CN` is the username and each `O` is a group.
+  - id: d
+    text: No identity, because the API server looks the name up in a user list.
+    explanation: Kubernetes has no user list. It trusts the subject signed by its
+      certificate authority.
+  correct_option: c
+  explanation: The common name becomes the username and each organization field becomes
+    a group; no user object is looked up.
+- id: ats029-final-q07
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Check effective access with kubectl auth can-i and impersonation
+  source_readings:
+  - sections/section-020/module-02/course-03-kubeconfig-contexts-and-access-checks.md
+  - sections/section-020/module-01/course-02-rbac-grants-and-their-consequences.md
+  prompt: You need to know whether the group `bridge-crew` may list pods in `outpost`
+    without creating a context. Which command answers it?
+  options:
+  - id: a
+    text: "`kubectl auth whoami --as-group bridge-crew`"
+    explanation: "`whoami` prints an identity. It does not test a permission."
+  - id: b
+    text: "`kubectl auth can-i list pods -n outpost --as someone --as-group bridge-crew`"
+    explanation: Correct. `can-i` asks the authorizer, and `--as` and `--as-group`
+      choose the identity. The administrator needs the `impersonate` verb.
+  - id: c
+    text: "`kubectl get pods -n outpost --dry-run=server`"
+    explanation: A dry run is for requests that change objects, and it runs as your
+      own identity.
+  - id: d
+    text: "`kubectl config view --minify -n outpost`"
+    explanation: "`config view` prints the kubeconfig and never asks the API server."
+  correct_option: b
+  explanation: "`kubectl auth can-i` with `--as` and `--as-group` asks the authorizer
+    about another identity without needing its credential."
+- id: ats029-final-q08
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Find the cause of missing replicas when a ResourceQuota blocks
+    pod creation
+  source_readings:
+  - sections/section-020/module-03/course-02-limitrange-resourcequota-and-dry-run.md
+  prompt: 'A namespace has a ResourceQuota of `pods: 2`. A Deployment is scaled to
+    3 replicas. `kubectl scale` succeeds, but only 2 pods run. Where do you read the
+    reason?'
+  options:
+  - id: a
+    text: In the output of `kubectl scale`.
+    explanation: The Deployment object is valid, so the command succeeds. The controller
+      fails later.
+  - id: b
+    text: In the `FailedCreate` events of the ReplicaSet, which show `exceeded quota`.
+    explanation: Correct. The ReplicaSet controller creates the pods, and the quota
+      rejection appears as an event on the ReplicaSet.
+  - id: c
+    text: In the logs of a container of the Deployment.
+    explanation: The third pod never exists, so it has no logs.
+  - id: d
+    text: In `kubectl auth can-i create pods`.
+    explanation: "`can-i` tests permission and not quota."
+  correct_option: b
+  explanation: A controller creates the pods, so a quota rejection appears as a `FailedCreate`
+    event on the ReplicaSet and not on your command.
+- id: ats029-final-q09
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain which value the scheduler uses to place a Pod
+  source_readings:
+  - sections/section-030/module-01/course-01-requests-limits-and-namespace-budgets.md
+  prompt: A node has 2 CPUs allocatable. Pods already on it request 1900m of CPU in
+    total, but they are idle and use almost no CPU. A new Pod requests 500m. What
+    does the scheduler do with the new Pod on this node?
+  options:
+  - id: a
+    text: It places the Pod, because the node is almost idle.
+    explanation: The scheduler does not look at live usage. It compares requests.
+  - id: b
+    text: It places the Pod and throttles the idle Pods to make room.
+    explanation: Nothing is throttled to make room. Placement is decided before any
+      enforcement.
+  - id: c
+    text: It does not place the Pod on this node, because the requests would add up
+      to more than the allocatable CPU.
+    explanation: Correct. The scheduler sums the requests of the Pods on a node and
+      compares the total with the allocatable amount. Usage is not part of this decision.
+  - id: d
+    text: It places the Pod only if the Pod also sets a CPU limit.
+    explanation: A limit is not used for placement.
+  correct_option: c
+  explanation: The scheduler places Pods by requests against the allocatable amount
+    of a node, not by live usage.
+- id: ats029-final-q10
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain that a ResourceQuota is checked at admission and is
+    not applied to existing Pods
+  source_readings:
+  - sections/section-030/module-02/course-01-compute-quota-and-admission.md
+  prompt: 'Eight Pods already run in a namespace. A ResourceQuota with `pods: "5"`
+    is then created in it. What happens to the running Pods?'
+  options:
+  - id: a
+    text: Three Pods are deleted to bring the count to 5.
+    explanation: A quota does not delete anything.
+  - id: b
+    text: All eight keep running, and the quota refuses new Pods until the count is
+      below the limit.
+    explanation: Correct. The quota is checked when an object is created. Existing
+      objects are counted but are not removed.
+  - id: c
+    text: The quota is refused because it is lower than the current use.
+    explanation: A quota lower than current use is accepted.
+  - id: d
+    text: All eight Pods are restarted under the quota.
+    explanation: A quota never restarts Pods.
+  correct_option: b
+  explanation: A quota applies to new requests. Existing objects are counted and keep
+    running.
+- id: ats029-final-q11
+  type: single_choice
+  difficulty: advanced
+  learning_objective: Find why a Deployment has fewer Pods than requested when a quota
+    refuses them
+  source_readings:
+  - sections/section-030/module-02/course-04-quota-with-controllers.md
+  prompt: A Deployment is created successfully with 5 replicas, but only 3 Pods exist.
+    The namespace has a ResourceQuota. `kubectl apply` printed no error. Where is
+    the quota refusal reported?
+  options:
+  - id: a
+    text: In the output of `kubectl apply`, which was missed.
+    explanation: The Deployment object itself was accepted. The refusal happens later,
+      when the controller creates Pods.
+  - id: b
+    text: In the logs of the container in the first Pod.
+    explanation: The missing Pods have no containers and no logs.
+  - id: c
+    text: In the node conditions.
+    explanation: The refusal is made by the API server, before any node is involved.
+  - id: d
+    text: As `FailedCreate` events on the ReplicaSet, visible with `kubectl describe
+      rs` or `kubectl get events`.
+    explanation: Correct. The ReplicaSet controller creates the Pods, and the quota
+      refuses them. The controller records a `FailedCreate` event with the quota message.
+  correct_option: d
+  explanation: A quota refusal for controller-created Pods is recorded as FailedCreate
+    events on the ReplicaSet.
+- id: ats029-final-q12
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Determine the QoS class of a Pod from its resources
+  source_readings:
+  - sections/section-030/module-03/course-02-qos-classes.md
+  prompt: Which Pod has the QoS class `Guaranteed`?
+  options:
+  - id: a
+    text: A Pod whose only container has CPU and memory requests equal to its CPU
+      and memory limits.
+    explanation: Correct. Every container needs CPU and memory limits, and the requests
+      must equal the limits.
+  - id: b
+    text: A Pod whose only container has a memory limit and no requests.
+    explanation: Kubernetes copies the limit into the missing request for memory,
+      but CPU is not set, so the Pod is Burstable.
+  - id: c
+    text: A Pod with a CPU request of 100m and a CPU limit of 200m.
+    explanation: The request differs from the limit, so the Pod is Burstable.
+  - id: d
+    text: A Pod with no requests and no limits.
+    explanation: This Pod is BestEffort.
+  correct_option: a
+  explanation: Guaranteed needs CPU and memory limits on every container, with requests
+    equal to the limits.
+- id: ats029-final-q13
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Choose the kubectl create configmap source flag that produces
+    the wanted keys
+  source_readings:
+  - sections/section-040/module-02/course-01-creating-configmaps-from-sources.md
+  prompt: A file `scout.env` has a comment line, an empty line and the lines `MODE=fast`
+    and `RETRIES=3`. You need a ConfigMap with exactly the keys `MODE` and `RETRIES`.
+    Which command does that?
+  options:
+  - id: a
+    text: "`kubectl create configmap scout-env --from-file=scout.env`"
+    explanation: This option creates one key named `scout.env` that holds the whole
+      file.
+  - id: b
+    text: "`kubectl create configmap scout-env --from-literal=scout.env`"
+    explanation: This option is not a valid literal, because a literal needs the form
+      `key=value`, and it would not read the file.
+  - id: c
+    text: "`kubectl create configmap scout-env --from-env-file=scout.env`"
+    explanation: Correct. `--from-env-file` creates one key for each `NAME=value`
+      line and skips comment lines and empty lines.
+  - id: d
+    text: "`kubectl create configmap scout-env --from-file=MODE=scout.env`"
+    explanation: This option stores the whole file under the single key `MODE`.
+  correct_option: c
+  explanation: Correct. `--from-env-file` creates one key for each `NAME=value` line
+    and skips comment lines and empty lines.
+- id: ats029-final-q14
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Change the content of an immutable ConfigMap safely
+  source_readings:
+  - sections/section-040/module-02/course-02-data-binarydata-limits-and-immutability.md
+  - sections/section-040/module-03/course-03-projected-volumes-and-rollouts-on-change.md
+  prompt: 'The ConfigMap `probe-locked` has `immutable: true`, and a Deployment uses
+    it. The `LOG_LEVEL` value must change. Which approach works?'
+  options:
+  - id: a
+    text: 'Run `kubectl patch` to set `immutable: false`, then change the value.'
+    explanation: This option is wrong. You cannot set `immutable` back to `false`.
+  - id: b
+    text: Create a new ConfigMap with a new name, for example `probe-locked-v2`, and
+      point the Deployment at it so that a rollout replaces the pods.
+    explanation: Correct. The content of an immutable ConfigMap never changes. A new
+      name changes the pod template, which starts a rollout, and the old object stays
+      for a rollback.
+  - id: c
+    text: Run `kubectl edit configmap probe-locked` and change the value, because
+      the kubelet updates immutable ConfigMaps.
+    explanation: This option is wrong. The API server refuses the edit, and the kubelet
+      does not watch immutable ConfigMaps.
+  - id: d
+    text: 'Add `optional: true` to the volume so that the new value is accepted.'
+    explanation: This option is wrong. The `optional` field only decides what happens
+      when the object is missing.
+  correct_option: b
+  explanation: Correct. The content of an immutable ConfigMap never changes. A new
+    name changes the pod template, which starts a rollout, and the old object stays
+    for a rollback.
+- id: ats029-final-q15
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Diagnose CreateContainerConfigError for a missing ConfigMap
+    key
+  source_readings:
+  - sections/section-040/module-03/course-01-configmap-values-as-environment-variables.md
+  prompt: A pod uses `configMapKeyRef` with the key `LOG_LEVELL`, which has a typing
+    mistake and does not exist in the ConfigMap. The pod status is `CreateContainerConfigError`.
+    What is the right fix?
+  options:
+  - id: a
+    text: Delete the node so that the pod moves.
+    explanation: This option is wrong. The error comes from the missing key, not from
+      the node.
+  - id: b
+    text: 'Correct the key name to `LOG_LEVEL`. Alternatively set `optional: true`
+      only if the application has a safe default.'
+    explanation: Correct. The kubelet cannot create the container without the key.
+      Read the pod events to see which key is missing.
+  - id: c
+    text: 'Add `imagePullPolicy: Always` to the container.'
+    explanation: This option is wrong. The image is not the problem.
+  - id: d
+    text: Mount the ConfigMap as a volume, because variables cannot come from a ConfigMap.
+    explanation: This option is wrong. Variables can come from a ConfigMap with `configMapKeyRef`
+      and `envFrom`.
+  correct_option: b
+  explanation: Correct. The kubelet cannot create the container without the key. Read
+    the pod events to see which key is missing.
+- id: ats029-final-q16
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain why editing a ConfigMap does not start a rollout and
+    how to start one
+  source_readings:
+  - sections/section-040/module-03/course-03-projected-volumes-and-rollouts-on-change.md
+  prompt: A Deployment reads `LOG_LEVEL` through `envFrom`. You edit the ConfigMap,
+    but the pods still show the old value. Which action makes the pods use the new
+    value?
+  options:
+  - id: a
+    text: Wait, because the kubelet rewrites the environment after one minute.
+    explanation: This option is wrong. Environment variables never update in a running
+      container.
+  - id: b
+    text: Run `kubectl rollout restart deployment/NAME`, because the pod template
+      does not change when a ConfigMap changes and new pods read the ConfigMap again.
+    explanation: Correct. A rollout starts only when the pod template changes. The
+      restart command adds an annotation to the template, and the new pods read the
+      new value.
+  - id: c
+    text: Run `kubectl scale` to zero and back with `--force`, because it is the only
+      method.
+    explanation: This option is wrong. Scaling works but is not the only method, and
+      `--force` is not part of it.
+  - id: d
+    text: Add `subPath` to the container so that the variable updates.
+    explanation: This option is wrong. `subPath` is a volume option and has no effect
+      on variables.
+  correct_option: b
+  explanation: Correct. A rollout starts only when the pod template changes. The restart
+    command adds an annotation to the template, and the new pods read the new value.
+- id: ats029-final-q17
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Write CPU and memory quantities in the correct units
+  source_readings:
+  - sections/section-050/module-02/course-01-cpu-and-memory-requests-and-limits.md
+  prompt: A developer wants a container to request one quarter of a CPU and 256 mebibytes
+    of memory. Which `requests` block is correct?
+  options:
+  - id: a
+    text: "`cpu: 250` and `memory: 256M`"
+    explanation: "`cpu: 250` asks for 250 cores, and `256M` is 256 million bytes,
+      not 256 mebibytes."
+  - id: b
+    text: "`cpu: 0.25m` and `memory: 256m`"
+    explanation: A lowercase `m` means one thousandth, so this asks for a tiny fraction
+      of a CPU and a fraction of a byte.
+  - id: c
+    text: "`cpu: 250m` and `memory: 256Mi`"
+    explanation: Correct. `250m` is 250 millicpu, which is one quarter of a CPU, and
+      `256Mi` is 256 mebibytes.
+  - id: d
+    text: "`cpu: 25m` and `memory: 256Gi`"
+    explanation: "`25m` is one fortieth of a CPU, and `256Gi` is 256 gibibytes."
+  correct_option: c
+  explanation: CPU uses millicpu with the suffix `m`, and memory uses the binary suffix
+    `Mi` for mebibytes.
+- id: ats029-final-q18
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Predict the quality of service class of a Pod
+  source_readings:
+  - sections/section-050/module-02/course-02-quality-of-service-and-node-allocation.md
+  prompt: 'A Pod has one container with `limits: {cpu: 200m, memory: 128Mi}` and no
+    `requests`. What is its QoS class?'
+  options:
+  - id: a
+    text: Guaranteed, because Kubernetes copies the limits into the requests.
+    explanation: Correct. When only limits are set, the requests default to the limits,
+      so requests equal limits for both resources.
+  - id: b
+    text: Burstable, because no request was written.
+    explanation: The API server fills the requests from the limits.
+  - id: c
+    text: BestEffort, because there are no requests.
+    explanation: BestEffort needs no requests and no limits at all.
+  - id: d
+    text: The class is not set until the Pod runs under memory pressure.
+    explanation: The class is set when the Pod is created and stored in `status.qosClass`.
+  correct_option: a
+  explanation: Guaranteed needs equal requests and limits for CPU and memory in every
+    container, and missing requests copy the limits.
+- id: ats029-final-q19
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain how a LimitRange fills defaults and rejects values
+  source_readings:
+  - sections/section-050/module-03/course-01-limitrange-and-resourcequota.md
+  prompt: 'A LimitRange in `outpost` sets `defaultRequest.cpu: 100m` and `max.cpu:
+    500m`. A Pod with no resources is created, and a second Pod asks for a CPU limit
+    of `2`. What happens?'
+  options:
+  - id: a
+    text: The first Pod gets a CPU request of 100m, and the API server refuses the
+      second Pod.
+    explanation: Correct. The LimitRanger plugin adds defaults and checks the maximum
+      at admission.
+  - id: b
+    text: Both Pods are created, and the scheduler lowers the limit of the second
+      Pod.
+    explanation: The scheduler never changes limits.
+  - id: c
+    text: The first Pod is BestEffort, and the second Pod stays Pending.
+    explanation: The defaults make the first Pod Burstable, and the second Pod is
+      refused, not Pending.
+  - id: d
+    text: Both Pods are created, and the LimitRange also changes Pods that already
+      run.
+    explanation: A LimitRange changes only Pods created after it exists.
+  correct_option: a
+  explanation: 'A LimitRange acts at admission: it fills missing values and rejects
+    values outside its range.'
+- id: ats029-final-q20
+  type: single_choice
+  difficulty: advanced
+  learning_objective: Use extended resources and Pod-level resources correctly
+  source_readings:
+  - sections/section-050/module-03/course-02-ephemeral-storage-extended-resources-and-pod-level-resources.md
+  prompt: Which statement about extended resources such as `example.com/dock` is correct?
+  options:
+  - id: a
+    text: A request of `500m` is valid, because all resources accept millicpu.
+    explanation: Extended resource quantities must be whole numbers.
+  - id: b
+    text: The request can be lower than the limit, so the resource can be overcommitted.
+    explanation: Extended resources cannot be overcommitted.
+  - id: c
+    text: Quantities are whole numbers, and a request and a limit, when both are set,
+      must be equal.
+    explanation: Correct. The scheduler counts whole units on the node.
+  - id: d
+    text: The kubelet creates the resource on the node when a Pod asks for it.
+    explanation: An administrator or a device plugin advertises the resource in the
+      node status.
+  correct_option: c
+  explanation: Extended resources are whole units advertised in the node status and
+    cannot be overcommitted.
+- id: ats029-final-q21
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Create a generic Secret from a literal value without adding
+    a trailing newline
+  source_readings:
+  - sections/section-060/module-02/course-01-creating-generic-secrets.md
+  prompt: An application compares its password byte by byte. You must store the password
+    `Nebula-7421` in a Secret named `probe-credentials` under the key `password`.
+    Which command stores exactly those 11 characters?
+  options:
+  - id: a
+    text: "`echo 'Nebula-7421' | base64`, then paste the result into a YAML `data`
+      field."
+    explanation: This option encodes the password plus a trailing newline, so the
+      stored value has 12 bytes and the comparison fails.
+  - id: b
+    text: "`kubectl create secret generic probe-credentials --from-file=password`
+      with a file that an editor saved."
+    explanation: This option stores the whole file, and most editors add a newline
+      at the end of the last line.
+  - id: c
+    text: "`kubectl create secret generic probe-credentials --from-literal=password='Nebula-7421'`"
+    explanation: Correct. The `--from-literal` flag stores the value exactly as typed
+      and adds no newline. The single quotes stop the shell from changing special
+      characters.
+  - id: d
+    text: "`kubectl create configmap probe-credentials --from-literal=password='Nebula-7421'`"
+    explanation: This option creates a ConfigMap, not a Secret, so a `secretKeyRef`
+      cannot read it.
+  correct_option: c
+  explanation: The `--from-literal` flag stores the value exactly as typed. Encoding
+    with plain `echo` or saving through an editor can add a trailing newline.
+- id: ats029-final-q22
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Make a Secret immutable and change an immutable Secret correctly
+  source_readings:
+  - sections/section-060/module-02/course-02-secret-types-stringdata-and-immutability.md
+  prompt: 'The Secret `scout-credentials` has `immutable: true`. The password must
+    change. Which action works?'
+  options:
+  - id: a
+    text: Run `kubectl patch` with the new value in `stringData`.
+    explanation: This option is rejected, because an immutable Secret does not accept
+      changes to its data.
+  - id: b
+    text: Delete the Secret, create it again with the new value, and restart the pods
+      that use it.
+    explanation: Correct. An immutable Secret cannot be changed or set back to mutable.
+      You replace the object, and pods that already run must restart to use the new
+      object.
+  - id: c
+    text: Patch the Secret with `{"immutable":false}` and then change the value.
+    explanation: This option is rejected, because the field cannot be set back to
+      false once it is true.
+  - id: d
+    text: Run `kubectl apply` with a changed `data` field, which overrides immutability.
+    explanation: This option is rejected, because `kubectl apply` goes through the
+      same validation as a patch.
+  correct_option: b
+  explanation: Immutability is permanent for the object. Delete and create the Secret
+    again, and restart the pods that use it.
+- id: ats029-final-q23
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Deliver a rotated Secret value to a container that reads it
+    from an environment variable
+  source_readings:
+  - sections/section-060/module-03/course-01-secrets-as-environment-variables.md
+  - sections/section-060/module-01/course-01-secret-storage-delivery-and-rotation.md
+  prompt: A Deployment reads `DB_PASSWORD` with `secretKeyRef`. You patch the Secret
+    with a new password. Ten minutes later the running pod still prints the old password.
+    What must you do?
+  options:
+  - id: a
+    text: Wait longer, because the kubelet updates environment variables during its
+      sync.
+    explanation: This option is wrong because the kubelet never changes the environment
+      of a running process.
+  - id: b
+    text: 'Add `optional: true` to the `secretKeyRef`.'
+    explanation: This option only decides what happens when the Secret or key is missing.
+  - id: c
+    text: Delete and create the Secret again with the same name.
+    explanation: This option does not change the environment of pods that already
+      run.
+  - id: d
+    text: Restart the pods, for example with `kubectl rollout restart deployment`,
+      so the kubelet builds a new environment.
+    explanation: Correct. The environment is fixed at container start, so only a new
+      container receives the new value.
+  correct_option: d
+  explanation: Environment variables are fixed when the container starts. A rotation
+    needs the Secret update and a rollout.
+- id: ats029-final-q24
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Write a Role that allows reading one named Secret only
+  source_readings:
+  - sections/section-060/module-03/course-03-access-control-and-the-limits-of-secrets.md
+  prompt: The ServiceAccount `auditor` must read the Secret `bridge-credentials` in
+    `starfleet` and no other Secret. Which Role rule fits?
+  options:
+  - id: a
+    text: '`apiGroups: [""]`, `resources: ["secrets"]`, `resourceNames: ["bridge-credentials"]`,
+      `verbs: ["get"]`'
+    explanation: Correct. The rule names one Secret and allows only `get`, which returns
+      that one object.
+  - id: b
+    text: '`apiGroups: [""]`, `resources: ["secrets"]`, `verbs: ["get", "list"]`'
+    explanation: This option covers every Secret in the namespace, and `list` returns
+      all their values.
+  - id: c
+    text: '`apiGroups: ["apps"]`, `resources: ["secrets"]`, `resourceNames: ["bridge-credentials"]`,
+      `verbs: ["get"]`'
+    explanation: This option uses the wrong API group. Secrets are in the core group,
+      written as an empty string.
+  - id: d
+    text: '`apiGroups: [""]`, `resources: ["pods"]`, `verbs: ["create"]`'
+    explanation: This option does not mention Secrets, and it lets the account mount
+      any Secret by creating a pod.
+  correct_option: a
+  explanation: Use `get` with `resourceNames` for one Secret. The verb `list` returns
+    all values in the namespace.
+- id: ats029-final-q25
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain what identity a pod uses to call the Kubernetes API
+    and which account it gets when none is named
+  source_readings:
+  - sections/section-070/module-01/course-01-api-identity-and-serviceaccounts.md
+  prompt: A Deployment template in `starfleet` does not set `serviceAccountName`.
+    Which identity do its pods use for API requests?
+  options:
+  - id: a
+    text: The `default` ServiceAccount of `starfleet`, written into the pod by the
+      ServiceAccount admission controller.
+    explanation: Correct. The admission controller sets `default` when the template
+      names no account, and the pod stores that value.
+  - id: b
+    text: "`system:anonymous`, because no account was named."
+    explanation: The pod always gets a ServiceAccount. Anonymous is the identity of
+      a request with no valid credentials.
+  - id: c
+    text: The account named like the Deployment, created automatically.
+    explanation: Kubernetes never creates an account from a Deployment name.
+  - id: d
+    text: The `default` ServiceAccount of the `default` namespace.
+    explanation: A ServiceAccount is namespaced, and the lookup uses the namespace
+      of the pod.
+  correct_option: a
+  explanation: The admission controller sets `default` when the template names no
+    account, and the pod stores that value.
+- id: ats029-final-q26
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Choose namespace-scoped grants for a least-privilege role
+  source_readings:
+  - sections/section-070/module-01/course-02-rbac-scope-and-least-privilege.md
+  prompt: The `shuttle` ServiceAccount in `outpost` must only read pods in `outpost`.
+    Which design is correct?
+  options:
+  - id: a
+    text: A ClusterRoleBinding to the `view` ClusterRole.
+    explanation: This grants read access to many resources in every namespace.
+  - id: b
+    text: A Role in `outpost` for `get`, `list` and `watch` on pods and a RoleBinding
+      in `outpost` that names the `shuttle` account with its namespace.
+    explanation: Correct. The Role and the binding are in one namespace, and the subject
+      carries the namespace of the account.
+  - id: c
+    text: A Role in `starfleet` and a RoleBinding in `outpost`.
+    explanation: A RoleBinding can only refer to a Role in its own namespace.
+  - id: d
+    text: A RoleBinding in `outpost` that names the subject `shuttle` without a namespace.
+    explanation: A ServiceAccount subject needs its namespace, otherwise it does not
+      identify the intended account.
+  correct_option: b
+  explanation: The Role and the binding are in one namespace, and the subject carries
+    the namespace of the account.
+- id: ats029-final-q27
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Control the token mount on the account and on the pod
+  source_readings:
+  - sections/section-070/module-02/course-02-token-mounting-and-image-pull-secrets.md
+  prompt: 'An account has `automountServiceAccountToken: false`. A pod template that
+    uses it sets `automountServiceAccountToken: true`. What does the new pod get?'
+  options:
+  - id: a
+    text: No token, because the account value wins.
+    explanation: The pod value takes priority over the account value.
+  - id: b
+    text: No token, because the setting `false` on an account cannot be overridden.
+    explanation: It can be overridden for a single pod.
+  - id: c
+    text: The pod is rejected because the two values disagree.
+    explanation: The values are allowed to differ.
+  - id: d
+    text: A token volume, because the pod value wins over the account value.
+    explanation: Correct. The account value is only the default for pods that set
+      nothing.
+  correct_option: d
+  explanation: The account value is only the default for pods that set nothing.
+- id: ats029-final-q28
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain the lifetime and binding of a projected token compared
+    with a legacy token Secret
+  source_readings:
+  - sections/section-070/module-03/course-01-serviceaccount-tokens.md
+  prompt: A token read from a Secret of type `kubernetes.io/service-account-token`
+    is leaked. How is it different from the token a pod mounts?
+  options:
+  - id: a
+    text: It is valid for the same one hour as a projected token.
+    explanation: A projected token expires. The Secret token has no expiry claim.
+  - id: b
+    text: It stops working when any pod of the account is deleted.
+    explanation: It is not bound to a pod.
+  - id: c
+    text: It has no expiry and no pod binding, so it works until the Secret or the
+      account is deleted.
+    explanation: Correct. This is why the Secret type is the legacy choice and is
+      used only when a client cannot request tokens.
+  - id: d
+    text: It can only be used from inside the cluster network.
+    explanation: Network location is not part of the token.
+  correct_option: c
+  explanation: This is why the Secret type is the legacy choice and is used only when
+    a client cannot request tokens.
+- id: ats029-final-q29
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Distinguish Pod-level and container-level security settings
+  source_readings:
+  - sections/section-080/module-01/course-01-security-contexts-and-profile-requirements.md
+  prompt: 'A Pod has two containers. The Pod-level `securityContext` sets `runAsUser:
+    2000`. One container sets `runAsUser: 2500` and the other sets nothing. Which
+    users do the containers run as?'
+  options:
+  - id: a
+    text: Both run as 2000, because the Pod-level value always wins.
+    explanation: The container-level value replaces the Pod-level value, so this is
+      wrong.
+  - id: b
+    text: The first container runs as 2500 and the second as 2000.
+    explanation: Correct. A container-level value replaces the Pod-level value for
+      that container only, and a container without its own value uses the Pod value.
+  - id: c
+    text: Both run as 2500, because the last value written is used for the whole Pod.
+    explanation: Values are not shared between containers, so this is wrong.
+  - id: d
+    text: The Pod is rejected because the two levels set different values.
+    explanation: Kubernetes does not reject this; overriding is allowed.
+  correct_option: b
+  explanation: A container-level value replaces the Pod-level value for that container
+    only. A container without its own value uses the Pod value.
+- id: ats029-final-q30
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Choose the Pod-level or container-level field for a security
+    setting
+  source_readings:
+  - sections/section-080/module-02/course-01-user-group-and-volume-ownership.md
+  prompt: Which pair of fields is valid at Pod level only?
+  options:
+  - id: a
+    text: "`fsGroup` and `supplementalGroups`"
+    explanation: Correct. Both set groups for the whole Pod and are not valid in a
+      container.
+  - id: b
+    text: "`runAsUser` and `runAsNonRoot`"
+    explanation: Both fields are valid at Pod level and at container level.
+  - id: c
+    text: "`capabilities` and `allowPrivilegeEscalation`"
+    explanation: Both fields are valid at container level only.
+  - id: d
+    text: "`privileged` and `readOnlyRootFilesystem`"
+    explanation: Both fields are valid at container level only.
+  correct_option: a
+  explanation: "`fsGroup` and `supplementalGroups` exist at Pod level only. `runAsUser`
+    and `runAsNonRoot` work at both levels. The others are container-level fields."
+- id: ats029-final-q31
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain what allowPrivilegeEscalation changes
+  source_readings:
+  - sections/section-080/module-02/course-02-capabilities-and-privilege.md
+  prompt: 'What does `allowPrivilegeEscalation: false` do to a container process?'
+  options:
+  - id: a
+    text: It removes all Linux capabilities from the process.
+    explanation: Capabilities are removed with the `capabilities` field.
+  - id: b
+    text: It makes the root filesystem read-only.
+    explanation: The read-only root filesystem is a separate field.
+  - id: c
+    text: It sets the `no_new_privs` flag, so setuid files and file capabilities cannot
+      give the process more privilege.
+    explanation: Correct. The kernel then ignores setuid bits and file capabilities
+      for the process and its children.
+  - id: d
+    text: It blocks all system calls that change files.
+    explanation: System calls are filtered by seccomp, not by this field.
+  correct_option: c
+  explanation: The field sets `no_new_privs`. It is always on for privileged containers.
+- id: ats029-final-q32
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain the scope of readOnlyRootFilesystem
+  source_readings:
+  - sections/section-080/module-03/course-01-seccomp-and-read-only-filesystem.md
+  prompt: 'A container has `readOnlyRootFilesystem: true` and an `emptyDir` mounted
+    at `/tmp`. What happens when it runs `touch /tmp/a` and `touch /a`?'
+  options:
+  - id: a
+    text: Both fail because the field applies to every mount.
+    explanation: The field applies to the root filesystem only, not to volumes.
+  - id: b
+    text: Both work because `emptyDir` volumes cover the whole filesystem.
+    explanation: A volume covers only its mount path.
+  - id: c
+    text: The first fails and the second works.
+    explanation: This is reversed.
+  - id: d
+    text: The first works and the second fails with `Read-only file system`.
+    explanation: Correct. `/tmp` is a writable volume and `/` stays read-only.
+  correct_option: d
+  explanation: 'The field protects the root filesystem only, so volume mounts stay
+    writable unless `readOnly: true` is set on the mount.'

@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Authentication, Authorization And Admission Capstone (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-capstone-020
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - busybox:1.37.0
+
+# Starting state: two namespaces with one Deployment each. No user, no Role
+# and no policy exist. The learner builds all three layers.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the namespaces and the two Deployments
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: identity-from-certificate
+      description: The CSR ensign-park is approved and issued with CN=ensign-park and O=bridge-crew, and the context ensign-park authenticates as ensign-park in the group bridge-crew
+      type: file
+      source: validation/validate-identity.sh
+      hint: Use the subject /CN=ensign-park/O=bridge-crew, the signer kubernetes.io/kube-apiserver-client, and kubectl config set-credentials with --embed-certs=true. The context needs the namespace outpost.
+    - name: group-manages-deployments
+      description: The group bridge-crew can manage Deployments and read pods in outpost
+      type: file
+      source: validation/validate-group-grant.sh
+      hint: Bind a Role in outpost to the Group bridge-crew (not only to the user), with get, list, watch, create, update and patch on deployments in the apps group and get, list and watch on pods.
+    - name: least-privilege
+      description: The user cannot delete Deployments, create pods, read Secrets or reach starfleet
+      type: file
+      source: validation/validate-least-privilege.sh
+      hint: Use a Role and a RoleBinding in outpost only. Do not bind edit, admin or cluster-admin, and do not add the delete verb.
+    - name: image-policy-enforced
+      description: Through the ensign-park context, a Deployment with the image tag latest or no tag is rejected by a ValidatingAdmissionPolicy and a pinned tag is accepted
+      type: file
+      source: validation/validate-image-policy.sh
+      hint: Create a ValidatingAdmissionPolicy on deployments with CREATE and UPDATE and a CEL expression over spec.template.spec.containers. A binding with the action Deny selects outpost.
+    - name: no-broad-grant
+      description: No ClusterRoleBinding and no edit, admin or cluster-admin binding names the user or the group, and the certificate has no system:masters group
+      type: file
+      source: validation/validate-no-broad-grant.sh
+      hint: Remove any cluster-wide binding for the user or the group, and do not put O=system:masters in the subject.
+
+teardown:
+  keepCluster: false

@@ -1,0 +1,347 @@
+# Knowledge check for section 020. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats029-020
+course_id: ATS029
+exam_code: CKAD
+status: draft
+provenance: Original practice material written for this course; not official exam
+  questions.
+scope:
+  type: section
+  id: section-020
+  title: Understand authentication, authorization and admission control
+questions:
+- id: ats029-020-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Distinguish authentication, authorization and admission and
+    select the failed stage from an error message
+  source_readings:
+  - sections/section-020/module-01/course-01-api-request-checks-and-workload-identity.md
+  - sections/section-020/module-03/course-01-the-admission-chain-mutating-and-validating.md
+  prompt: 'A developer creates a pod and receives: `Error from server (Forbidden):
+    pods "probe" is forbidden: violates PodSecurity "baseline:latest"`. Which stage
+    rejected the request?'
+  options:
+  - id: a
+    text: Authentication, because the credential was not accepted.
+    explanation: Authentication failures return `401 Unauthorized` and never name
+      a pod.
+  - id: b
+    text: Authorization, because the Role lacks the create verb.
+    explanation: An RBAC refusal names a user, a verb and a resource, such as `User
+      "x" cannot create resource "pods"`.
+  - id: c
+    text: Admission, because the pod content broke a validating check after the caller
+      was allowed to create pods.
+    explanation: Correct. The message names PodSecurity, an admission plugin. RBAC
+      allowed the request, and admission refused the pod content.
+  - id: d
+    text: Schema validation, because the pod YAML has a wrong field name.
+    explanation: A schema error is reported as an invalid field, not as a PodSecurity
+      violation.
+  correct_option: c
+  explanation: The message names an admission plugin and not a user and a verb, so
+    the request passed authentication and authorization and admission rejected the
+    object.
+- id: ats029-020-q02
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain how a ServiceAccount identity reaches the API server
+    and what limits its use
+  source_readings:
+  - sections/section-020/module-01/course-01-api-request-checks-and-workload-identity.md
+  - sections/section-020/module-02/course-01-how-the-api-server-authenticates.md
+  prompt: A workload in `starfleet` uses the ServiceAccount `shuttle`. Which username
+    does the API server assign to a request that carries its token?
+  options:
+  - id: a
+    text: "`shuttle`"
+    explanation: The bare name is not the username. The namespace is part of it.
+  - id: b
+    text: "`serviceaccount/shuttle`"
+    explanation: This is the form used by some kubectl output, not an authenticated
+      username.
+  - id: c
+    text: "`system:serviceaccounts:starfleet`"
+    explanation: This is a group that every ServiceAccount in the namespace belongs
+      to, not the username.
+  - id: d
+    text: "`system:serviceaccount:starfleet:shuttle`"
+    explanation: Correct. The username has the form `system:serviceaccount:<namespace>:<name>`.
+  correct_option: d
+  explanation: A ServiceAccount token authenticates as `system:serviceaccount:<namespace>:<name>`
+    and joins the groups `system:serviceaccounts` and `system:serviceaccounts:<namespace>`.
+- id: ats029-020-q03
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Evaluate RoleBinding scope when it references a ClusterRole
+  source_readings:
+  - sections/section-020/module-01/course-02-rbac-grants-and-their-consequences.md
+  prompt: The `developers` group must read pods in `starfleet` only. The built-in
+    `view` ClusterRole already has the rules. What is the narrowest setup?
+  options:
+  - id: a
+    text: A RoleBinding in `starfleet` that references the `view` ClusterRole and
+      names the group.
+    explanation: Correct. A RoleBinding grants a ClusterRole only inside its own namespace.
+  - id: b
+    text: A ClusterRoleBinding of `view` to the group.
+    explanation: A ClusterRoleBinding grants the rules in every namespace.
+  - id: c
+    text: A new Role in every namespace with the `view` rules.
+    explanation: This works but repeats rules in namespaces that must stay closed.
+  - id: d
+    text: A RoleBinding in `default` that references `view`.
+    explanation: A RoleBinding grants rights only in its own namespace, which is `default`
+      here.
+  correct_option: a
+  explanation: A RoleBinding that references a ClusterRole still grants the rules
+    only in the binding's namespace.
+- id: ats029-020-q04
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Describe how an X.509 client certificate becomes a username
+    and groups
+  source_readings:
+  - sections/section-020/module-02/course-01-how-the-api-server-authenticates.md
+  prompt: A certificate has the subject `CN=ensign-chen,O=bridge-crew,O=survey-team`.
+    What identity does the API server assign?
+  options:
+  - id: a
+    text: The user `bridge-crew` in the group `ensign-chen`.
+    explanation: The common name is the username and the organization fields are groups.
+  - id: b
+    text: The user `ensign-chen` in the group `bridge-crew` only, because the last
+      `O` is ignored.
+    explanation: Every organization field becomes a group.
+  - id: c
+    text: The user `ensign-chen` in the groups `bridge-crew` and `survey-team`.
+    explanation: Correct. `CN` is the username and each `O` is a group.
+  - id: d
+    text: No identity, because the API server looks the name up in a user list.
+    explanation: Kubernetes has no user list. It trusts the subject signed by its
+      certificate authority.
+  correct_option: c
+  explanation: The common name becomes the username and each organization field becomes
+    a group; no user object is looked up.
+- id: ats029-020-q05
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Create and approve a CertificateSigningRequest for a user certificate
+  source_readings:
+  - sections/section-020/module-02/course-02-issue-a-client-certificate-with-a-csr.md
+  prompt: A CertificateSigningRequest for a developer stays in the condition `Pending`
+    after `kubectl apply`. What is the next step to receive a signed certificate?
+  options:
+  - id: a
+    text: Run `kubectl certificate approve <name>`, then read `status.certificate`
+      after the controller manager signs it.
+    explanation: Correct. An approval is a separate action. The controller manager
+      signs approved requests of the right signer.
+  - id: b
+    text: Run `openssl x509` on the request file to sign it with the cluster key.
+    explanation: The cluster key is not on the developer's machine, and `openssl x509`
+      alone does not produce a certificate that the cluster trusts.
+  - id: c
+    text: Restart the API server so that it signs pending requests.
+    explanation: The API server does not sign. A restart does not approve the request.
+  - id: d
+    text: Create a Role that allows the developer to sign certificates.
+    explanation: A Role for the developer does not approve anything. Approval needs
+      the `approve` verb on `signers` for an administrator.
+  correct_option: a
+  explanation: A pending request needs `kubectl certificate approve`. The signing
+    controller then writes the certificate into `status.certificate`.
+- id: ats029-020-q06
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Build a kubeconfig user and context for a new identity
+  source_readings:
+  - sections/section-020/module-02/course-03-kubeconfig-contexts-and-access-checks.md
+  prompt: After you add a user with `kubectl config set-credentials`, `kubectl --context
+    newuser get pods` fails with a message about a missing certificate file after
+    the files were moved. Which flag would have prevented it?
+  options:
+  - id: a
+    text: "`--namespace=outpost` on `set-context`"
+    explanation: The namespace flag sets the default namespace and does not store
+      certificate data.
+  - id: b
+    text: "`--as=newuser` on `get pods`"
+    explanation: "`--as` is impersonation and does not change how the credential is
+      stored."
+  - id: c
+    text: "`--minify` on `config view`"
+    explanation: "`--minify` only changes what `config view` prints."
+  - id: d
+    text: "`--embed-certs=true` on `set-credentials`"
+    explanation: Correct. It copies the key and the certificate into the kubeconfig
+      file. Without it, the file keeps only the file paths.
+  correct_option: d
+  explanation: "`--embed-certs=true` stores the certificate and key data inside the
+    kubeconfig, so the context does not depend on separate files."
+- id: ats029-020-q07
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Check effective access with kubectl auth can-i and impersonation
+  source_readings:
+  - sections/section-020/module-02/course-03-kubeconfig-contexts-and-access-checks.md
+  - sections/section-020/module-01/course-02-rbac-grants-and-their-consequences.md
+  prompt: You need to know whether the group `bridge-crew` may list pods in `outpost`
+    without creating a context. Which command answers it?
+  options:
+  - id: a
+    text: "`kubectl auth whoami --as-group bridge-crew`"
+    explanation: "`whoami` prints an identity. It does not test a permission."
+  - id: b
+    text: "`kubectl auth can-i list pods -n outpost --as someone --as-group bridge-crew`"
+    explanation: Correct. `can-i` asks the authorizer, and `--as` and `--as-group`
+      choose the identity. The administrator needs the `impersonate` verb.
+  - id: c
+    text: "`kubectl get pods -n outpost --dry-run=server`"
+    explanation: A dry run is for requests that change objects, and it runs as your
+      own identity.
+  - id: d
+    text: "`kubectl config view --minify -n outpost`"
+    explanation: "`config view` prints the kubeconfig and never asks the API server."
+  correct_option: b
+  explanation: "`kubectl auth can-i` with `--as` and `--as-group` asks the authorizer
+    about another identity without needing its credential."
+- id: ats029-020-q08
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Order the stages of the API request path
+  source_readings:
+  - sections/section-020/module-03/course-01-the-admission-chain-mutating-and-validating.md
+  prompt: Which order does the API server use for a request that creates an object?
+  options:
+  - id: a
+    text: Authorization, authentication, mutating admission, validating admission
+    explanation: The caller must be identified before permissions are checked.
+  - id: b
+    text: Authentication, authorization, validating admission, mutating admission
+    explanation: Validating steps run after mutating steps so they judge the final
+      object.
+  - id: c
+    text: Authentication, authorization, mutating admission, schema validation, validating
+      admission
+    explanation: Correct. Mutating steps run first, then the object is checked against
+      its schema, and validating steps run last.
+  - id: d
+    text: Authentication, mutating admission, authorization, validating admission
+    explanation: Authorization runs before any admission step.
+  correct_option: c
+  explanation: Authentication and authorization come first. Mutating admission runs
+    before schema validation and validating admission, so a validating step sees the
+    final object.
+- id: ats029-020-q09
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain what LimitRange does and when it acts
+  source_readings:
+  - sections/section-020/module-03/course-02-limitrange-resourcequota-and-dry-run.md
+  prompt: A LimitRange with `default` and `defaultRequest` is created in `outpost`.
+    The `drifter` pod was already running without resources. What happens?
+  options:
+  - id: a
+    text: Nothing changes for the running pod. Pods created later receive the defaults.
+    explanation: Correct. The LimitRanger plugin acts when a pod is created, so a
+      restart of the workload applies it.
+  - id: b
+    text: The running pod receives the defaults without a restart.
+    explanation: Resources of a running container cannot be changed by a LimitRange.
+  - id: c
+    text: The running pod is restarted with the defaults at once.
+    explanation: Admission acts only on requests. It never restarts a pod.
+  - id: d
+    text: The LimitRange is rejected because pods already exist.
+    explanation: A LimitRange can be created at any time.
+  correct_option: a
+  explanation: The LimitRanger plugin acts on pod creation only. Existing pods keep
+    their values until the workload creates new pods.
+- id: ats029-020-q10
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Find the cause of missing replicas when a ResourceQuota blocks
+    pod creation
+  source_readings:
+  - sections/section-020/module-03/course-02-limitrange-resourcequota-and-dry-run.md
+  prompt: 'A namespace has a ResourceQuota of `pods: 2`. A Deployment is scaled to
+    3 replicas. `kubectl scale` succeeds, but only 2 pods run. Where do you read the
+    reason?'
+  options:
+  - id: a
+    text: In the output of `kubectl scale`.
+    explanation: The Deployment object is valid, so the command succeeds. The controller
+      fails later.
+  - id: b
+    text: In the `FailedCreate` events of the ReplicaSet, which show `exceeded quota`.
+    explanation: Correct. The ReplicaSet controller creates the pods, and the quota
+      rejection appears as an event on the ReplicaSet.
+  - id: c
+    text: In the logs of a container of the Deployment.
+    explanation: The third pod never exists, so it has no logs.
+  - id: d
+    text: In `kubectl auth can-i create pods`.
+    explanation: "`can-i` tests permission and not quota."
+  correct_option: b
+  explanation: A controller creates the pods, so a quota rejection appears as a `FailedCreate`
+    event on the ReplicaSet and not on your command.
+- id: ats029-020-q11
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Preview an admission decision with a server-side dry run
+  source_readings:
+  - sections/section-020/module-03/course-02-limitrange-resourcequota-and-dry-run.md
+  - sections/section-020/module-03/course-03-validating-admission-policy.md
+  prompt: You want to see whether a manifest passes a ValidatingAdmissionPolicy and
+    a ResourceQuota without storing anything. Which command does that?
+  options:
+  - id: a
+    text: "`kubectl apply -f x.yaml --dry-run=client`"
+    explanation: A client dry run never contacts admission, so it cannot show a policy
+      or quota decision.
+  - id: b
+    text: "`kubectl explain deployment`"
+    explanation: "`explain` prints schema documentation."
+  - id: c
+    text: "`kubectl get -f x.yaml`"
+    explanation: "`get` reads stored objects and does not run admission."
+  - id: d
+    text: "`kubectl apply -f x.yaml --dry-run=server`"
+    explanation: Correct. The server runs the full request, including admission, and
+      does not store the object.
+  correct_option: d
+  explanation: "`--dry-run=server` runs authentication, authorization and admission
+    and stores nothing. `--dry-run=client` only checks that the YAML parses."
+- id: ats029-020-q12
+  type: single_choice
+  difficulty: advanced
+  learning_objective: Write and bind a ValidatingAdmissionPolicy so that it rejects
+    requests in one namespace
+  source_readings:
+  - sections/section-020/module-03/course-03-validating-admission-policy.md
+  prompt: 'A ValidatingAdmissionPolicy limits replicas, and a binding for the namespace
+    `outpost` uses `validationActions: ["Warn"]`. A Deployment with 5 replicas is
+    applied in `outpost`. What happens?'
+  options:
+  - id: a
+    text: The request is rejected with a message that names the policy.
+    explanation: Only the action `Deny` rejects a request.
+  - id: b
+    text: The request is accepted and `kubectl` prints a warning.
+    explanation: Correct. `Warn` accepts the request and returns a warning to the
+      client. Change the action to `Deny` to enforce the rule.
+  - id: c
+    text: The request is accepted with no output, because `Warn` writes only to the
+      audit log.
+    explanation: "`Audit` writes to the audit log. `Warn` returns a warning to the
+      client."
+  - id: d
+    text: The request is rejected only for updates.
+    explanation: The action decides the result, not the operation.
+  correct_option: b
+  explanation: The binding chooses the action. `Warn` and `Audit` never reject; `Deny`
+    rejects.

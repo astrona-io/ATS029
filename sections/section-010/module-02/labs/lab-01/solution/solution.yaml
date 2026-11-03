@@ -1,0 +1,51 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: beacons.signals.astrona.io
+spec:
+  group: signals.astrona.io
+  scope: Namespaced
+  names:
+    plural: beacons
+    singular: beacon
+    kind: Beacon
+    listKind: BeaconList
+    shortNames:
+    - bcn
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    subresources:
+      status: {}
+    additionalPrinterColumns:
+    - name: Frequency
+      type: integer
+      jsonPath: .spec.frequencyMhz
+    - name: Mode
+      type: string
+      jsonPath: .spec.mode
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            required:
+            - frequencyMhz
+            properties:
+              frequencyMhz:
+                type: integer
+                minimum: 1
+                maximum: 1000
+              mode:
+                type: string
+                enum:
+                - steady
+                - pulse
+                default: steady
+          status:
+            type: object
+            properties:
+              phase:
+                type: string

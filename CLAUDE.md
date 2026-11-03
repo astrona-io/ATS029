@@ -205,9 +205,29 @@ The official objectives are listed in `astrona.yaml` and mapped in `CURRICULUM.m
 
 ### Playground and guided-practice scope
 
-On 2026-10-12 the maintainer requested CKAD playgrounds and hands-on teaching. This supersedes the earlier no-playgrounds instruction for CKAD. Add one ungraded environment per module and weave concrete practice into the reading order. Keep the existing YAML knowledge checks. No new graded labs or submission workflow are added in this scope.
+On 2026-10-12 the maintainer requested CKAD playgrounds and hands-on teaching. This supersedes the earlier no-playgrounds instruction for CKAD. Add one ungraded environment per module and weave concrete practice into the reading order. Keep the existing YAML knowledge checks. The 2026-10-13 maintainer request extends this scope to graded labs. Register each independent lab immediately after its teaching reading, with a task, solution, guarded bootstrap, reference repair and behavior grader. Keep technical pages draft until review.
 
 Playgrounds use the Astrona configuration contract, isolated kubeconfigs and bounded bootstrap waits. Do not write to unrelated clusters. Landing pages carry the playground launch marker, every practical reading renews it before the first step, and the final summary ends with the destroy marker. The shared writing and lifecycle guidance above applies to these environments.
+
+### Course layout (2026-11 gap closure)
+
+Each of the eight sections (one per official competency) has three modules,
+a section capstone and a section quiz:
+
+- `sections/section-0X0/module-01` is the original module (older style, kept).
+- `module-02` and `module-03` follow the ATS021 layout: landing page
+  `course.md`, parts `course-0N-*.md` (at least 90 lines), `course-0N-summary.md`,
+  one `playground/` and one graded `labs/lab-01/` per module.
+- `capstone/labs/lab-01` is one integrated graded lab per section
+  (`difficulty: advanced` in `astrona.yaml`; module labs are `intermediate`).
+- `quiz.yaml` is the section knowledge check (`type: quiz`, `pass_score: 70`).
+  `sections/final-domain-quiz.yaml` is the last entry of the manifest.
+- `questions.yaml` per section and `assessments/` are the earlier question
+  banks and stay as reusable data; they are not registered in the manifest.
+- New environments use `kindest/node:v1.35.8`, metadata names
+  `ats-029-playground-0X0-0N`, `ats-029-lab-0X0-0N`, `ats-029-capstone-0X0`.
+- All new labs and playgrounds are UNTESTED: authored with static checks
+  only (`astrona validate -c`, `bash -n`, YAML parse). Do not claim live results.
 
 ### Teaching structure and depth
 
@@ -247,3 +267,10 @@ Primary author sources are recorded in `SOURCES.md`. The objective list was
 verified on 2026-10-11. Detailed reading expansions were written on 2026-10-11.
 Validate manifest paths, summary ordering, curriculum coverage and question
 contracts. Record actual runtime evidence when available. Static validation is not live verification; do not invent command output.
+
+### Build status (2026-11)
+
+Gap closure is complete on disk: all 24 modules, 8 capstones, 8 section
+quizzes and `sections/final-domain-quiz.yaml` are registered in `astrona.yaml`.
+The final quiz reuses four questions from each section quiz. Everything is
+UNTESTED live; module-01 labs and playgrounds keep their older layout.

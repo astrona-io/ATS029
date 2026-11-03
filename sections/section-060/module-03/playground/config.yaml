@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Consume Secrets In Pods (PLAYGROUND) — playground environment.
+# A clean sandbox: it starts, applies the starfleet namespace with three
+# Secrets, three service accounts and two Deployments, then stays running for
+# free exploration. No task, no grading, no `astrona submit`.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-playground-060-03
+  docs:
+    guide: docs/overview.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - busybox:1.37.0
+      - curlimages/curl:8.22.0
+
+# What the learner starts with: Secrets bridge-credentials, bridge-certificate
+# and bridge-registry, service accounts scout, probe and auditor (no
+# permissions), and the scout and probe Deployments without any Secret.
+bootstrap:
+  manifests:
+    - name: starfleet
+      type: file
+      source: manifests/starfleet.yaml
+  waitFor:
+    - resource: deploy/scout
+      namespace: starfleet
+    - resource: deploy/probe
+      namespace: starfleet
+
+teardown:
+  keepCluster: false

@@ -1,0 +1,68 @@
+# Starting state for the Secret creation playground: two namespaces, a scout
+# Deployment and a drifter Deployment that use no Secrets yet, and one
+# existing Secret (scout-legacy) to read back and decode.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: outpost
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: scout-legacy
+  namespace: starfleet
+type: Opaque
+stringData:
+  username: scout-legacy-operator
+  password: Legacy-1138
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scout
+  namespace: starfleet
+  labels:
+    app: scout
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scout
+  template:
+    metadata:
+      labels:
+        app: scout
+    spec:
+      terminationGracePeriodSeconds: 1
+      containers:
+        - name: scout
+          image: busybox:1.37.0
+          command: ["sh", "-c", "sleep 3600"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drifter
+  namespace: outpost
+  labels:
+    app: drifter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: drifter
+  template:
+    metadata:
+      labels:
+        app: drifter
+    spec:
+      terminationGracePeriodSeconds: 1
+      containers:
+        - name: drifter
+          image: busybox:1.37.0
+          command: ["sh", "-c", "sleep 3600"]

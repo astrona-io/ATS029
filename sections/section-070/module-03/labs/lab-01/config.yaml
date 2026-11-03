@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# ServiceAccount Tokens And API Access (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-lab-070-03
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - curlimages/curl:8.22.0
+
+# Starting state: shuttle runs as the default service account, which cannot
+# list pods. No other service account, Role or RoleBinding exists in starfleet.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the workloads
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: shuttle-uses-own-account
+      description: shuttle pods run as the shuttle service account
+      type: file
+      source: validation/validate-shuttle-account.sh
+      hint: Create the service account shuttle in starfleet, point the Deployment at it with kubectl set serviceaccount and wait for the rollout.
+    - name: shuttle-lists-pods
+      description: A request from the shuttle pod to the API lists pods with HTTP 200
+      type: file
+      source: validation/validate-shuttle-lists-pods.sh
+      hint: Create a Role with get, list and watch on pods in starfleet and a RoleBinding to starfleet:shuttle. The binding subject needs the namespace.
+    - name: shuttle-cannot-read-secrets
+      description: The shuttle account cannot read Secrets
+      type: file
+      source: validation/validate-shuttle-no-secrets.sh
+      hint: The Role must name pods only. Do not use a wildcard resource and do not bind view, edit or admin.
+    - name: shuttle-is-read-only
+      description: The shuttle account cannot change or delete pods
+      type: file
+      source: validation/validate-shuttle-read-only.sh
+      hint: Use the verbs get, list and watch only.
+    - name: shuttle-stays-in-starfleet
+      description: shuttle cannot list pods in outpost and default stays unprivileged
+      type: file
+      source: validation/validate-scope.sh
+      hint: Use a Role and a RoleBinding in starfleet, not a ClusterRoleBinding, and do not bind the default account.
+
+teardown:
+  keepCluster: false

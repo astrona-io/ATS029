@@ -28,3 +28,18 @@ ID, not display position, so a later renderer can shuffle choices safely.
 
 The banks contain answer keys and are public learning material, so this is not
 a secure examination bank. Do not treat scores as an official CKAD result.
+
+## Graded Lab Expansion
+
+Every active module includes a draft independent graded lab. This course has 8 active graded labs, registered after the readings they practise. Each has its own cluster, task, solution, context guards, reference repair and behavior grader. Static and offline checks pass. Live verification remains pending because the authoring session cannot access the Podman socket. The installed CLI's configuration validator is separately blocked by its local-state maintenance lock.
+
+| Module | Labs in teaching order |
+| --- | --- |
+| 010/01 | Reconcile A Custom Resource |
+| 020/01 | Grant Namespace Pod Read Access |
+| 030/01 | Declare And Inspect A Namespace Pod Budget |
+| 040/01 | Consume A Mounted ConfigMap |
+| 050/01 | Declare Resources For Every Container |
+| 060/01 | Consume A Secret Without Printing It |
+| 070/01 | Use A Workload Identity For An API Request |
+| 080/01 | Run With A Restricted Security Context |

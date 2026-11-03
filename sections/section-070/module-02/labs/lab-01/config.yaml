@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Create And Assign ServiceAccounts (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-lab-070-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - curlimages/curl:8.22.0
+
+# Starting state: scout, probe and shuttle run as the default service
+# account with a mounted token, and the Secret regcred exists in starfleet.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the workloads and the registry credential
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: scout-account-no-token
+      description: The scout service account exists and switches the token mount off
+      type: file
+      source: validation/validate-scout-account.sh
+      hint: Create the service account scout in starfleet with automountServiceAccountToken set to false on the account.
+    - name: scout-pods-no-token
+      description: The running scout pods use the scout account and have no token volume
+      type: file
+      source: validation/validate-scout-pods.sh
+      hint: Set serviceAccountName in the Deployment pod template (kubectl set serviceaccount) and wait for the rollout. Old pods keep the old account.
+    - name: probe-pull-secret
+      description: The probe account carries regcred and probe pods received it
+      type: file
+      source: validation/validate-probe-pull-secret.sh
+      hint: Put imagePullSecrets with regcred on the probe service account, then roll the Deployment so new pods copy it.
+    - name: probe-keeps-token
+      description: probe pods still mount a token
+      type: file
+      source: validation/validate-probe-token.sh
+      hint: Only scout must lose its token. Do not set automountServiceAccountToken to false for probe or for the default account.
+    - name: scout-still-serves
+      description: shuttle reaches scout over HTTP
+      type: file
+      source: validation/validate-scout-serves.sh
+      hint: Check that the new scout pod is Running and Ready.
+
+teardown:
+  keepCluster: false

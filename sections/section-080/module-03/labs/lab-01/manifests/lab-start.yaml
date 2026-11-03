@@ -1,0 +1,47 @@
+# Starting state for the Pod Security Admission lab. The `outpost` namespace
+# enforces the restricted level. The `bridge` Deployment breaks it on purpose,
+# so its ReplicaSet creates no pod. The learner fixes the pod template.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: outpost
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bridge
+  namespace: outpost
+  labels:
+    app: bridge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bridge
+  template:
+    metadata:
+      labels:
+        app: bridge
+    spec:
+      hostNetwork: true
+      volumes:
+        - name: work
+          hostPath:
+            path: /tmp/bridge-work
+            type: DirectoryOrCreate
+      containers:
+        - name: bridge
+          image: docker.io/library/busybox:1.37.0
+          command: ["sh", "-c", "echo up > /tmp/state; while true; do date > /work/heartbeat; sleep 5; done"]
+          volumeMounts:
+            - name: work
+              mountPath: /work
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi

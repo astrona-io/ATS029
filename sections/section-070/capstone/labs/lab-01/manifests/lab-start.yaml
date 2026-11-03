@@ -1,0 +1,104 @@
+# Capstone start: the bridge client and the scout backend run as the default
+# service account of starfleet, and that account is bound to cluster-admin.
+# The faults are left in place on purpose.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: regcred
+  namespace: starfleet
+type: kubernetes.io/dockerconfigjson
+stringData:
+  .dockerconfigjson: '{"auths":{"registry.example.com":{"username":"starfleet","password":"not-a-real-password","auth":"c3RhcmZsZWV0Om5vdC1hLXJlYWwtcGFzc3dvcmQ="}}}'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: starfleet-default-admin
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: starfleet
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scout
+  namespace: starfleet
+  labels:
+    app: scout
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scout
+  template:
+    metadata:
+      labels:
+        app: scout
+    spec:
+      containers:
+        - name: scout
+          image: ghcr.io/stefanprodan/podinfo:6.15.0
+          ports:
+            - name: http
+              containerPort: 9898
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scout
+  namespace: starfleet
+spec:
+  selector:
+    app: scout
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bridge
+  namespace: starfleet
+  labels:
+    app: bridge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bridge
+  template:
+    metadata:
+      labels:
+        app: bridge
+    spec:
+      containers:
+        - name: bridge
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi

@@ -1,0 +1,10 @@
+# Starting state: two empty namespaces. The learner registers the Beacon type.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: outpost

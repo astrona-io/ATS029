@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Create A User With A CertificateSigningRequest (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-lab-020-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - busybox:1.37.0
+
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the namespaces and the two Deployments
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: csr-approved-and-issued
+      description: The CertificateSigningRequest ensign-lee is approved and a client certificate for ensign-lee was issued
+      type: file
+      source: validation/validate-csr-approved.sh
+      hint: Create the CertificateSigningRequest with signerName kubernetes.io/kube-apiserver-client and usages client auth, then run kubectl certificate approve ensign-lee. The subject of the key request must be CN=ensign-lee.
+    - name: kubeconfig-context-works
+      description: The context ensign-lee exists with embedded credentials and kubectl auth whoami returns ensign-lee
+      type: file
+      source: validation/validate-context-whoami.sh
+      hint: Use kubectl config set-credentials ensign-lee with --embed-certs=true, then kubectl config set-context ensign-lee with the cluster of the current context.
+    - name: ensign-lee-reads-outpost-pods
+      description: ensign-lee can get, list and watch pods in outpost through the new context
+      type: file
+      source: validation/validate-reads-pods.sh
+      hint: Create a Role in outpost with get, list and watch on pods and a RoleBinding to the User ensign-lee.
+    - name: ensign-lee-least-privilege
+      description: ensign-lee cannot change pods, read Secrets, or read anything in starfleet
+      type: file
+      source: validation/validate-least-privilege.sh
+      hint: Bind only a read Role in outpost. A RoleBinding grants access only in its own namespace.
+    - name: no-over-broad-grant
+      description: No ClusterRoleBinding names ensign-lee and the certificate has no system:masters group
+      type: file
+      source: validation/validate-no-broad-grant.sh
+      hint: Do not use cluster-admin, and do not put O=system:masters in the certificate subject.
+
+teardown:
+  keepCluster: false

@@ -1,0 +1,32 @@
+# Starting state for the ConfigMaps capstone: the starfleet namespace and a
+# scout Deployment with two busybox replicas and no configuration yet.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scout
+  namespace: starfleet
+  labels:
+    app: scout
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: scout
+  template:
+    metadata:
+      labels:
+        app: scout
+    spec:
+      containers:
+        - name: scout
+          image: docker.io/library/busybox:1.37.0
+          command: ["sleep", "86400"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi

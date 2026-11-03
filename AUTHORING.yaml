@@ -1,5 +1,6 @@
 version: 1
-approval: CKAD playgrounds and guided practice requested 2026-10-12; no new graded labs.
+approval: Maintainer requested continued CKAD playground and graded lab development
+  on 2026-10-13, extending the 2026-10-12 playground scope.
 course:
   id: ATS029
   certification:
@@ -43,7 +44,7 @@ sections:
     - Reading A Custom Resource And Its Controller Contract
     - Create A Custom Resource And Observe Its Controller
     playground: true
-    module_lab: false
+    module_lab: true
     sources:
     - reading: sections/section-010/module-01/course-01-custom-resources-and-operators.md
       adapted_from: ATS037/sections/section-020/module-03/course-02-custom-resources-and-operators.md
@@ -53,6 +54,14 @@ sections:
       adapted_from: null
     practice_readings:
     - sections/section-010/module-01/course-03-guided-practice.md
+    labs:
+    - id: lab-01
+      path: sections/section-010/module-01/labs/lab-01
+      after_reading: sections/section-010/module-01/course-02-reading-a-custom-resource-and-its-controller-contract.md
+      objective: Create a served custom resource and verify its controller-managed
+        output.
+      status: draft
+      runtime_verification: pending
 - id: section-020
   title: Understand authentication, authorization and admission control
   curriculum_item: Understand authentication, authorization and admission control
@@ -71,7 +80,7 @@ sections:
     - RBAC Grants And Their Consequences
     - Grant One Namespace Permission And Verify A Denial
     playground: true
-    module_lab: false
+    module_lab: true
     sources:
     - reading: sections/section-020/module-01/course-01-api-request-checks-and-workload-identity.md
       adapted_from: ATS038/sections/section-020/module-01/course-01-api-request-checks-and-workload-identity.md
@@ -81,6 +90,14 @@ sections:
       adapted_from: null
     practice_readings:
     - sections/section-020/module-01/course-03-guided-practice.md
+    labs:
+    - id: lab-01
+      path: sections/section-020/module-01/labs/lab-01
+      objective: Grant a ServiceAccount only Pod read access in the required namespace
+        and verify denied operations.
+      status: draft
+      runtime_verification: pending
+      after_reading: sections/section-020/module-01/course-02-rbac-grants-and-their-consequences.md
 - id: section-030
   title: Understand requests, limits, quotas
   curriculum_item: Understand requests, limits, quotas
@@ -98,7 +115,7 @@ sections:
     - Requests, Limits And Namespace Budgets
     - Observe Quota Rejection And Resource Accounting
     playground: true
-    module_lab: false
+    module_lab: true
     sources:
     - reading: sections/section-030/module-01/course-01-requests-limits-and-namespace-budgets.md
       adapted_from: ATS037/sections/section-020/module-02/course-02-requests-limits-and-namespace-budgets.md
@@ -106,6 +123,14 @@ sections:
       adapted_from: null
     practice_readings:
     - sections/section-030/module-01/course-02-guided-practice.md
+    labs:
+    - id: lab-01
+      path: sections/section-030/module-01/labs/lab-01
+      after_reading: sections/section-030/module-01/course-01-requests-limits-and-namespace-budgets.md
+      objective: Set a namespace Pod quota and inspect the measured capacity already
+        in use.
+      status: draft
+      runtime_verification: pending
 - id: section-040
   title: Understand ConfigMaps
   curriculum_item: Understand ConfigMaps
@@ -124,7 +149,7 @@ sections:
     - Configuration, Dependencies And Request Failures
     - Compare Environment And Mounted ConfigMap Updates
     playground: true
-    module_lab: false
+    module_lab: true
     sources:
     - reading: sections/section-040/module-01/course-01-configmaps-secrets-and-configuration-delivery.md
       adapted_from: ATS037/sections/section-020/module-02/course-01-configmaps-secrets-and-configuration-delivery.md
@@ -134,6 +159,14 @@ sections:
       adapted_from: null
     practice_readings:
     - sections/section-040/module-01/course-03-guided-practice.md
+    labs:
+    - id: lab-01
+      path: sections/section-040/module-01/labs/lab-01
+      after_reading: sections/section-040/module-01/course-01-configmaps-secrets-and-configuration-delivery.md
+      objective: Mount non-secret configuration and verify the application actually
+        reads it.
+      status: draft
+      runtime_verification: pending
 - id: section-050
   title: Define resource requirements
   curriculum_item: Define resource requirements
@@ -151,7 +184,7 @@ sections:
     - Expressing Resource Needs For Every Container
     - Declare Resources For Every Ordinary Container
     playground: true
-    module_lab: false
+    module_lab: true
     sources:
     - reading: sections/section-050/module-01/course-01-expressing-resource-needs-for-every-container.md
       adapted_from: null
@@ -159,6 +192,14 @@ sections:
       adapted_from: null
     practice_readings:
     - sections/section-050/module-01/course-02-guided-practice.md
+    labs:
+    - id: lab-01
+      path: sections/section-050/module-01/labs/lab-01
+      after_reading: sections/section-050/module-01/course-01-expressing-resource-needs-for-every-container.md
+      objective: Give both ordinary containers explicit requests and limits without
+        losing application availability.
+      status: draft
+      runtime_verification: pending
 - id: section-060
   title: Create & consume Secrets
   curriculum_item: Create & consume Secrets
@@ -177,7 +218,7 @@ sections:
     - Credentials And Image Supply Chains
     - Consume A Disposable Secret Without Printing Its Value
     playground: true
-    module_lab: false
+    module_lab: true
     sources:
     - reading: sections/section-060/module-01/course-01-secret-storage-delivery-and-rotation.md
       adapted_from: ATS043/sections/section-050/module-01/course-01-secret-storage-delivery-and-rotation.md
@@ -187,6 +228,13 @@ sections:
       adapted_from: null
     practice_readings:
     - sections/section-060/module-01/course-03-guided-practice.md
+    labs:
+    - id: lab-01
+      path: sections/section-060/module-01/labs/lab-01
+      after_reading: sections/section-060/module-01/course-01-secret-storage-delivery-and-rotation.md
+      objective: Use both a required Secret key reference and a read-only Secret volume.
+      status: draft
+      runtime_verification: pending
 - id: section-070
   title: Understand ServiceAccounts
   curriculum_item: Understand ServiceAccounts
@@ -205,7 +253,7 @@ sections:
     - RBAC Scope And Least Privilege
     - Use A Workload ServiceAccount For A Real API Request
     playground: true
-    module_lab: false
+    module_lab: true
     sources:
     - reading: sections/section-070/module-01/course-01-api-identity-and-serviceaccounts.md
       adapted_from: ATS043/sections/section-030/module-01/course-01-api-identity-and-serviceaccounts.md
@@ -215,9 +263,18 @@ sections:
       adapted_from: null
     practice_readings:
     - sections/section-070/module-01/course-03-guided-practice.md
+    labs:
+    - id: lab-01
+      path: sections/section-070/module-01/labs/lab-01
+      after_reading: sections/section-070/module-01/course-02-rbac-scope-and-least-privilege.md
+      objective: Run the application with a narrow identity and authenticate a real
+        API request from its container.
+      status: draft
+      runtime_verification: pending
 - id: section-080
   title: Understand Application Security (SecurityContexts, Capabilities, etc.)
-  curriculum_item: Understand Application Security (SecurityContexts, Capabilities, etc.)
+  curriculum_item: Understand Application Security (SecurityContexts, Capabilities,
+    etc.)
   capstone: false
   section_quiz: true
   modules:
@@ -233,7 +290,7 @@ sections:
     - Security Contexts And Pod Admission
     - Run Non-Root With A Read-Only Root Filesystem
     playground: true
-    module_lab: false
+    module_lab: true
     sources:
     - reading: sections/section-080/module-01/course-01-security-contexts-and-profile-requirements.md
       adapted_from: ATS043/sections/section-010/module-01/course-01-security-contexts-and-profile-requirements.md
@@ -243,3 +300,11 @@ sections:
       adapted_from: null
     practice_readings:
     - sections/section-080/module-01/course-03-guided-practice.md
+    labs:
+    - id: lab-01
+      path: sections/section-080/module-01/labs/lab-01
+      after_reading: sections/section-080/module-01/course-02-security-contexts-and-pod-admission.md
+      objective: Keep a non-root workload functional with a read-only root filesystem
+        and a writable scratch volume.
+      status: draft
+      runtime_verification: pending

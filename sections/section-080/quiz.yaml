@@ -1,0 +1,301 @@
+# Knowledge check for section 080. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats029-080
+course_id: ATS029
+exam_code: CKAD
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-080
+  title: "Understand Application Security (SecurityContexts, Capabilities, etc.)"
+questions:
+
+  - id: ats029-080-q01
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Distinguish Pod-level and container-level security settings"
+    source_readings:
+      - sections/section-080/module-01/course-01-security-contexts-and-profile-requirements.md
+    prompt: |-
+      A Pod has two containers. The Pod-level `securityContext` sets `runAsUser: 2000`. One container sets `runAsUser: 2500` and the other sets nothing. Which users do the containers run as?
+    options:
+      - id: a
+        text: "Both run as 2000, because the Pod-level value always wins."
+        explanation: "The container-level value replaces the Pod-level value, so this is wrong."
+      - id: b
+        text: "The first container runs as 2500 and the second as 2000."
+        explanation: "Correct. A container-level value replaces the Pod-level value for that container only, and a container without its own value uses the Pod value."
+      - id: c
+        text: "Both run as 2500, because the last value written is used for the whole Pod."
+        explanation: "Values are not shared between containers, so this is wrong."
+      - id: d
+        text: "The Pod is rejected because the two levels set different values."
+        explanation: "Kubernetes does not reject this; overriding is allowed."
+    correct_option: b
+    explanation: "A container-level value replaces the Pod-level value for that container only. A container without its own value uses the Pod value."
+
+  - id: ats029-080-q02
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Explain why a read-only root filesystem needs writable volumes"
+    source_readings:
+      - sections/section-080/module-01/course-02-security-contexts-and-pod-admission.md
+    prompt: |-
+      An application crashes after `readOnlyRootFilesystem: true` is added. The log says it cannot write to `/var/cache/app`. What is the correct fix?
+    options:
+      - id: a
+        text: "Set `privileged: true` so the container may write anywhere."
+        explanation: "This removes almost every protection and does not address the cause."
+      - id: b
+        text: "Remove `readOnlyRootFilesystem` and run as root."
+        explanation: "This removes the protection instead of giving the application the one writable path it needs."
+      - id: c
+        text: "Mount an `emptyDir` volume at `/var/cache/app` and keep the root filesystem read-only."
+        explanation: "Correct. A writable volume at the specific path keeps the rest of the filesystem read-only."
+      - id: d
+        text: "Set `allowPrivilegeEscalation: true`."
+        explanation: "This setting has nothing to do with writing to the filesystem."
+    correct_option: c
+    explanation: "Mount a writable volume at the directory the application writes, and keep the rest of the root filesystem read-only."
+
+  - id: ats029-080-q03
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain how fsGroup sets volume ownership"
+    source_readings:
+      - sections/section-080/module-02/course-01-user-group-and-volume-ownership.md
+    prompt: |-
+      A Pod runs as user 2000 with `fsGroup: 4000` and mounts an `emptyDir` volume at `/data`. The container creates `/data/log.txt`. Which owner and group does the file get?
+    options:
+      - id: a
+        text: "User 0 and group 0, because the volume belongs to root."
+        explanation: "The file is created by the process user, not root."
+      - id: b
+        text: "User 2000 and group 3000, the Pod group."
+        explanation: "No `runAsGroup` is set here, and the setgid bit on the directory gives new files the group of the directory."
+      - id: c
+        text: "User 4000 and group 4000, because `fsGroup` changes the user too."
+        explanation: "`fsGroup` sets a group, never a user."
+      - id: d
+        text: "User 2000 and group 4000, because the kubelet sets the group of the volume to `fsGroup` and the setgid bit on the directory."
+        explanation: "Correct. The kubelet sets the volume group to `fsGroup` and the setgid bit makes new files inherit it. The owner is the process user."
+    correct_option: d
+    explanation: "The kubelet sets the group of the volume to `fsGroup` and sets the setgid bit, so new files get group 4000 and belong to the process user."
+
+  - id: ats029-080-q04
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Choose the Pod-level or container-level field for a security setting"
+    source_readings:
+      - sections/section-080/module-02/course-01-user-group-and-volume-ownership.md
+    prompt: |-
+      Which pair of fields is valid at Pod level only?
+    options:
+      - id: a
+        text: "`fsGroup` and `supplementalGroups`"
+        explanation: "Correct. Both set groups for the whole Pod and are not valid in a container."
+      - id: b
+        text: "`runAsUser` and `runAsNonRoot`"
+        explanation: "Both fields are valid at Pod level and at container level."
+      - id: c
+        text: "`capabilities` and `allowPrivilegeEscalation`"
+        explanation: "Both fields are valid at container level only."
+      - id: d
+        text: "`privileged` and `readOnlyRootFilesystem`"
+        explanation: "Both fields are valid at container level only."
+    correct_option: a
+    explanation: "`fsGroup` and `supplementalGroups` exist at Pod level only. `runAsUser` and `runAsNonRoot` work at both levels. The others are container-level fields."
+
+  - id: ats029-080-q05
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain why runAsNonRoot needs a numeric user"
+    source_readings:
+      - sections/section-080/module-02/course-01-user-group-and-volume-ownership.md
+    prompt: |-
+      A container sets `runAsNonRoot: true` and no `runAsUser`. Its image defines the user by the name `app`. The Pod shows `CreateContainerConfigError`. What fixes it?
+    options:
+      - id: a
+        text: "Add `runAsUser` with a numeric user ID that is not 0."
+        explanation: "Correct. The kubelet cannot prove that a named user is not root. A numeric non-zero user ID removes the doubt."
+      - id: b
+        text: "Change the namespace to the `privileged` level."
+        explanation: "Pod Security levels do not change what the kubelet checks at start."
+      - id: c
+        text: "Add `allowPrivilegeEscalation: true`."
+        explanation: "This setting does not change the user check and weakens security."
+      - id: d
+        text: "Remove `runAsNonRoot` and keep the image user."
+        explanation: "This removes the protection instead of fixing the cause."
+    correct_option: a
+    explanation: "The kubelet cannot map a name to a number, so it refuses. A numeric non-zero runAsUser fixes it."
+
+  - id: ats029-080-q06
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Show the effect of dropping a Linux capability"
+    source_readings:
+      - sections/section-080/module-02/course-02-capabilities-and-privilege.md
+    prompt: |-
+      A container runs as root with `capabilities: {drop: ["ALL"]}`. The command `chown 1234 /tmp/file` fails. Which change lets only that command work again?
+    options:
+      - id: a
+        text: "Set `privileged: true`."
+        explanation: "This works but gives every capability and device, far more than needed."
+      - id: b
+        text: "Add `CHOWN` to the `add` list next to the `drop` list."
+        explanation: "Correct. The command needs the `CHOWN` capability, and the name is written without the `CAP_` prefix."
+      - id: c
+        text: "Set `runAsUser: 0`."
+        explanation: "The container already runs as root, and root without capabilities still cannot change owners."
+      - id: d
+        text: "Set `allowPrivilegeEscalation: true`."
+        explanation: "This setting does not add capabilities."
+    correct_option: b
+    explanation: "Drop ALL and add back only the capability the command needs. The name has no `CAP_` prefix."
+
+  - id: ats029-080-q07
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain what allowPrivilegeEscalation changes"
+    source_readings:
+      - sections/section-080/module-02/course-02-capabilities-and-privilege.md
+    prompt: |-
+      What does `allowPrivilegeEscalation: false` do to a container process?
+    options:
+      - id: a
+        text: "It removes all Linux capabilities from the process."
+        explanation: "Capabilities are removed with the `capabilities` field."
+      - id: b
+        text: "It makes the root filesystem read-only."
+        explanation: "The read-only root filesystem is a separate field."
+      - id: c
+        text: "It sets the `no_new_privs` flag, so setuid files and file capabilities cannot give the process more privilege."
+        explanation: "Correct. The kernel then ignores setuid bits and file capabilities for the process and its children."
+      - id: d
+        text: "It blocks all system calls that change files."
+        explanation: "System calls are filtered by seccomp, not by this field."
+    correct_option: c
+    explanation: "The field sets `no_new_privs`. It is always on for privileged containers."
+
+  - id: ats029-080-q08
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Identify an invalid combination of privilege settings"
+    source_readings:
+      - sections/section-080/module-02/course-02-capabilities-and-privilege.md
+    prompt: |-
+      A container sets `privileged: true` and `allowPrivilegeEscalation: false`. What happens when you apply the Pod?
+    options:
+      - id: a
+        text: "The Pod is created and the container runs without escalation."
+        explanation: "A privileged container can always escalate, so the two values exclude each other."
+      - id: b
+        text: "The API server rejects the Pod with an invalid value error."
+        explanation: "Correct. API validation rejects the combination before any admission policy runs."
+      - id: c
+        text: "The kubelet refuses to start the container."
+        explanation: "The error comes from API validation, before the kubelet."
+      - id: d
+        text: "The Pod is created and `privileged` is ignored."
+        explanation: "`privileged` is not ignored; the request is rejected."
+    correct_option: b
+    explanation: "The API server rejects the Pod because a privileged container always allows escalation."
+
+  - id: ats029-080-q09
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Read the seccomp state of a container process"
+    source_readings:
+      - sections/section-080/module-03/course-01-seccomp-and-read-only-filesystem.md
+    prompt: |-
+      A Pod sets no `seccompProfile` in a standard kind cluster. What does the `Seccomp:` line in `/proc/1/status` show?
+    options:
+      - id: a
+        text: "0, because Pods without a profile run unconfined unless the node enables `SeccompDefault`."
+        explanation: "Correct. The filter is off unless the kubelet makes the runtime default the default."
+      - id: b
+        text: "2, because Kubernetes always applies `RuntimeDefault`."
+        explanation: "Only a Pod that sets `RuntimeDefault`, or a node with `SeccompDefault`, shows 2."
+      - id: c
+        text: "1, because strict mode is the default."
+        explanation: "Strict mode is not used by Kubernetes Pods."
+      - id: d
+        text: "There is no such line without a profile."
+        explanation: "The kernel always prints the line."
+    correct_option: a
+    explanation: "Set `RuntimeDefault` explicitly. A Pod that sets nothing normally shows 0."
+
+  - id: ats029-080-q10
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain the scope of readOnlyRootFilesystem"
+    source_readings:
+      - sections/section-080/module-03/course-01-seccomp-and-read-only-filesystem.md
+    prompt: |-
+      A container has `readOnlyRootFilesystem: true` and an `emptyDir` mounted at `/tmp`. What happens when it runs `touch /tmp/a` and `touch /a`?
+    options:
+      - id: a
+        text: "Both fail because the field applies to every mount."
+        explanation: "The field applies to the root filesystem only, not to volumes."
+      - id: b
+        text: "Both work because `emptyDir` volumes cover the whole filesystem."
+        explanation: "A volume covers only its mount path."
+      - id: c
+        text: "The first fails and the second works."
+        explanation: "This is reversed."
+      - id: d
+        text: "The first works and the second fails with `Read-only file system`."
+        explanation: "Correct. `/tmp` is a writable volume and `/` stays read-only."
+    correct_option: d
+    explanation: "The field protects the root filesystem only, so volume mounts stay writable unless `readOnly: true` is set on the mount."
+
+  - id: ats029-080-q11
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain what host access settings give a Pod"
+    source_readings:
+      - sections/section-080/module-03/course-02-host-access-and-sysctls.md
+    prompt: |-
+      Which statement about a Pod with `hostNetwork: true` is correct?
+    options:
+      - id: a
+        text: "It uses the network namespace of the node, so its pod IP address equals the node IP address."
+        explanation: "Correct. The Pod shares the network of the node, and `baseline` and `restricted` reject it."
+      - id: b
+        text: "It gets a second network interface in addition to the pod network."
+        explanation: "The Pod shares the node network; it does not get an extra interface."
+      - id: c
+        text: "It is only allowed in namespaces that enforce `restricted`."
+        explanation: "The `baseline` and `restricted` levels reject it."
+      - id: d
+        text: "It makes the container privileged."
+        explanation: "It does not add capabilities. It only shares the network namespace."
+    correct_option: a
+    explanation: "With `hostNetwork: true` the Pod shares the network namespace of the node."
+
+  - id: ats029-080-q12
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Find and fix the rejection of a Deployment in a restricted namespace"
+    source_readings:
+      - sections/section-080/module-03/course-03-pod-security-admission-and-a-rejected-deployment.md
+    prompt: |-
+      A Deployment in a namespace that enforces `restricted` shows `0/1` ready and `kubectl get pods` lists no Pod for it. Where is the reason, and what is the correct fix?
+    options:
+      - id: a
+        text: "In the events of the Pod; lower the namespace level to `baseline`."
+        explanation: "No Pod exists, so it has no events, and lowering the level removes the protection for the whole namespace."
+      - id: b
+        text: "In the Deployment logs; scale the Deployment to 2 replicas."
+        explanation: "A Deployment has no logs and more replicas do not help."
+      - id: c
+        text: "In the events of the ReplicaSet (`FailedCreate`); fix the Pod template so it meets `restricted`."
+        explanation: "Correct. The ReplicaSet controller sends the Pod create request and the API server rejects it. The message lists every failed check."
+      - id: d
+        text: "In the kubelet log of the node; label the namespace with `warn` instead of `enforce`."
+        explanation: "The rejection happens in the API server, not on the node."
+    correct_option: c
+    explanation: "The Deployment is accepted, and the ReplicaSet events hold the PodSecurity message. Fix the Pod template, not the namespace label."

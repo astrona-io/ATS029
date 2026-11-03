@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Set Container Defaults And Limit Replicas With Admission (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-lab-020-03
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - busybox:1.37.0
+
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the namespaces and the two Deployments
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: limitrange-defaults
+      description: New containers in outpost receive the default requests and limits, and starfleet is not affected
+      type: file
+      source: validation/validate-limitrange-defaults.sh
+      hint: Create a LimitRange in outpost with type Container, defaultRequest cpu 50m and memory 32Mi, and default (the limit) cpu 200m and memory 64Mi.
+    - name: replicas-over-three-denied
+      description: A Deployment with more than 3 replicas is rejected in outpost on create and on update, with a message from a ValidatingAdmissionPolicy
+      type: file
+      source: validation/validate-replicas-denied.sh
+      hint: Write a ValidatingAdmissionPolicy with operations CREATE and UPDATE on deployments and the expression object.spec.replicas <= 3, and a binding with the action Deny.
+    - name: policy-scoped-to-outpost
+      description: Deployments with up to 3 replicas pass in outpost, and the policy does not apply in starfleet
+      type: file
+      source: validation/validate-policy-scope.sh
+      hint: Select only the outpost namespace in the binding, with namespaceSelector on the label kubernetes.io/metadata.name.
+    - name: drifter-unchanged
+      description: The drifter Deployment still exists with one available replica
+      type: file
+      source: validation/validate-drifter-unchanged.sh
+      hint: Do not delete or scale the drifter Deployment. Policies and limits do not need a change to it.
+
+teardown:
+  keepCluster: false

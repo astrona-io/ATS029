@@ -1,0 +1,102 @@
+# Starting state for the Secret consumption playground: the starfleet namespace
+# with three Secrets, three service accounts and two Deployments that use no
+# Secrets yet.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: scout
+  namespace: starfleet
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: probe
+  namespace: starfleet
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: auditor
+  namespace: starfleet
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bridge-credentials
+  namespace: starfleet
+type: Opaque
+stringData:
+  username: bridge-operator
+  password: Nebula-7421
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bridge-certificate
+  namespace: starfleet
+type: Opaque
+stringData:
+  tls.crt: placeholder-certificate-for-the-exercise
+  tls.key: placeholder-key-for-the-exercise
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bridge-registry
+  namespace: starfleet
+type: kubernetes.io/dockerconfigjson
+stringData:
+  .dockerconfigjson: '{"auths":{"registry.starfleet.example":{"username":"fleet-puller","password":"Warp-9000","auth":"ZmxlZXQtcHVsbGVyOldhcnAtOTAwMA=="}}}'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scout
+  namespace: starfleet
+  labels:
+    app: scout
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scout
+  template:
+    metadata:
+      labels:
+        app: scout
+    spec:
+      serviceAccountName: scout
+      terminationGracePeriodSeconds: 1
+      containers:
+        - name: scout
+          image: busybox:1.37.0
+          command: ["sh", "-c", "sleep 3600"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: probe
+  namespace: starfleet
+  labels:
+    app: probe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: probe
+  template:
+    metadata:
+      labels:
+        app: probe
+    spec:
+      serviceAccountName: probe
+      terminationGracePeriodSeconds: 1
+      containers:
+        - name: probe
+          image: busybox:1.37.0
+          command: ["sh", "-c", "sleep 3600"]

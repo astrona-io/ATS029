@@ -1,0 +1,339 @@
+# Knowledge check for section 070. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats029-070
+course_id: ATS029
+exam_code: CKAD
+status: draft
+provenance: Original practice material written for this course; not official exam
+  questions.
+scope:
+  type: section
+  id: section-070
+  title: Understand ServiceAccounts
+questions:
+- id: ats029-070-q01
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Explain what identity a pod uses to call the Kubernetes API
+    and which account it gets when none is named
+  source_readings:
+  - sections/section-070/module-01/course-01-api-identity-and-serviceaccounts.md
+  prompt: A Deployment template in `starfleet` does not set `serviceAccountName`.
+    Which identity do its pods use for API requests?
+  options:
+  - id: a
+    text: The `default` ServiceAccount of `starfleet`, written into the pod by the
+      ServiceAccount admission controller.
+    explanation: Correct. The admission controller sets `default` when the template
+      names no account, and the pod stores that value.
+  - id: b
+    text: "`system:anonymous`, because no account was named."
+    explanation: The pod always gets a ServiceAccount. Anonymous is the identity of
+      a request with no valid credentials.
+  - id: c
+    text: The account named like the Deployment, created automatically.
+    explanation: Kubernetes never creates an account from a Deployment name.
+  - id: d
+    text: The `default` ServiceAccount of the `default` namespace.
+    explanation: A ServiceAccount is namespaced, and the lookup uses the namespace
+      of the pod.
+  correct_option: a
+  explanation: The admission controller sets `default` when the template names no
+    account, and the pod stores that value.
+- id: ats029-070-q02
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Distinguish authentication failure from authorization failure
+    in an API response
+  source_readings:
+  - sections/section-070/module-01/course-01-api-identity-and-serviceaccounts.md
+  prompt: 'A pod calls the API server with its mounted token and receives HTTP 403
+    with the message `pods is forbidden: User "system:serviceaccount:starfleet:default"
+    cannot list resource "pods"`. What is the correct next step?'
+  options:
+  - id: a
+    text: Request a new token with `kubectl create token`.
+    explanation: A 403 means the token was accepted. A new token for the same account
+      is refused in the same way.
+  - id: b
+    text: Disable `automountServiceAccountToken` on the account.
+    explanation: This removes the token from new pods and does not grant any permission.
+  - id: c
+    text: Grant the account a Role with the `list` verb on pods in `starfleet` through
+      a RoleBinding.
+    explanation: Correct. Authentication succeeded and authorization refused the request,
+      so a rule must allow it.
+  - id: d
+    text: Add `imagePullSecrets` to the account.
+    explanation: Pull secrets are used by the kubelet to pull images and have no effect
+      on API authorization.
+  correct_option: c
+  explanation: Authentication succeeded and authorization refused the request, so
+    a rule must allow it.
+- id: ats029-070-q03
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Separate credential delivery from permission grants
+  source_readings:
+  - sections/section-070/module-01/course-01-api-identity-and-serviceaccounts.md
+  prompt: 'A security reviewer sets `automountServiceAccountToken: false` on an account
+    that has a RoleBinding granting `list` on pods. What is the effect?'
+  options:
+  - id: a
+    text: The RoleBinding stops working for the account.
+    explanation: The binding stays in place. Only the token mount changes.
+  - id: b
+    text: New pods of the account have no token volume, and the account keeps its
+      permissions.
+    explanation: Correct. The field controls credential delivery. A token requested
+      another way still carries the account permissions.
+  - id: c
+    text: All existing pods of the account lose their token at once.
+    explanation: The volume is added when a pod is created, so running pods are not
+      changed.
+  - id: d
+    text: The account is deleted after its pods restart.
+    explanation: The field never deletes anything.
+  correct_option: b
+  explanation: The field controls credential delivery. A token requested another way
+    still carries the account permissions.
+- id: ats029-070-q04
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Choose namespace-scoped grants for a least-privilege role
+  source_readings:
+  - sections/section-070/module-01/course-02-rbac-scope-and-least-privilege.md
+  prompt: The `shuttle` ServiceAccount in `outpost` must only read pods in `outpost`.
+    Which design is correct?
+  options:
+  - id: a
+    text: A ClusterRoleBinding to the `view` ClusterRole.
+    explanation: This grants read access to many resources in every namespace.
+  - id: b
+    text: A Role in `outpost` for `get`, `list` and `watch` on pods and a RoleBinding
+      in `outpost` that names the `shuttle` account with its namespace.
+    explanation: Correct. The Role and the binding are in one namespace, and the subject
+      carries the namespace of the account.
+  - id: c
+    text: A Role in `starfleet` and a RoleBinding in `outpost`.
+    explanation: A RoleBinding can only refer to a Role in its own namespace.
+  - id: d
+    text: A RoleBinding in `outpost` that names the subject `shuttle` without a namespace.
+    explanation: A ServiceAccount subject needs its namespace, otherwise it does not
+      identify the intended account.
+  correct_option: b
+  explanation: The Role and the binding are in one namespace, and the subject carries
+    the namespace of the account.
+- id: ats029-070-q05
+  type: single_choice
+  difficulty: beginner
+  learning_objective: Create a ServiceAccount and assign it to a Deployment
+  source_readings:
+  - sections/section-070/module-02/course-01-create-and-assign-a-serviceaccount.md
+  prompt: Which command makes the `scout` Deployment in `starfleet` use the existing
+    ServiceAccount `scout-sa`?
+  options:
+  - id: a
+    text: "`kubectl -n starfleet set serviceaccount deployment scout scout-sa`"
+    explanation: Correct. The command edits `spec.template.spec.serviceAccountName`,
+      and the Deployment rolls new pods.
+  - id: b
+    text: '`kubectl -n starfleet patch pod scout-0 -p ''{"spec":{"serviceAccountName":"scout-sa"}}''`'
+    explanation: The account of an existing pod cannot be changed, and the controller
+      would create the next pod from the old template.
+  - id: c
+    text: "`kubectl -n starfleet create serviceaccount scout scout-sa`"
+    explanation: This creates an account and assigns nothing.
+  - id: d
+    text: "`kubectl -n starfleet label deployment scout serviceaccount=scout-sa`"
+    explanation: A label is not read by the API server as an account choice.
+  correct_option: a
+  explanation: The command edits `spec.template.spec.serviceAccountName`, and the
+    Deployment rolls new pods.
+- id: ats029-070-q06
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Diagnose a Deployment that names a ServiceAccount that does
+    not exist
+  source_readings:
+  - sections/section-070/module-02/course-01-create-and-assign-a-serviceaccount.md
+  prompt: After `kubectl set serviceaccount deployment shuttle missing-account` the
+    command succeeds, but the application keeps running the old version. Where is
+    the error reported?
+  options:
+  - id: a
+    text: In the output of the `kubectl set` command.
+    explanation: The Deployment object is valid, so the command succeeds.
+  - id: b
+    text: In the logs of the old pod.
+    explanation: The old pod is unaffected and knows nothing about the new template.
+  - id: c
+    text: In the events of the Deployment's pods, which now crash.
+    explanation: No new pod exists. The API server refused to create it.
+  - id: d
+    text: In `FailedCreate` events of the new ReplicaSet, which say the service account
+      was not found.
+    explanation: Correct. The ReplicaSet controller sends the pod create request and
+      records the rejection while the old pod keeps running.
+  correct_option: d
+  explanation: The ReplicaSet controller sends the pod create request and records
+    the rejection while the old pod keeps running.
+- id: ats029-070-q07
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Control the token mount on the account and on the pod
+  source_readings:
+  - sections/section-070/module-02/course-02-token-mounting-and-image-pull-secrets.md
+  prompt: 'An account has `automountServiceAccountToken: false`. A pod template that
+    uses it sets `automountServiceAccountToken: true`. What does the new pod get?'
+  options:
+  - id: a
+    text: No token, because the account value wins.
+    explanation: The pod value takes priority over the account value.
+  - id: b
+    text: No token, because the setting `false` on an account cannot be overridden.
+    explanation: It can be overridden for a single pod.
+  - id: c
+    text: The pod is rejected because the two values disagree.
+    explanation: The values are allowed to differ.
+  - id: d
+    text: A token volume, because the pod value wins over the account value.
+    explanation: Correct. The account value is only the default for pods that set
+      nothing.
+  correct_option: d
+  explanation: The account value is only the default for pods that set nothing.
+- id: ats029-070-q08
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Attach imagePullSecrets to a ServiceAccount and know when pods
+    receive them
+  source_readings:
+  - sections/section-070/module-02/course-02-token-mounting-and-image-pull-secrets.md
+  prompt: 'A learner adds `imagePullSecrets: [{name: regcred}]` to the ServiceAccount
+    used by the running `probe` pods. The pods do not list `regcred`. Why?'
+  options:
+  - id: a
+    text: The admission controller copies the list into pods when they are created,
+      so the pods must be recreated.
+    explanation: Correct. Running pods keep the spec they were created with, so roll
+      the Deployment.
+  - id: b
+    text: "`imagePullSecrets` are only valid on pods."
+    explanation: A ServiceAccount supports the field and the admission controller
+      copies it.
+  - id: c
+    text: The Secret must be in `kube-system`.
+    explanation: The Secret must be in the same namespace as the account.
+  - id: d
+    text: The kubelet hides the list for running pods.
+    explanation: The pod spec is stored by the API server. Nothing hides it.
+  correct_option: a
+  explanation: Running pods keep the spec they were created with, so roll the Deployment.
+- id: ats029-070-q09
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Request a short-lived token with a chosen duration and audience
+  source_readings:
+  - sections/section-070/module-03/course-01-serviceaccount-tokens.md
+  prompt: Which command prints a token for `shuttle` that is valid for 30 minutes
+    and meant for the audience `probe`?
+  options:
+  - id: a
+    text: "`kubectl -n starfleet create secret token shuttle --duration=30m`"
+    explanation: There is no such secret subcommand.
+  - id: b
+    text: "`kubectl -n starfleet create token shuttle --duration=30m --audience=probe`"
+    explanation: Correct. The command sends a TokenRequest, prints the token once
+      and stores nothing.
+  - id: c
+    text: "`kubectl -n starfleet get serviceaccount shuttle --token --ttl=30m`"
+    explanation: "`kubectl get` does not issue tokens."
+  - id: d
+    text: "`kubectl -n starfleet create token shuttle --ttl=30m --scope=probe`"
+    explanation: The flags are `--duration` and `--audience`.
+  correct_option: b
+  explanation: The command sends a TokenRequest, prints the token once and stores
+    nothing.
+- id: ats029-070-q10
+  type: single_choice
+  difficulty: intermediate
+  learning_objective: Explain the lifetime and binding of a projected token compared
+    with a legacy token Secret
+  source_readings:
+  - sections/section-070/module-03/course-01-serviceaccount-tokens.md
+  prompt: A token read from a Secret of type `kubernetes.io/service-account-token`
+    is leaked. How is it different from the token a pod mounts?
+  options:
+  - id: a
+    text: It is valid for the same one hour as a projected token.
+    explanation: A projected token expires. The Secret token has no expiry claim.
+  - id: b
+    text: It stops working when any pod of the account is deleted.
+    explanation: It is not bound to a pod.
+  - id: c
+    text: It has no expiry and no pod binding, so it works until the Secret or the
+      account is deleted.
+    explanation: Correct. This is why the Secret type is the legacy choice and is
+      used only when a client cannot request tokens.
+  - id: d
+    text: It can only be used from inside the cluster network.
+    explanation: Network location is not part of the token.
+  correct_option: c
+  explanation: This is why the Secret type is the legacy choice and is used only when
+    a client cannot request tokens.
+- id: ats029-070-q11
+  type: single_choice
+  difficulty: advanced
+  learning_objective: Test a ServiceAccount permission with impersonation
+  source_readings:
+  - sections/section-070/module-03/course-02-call-the-api-as-a-serviceaccount.md
+  prompt: Which command tells you whether the `bridge` account in `starfleet` can
+    delete pods in `starfleet`?
+  options:
+  - id: a
+    text: "`kubectl auth can-i delete pods -n starfleet --as=system:serviceaccount:starfleet:bridge`"
+    explanation: Correct. The user name of a ServiceAccount is `system:serviceaccount:<namespace>:<name>`.
+  - id: b
+    text: "`kubectl auth can-i delete pods -n starfleet --as=bridge`"
+    explanation: This asks about a user called `bridge`, which is a different identity.
+  - id: c
+    text: "`kubectl get rolebinding bridge -n starfleet`"
+    explanation: This reads one object and does not evaluate every applicable rule.
+  - id: d
+    text: "`kubectl describe serviceaccount bridge -n starfleet`"
+    explanation: The account object shows no permissions.
+  correct_option: a
+  explanation: The user name of a ServiceAccount is `system:serviceaccount:<namespace>:<name>`.
+- id: ats029-070-q12
+  type: single_choice
+  difficulty: advanced
+  learning_objective: Call the API from a pod and read the result
+  source_readings:
+  - sections/section-070/module-03/course-02-call-the-api-as-a-serviceaccount.md
+  prompt: In a pod, which request correctly calls the API server with the mounted
+    credentials?
+  options:
+  - id: a
+    text: "`curl -k https://kubernetes.default.svc.cluster.local/api/v1/pods`, with
+      no header."
+    explanation: This skips certificate checks and sends no token, so the caller is
+      anonymous.
+  - id: b
+    text: "`curl --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt https://kubernetes.default.svc.cluster.local/api/v1/namespaces/starfleet/pods
+      -u token`"
+    explanation: Basic authentication with a user called `token` is not a bearer token.
+  - id: c
+    text: '`curl --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt -H
+      "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
+      https://kubernetes.default.svc.cluster.local/api/v1/namespaces/starfleet/pods`'
+    explanation: Correct. The certificate authority file verifies the server and the
+      bearer header carries the token.
+  - id: d
+    text: "`curl http://kubernetes.default.svc.cluster.local/api/v1/namespaces/starfleet/pods
+      --data @/var/run/secrets/kubernetes.io/serviceaccount/token`"
+    explanation: The API server serves HTTPS, and a token in a request body is not
+      read as a credential.
+  correct_option: c
+  explanation: The certificate authority file verifies the server and the bearer header
+    carries the token.

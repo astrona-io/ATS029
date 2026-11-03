@@ -1,0 +1,49 @@
+# Reference solution: the bridge Deployment with a pod template that meets the
+# restricted level. Applied by solution/apply.sh.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bridge
+  namespace: outpost
+  labels:
+    app: bridge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bridge
+  template:
+    metadata:
+      labels:
+        app: bridge
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: work
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+      containers:
+        - name: bridge
+          image: docker.io/library/busybox:1.37.0
+          command: ["sh", "-c", "echo up > /tmp/state; while true; do date > /work/heartbeat; sleep 5; done"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: work
+              mountPath: /work
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi

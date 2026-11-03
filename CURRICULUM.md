@@ -33,3 +33,18 @@ This is a reading-only draft. No new labs, playgrounds, command output or runtim
 ## Hands-On Expansion
 
 Playgrounds and guided practical readings were added on 2026-10-12. Every existing module retains its concept readings and gains one practical reading before its renumbered summary. YAML bank placement follows the new summary path. Official weights, objective IDs and ATP006 links are unchanged. Runtime verification is pending; static checks do not establish successful cluster execution.
+
+## Graded Lab Expansion
+
+Every active module includes a draft independent graded lab. This course has 8 active graded labs, registered after the readings they practise. Each has its own cluster, task, solution, context guards, reference repair and behavior grader. Static and offline checks pass. Live verification remains pending because the authoring session cannot access the Podman socket. The installed CLI's configuration validator is separately blocked by its local-state maintenance lock.
+
+| Module | Labs in teaching order |
+| --- | --- |
+| 010/01 | Reconcile A Custom Resource |
+| 020/01 | Grant Namespace Pod Read Access |
+| 030/01 | Declare And Inspect A Namespace Pod Budget |
+| 040/01 | Consume A Mounted ConfigMap |
+| 050/01 | Declare Resources For Every Container |
+| 060/01 | Consume A Secret Without Printing It |
+| 070/01 | Use A Workload Identity For An API Request |
+| 080/01 | Run With A Restricted Security Context |

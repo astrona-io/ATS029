@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Application Security Capstone (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-capstone-080
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - docker.io/library/busybox:1.37.0
+
+# Starting state: `starfleet` enforces the restricted level. The `probe`
+# Deployment is privileged, runs as root on the host network with a hostPath
+# volume, so the namespace rejects its pod. The faults are left in place on purpose.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the restricted namespace and the rejected probe Deployment
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: namespace-policy-intact
+      description: starfleet still enforces the restricted level
+      type: file
+      source: validation/validate-namespace-policy-intact.sh
+      hint: Do not change the labels of starfleet. Fix the pod template of the Deployment instead.
+    - name: probe-available
+      description: The probe Deployment has one available replica and its original containers
+      type: file
+      source: validation/validate-probe-available.sh
+      hint: Read the FailedCreate events of the ReplicaSet, fix the template and wait for the rollout. Keep the container names, the images and the commands.
+    - name: no-host-access-and-sysctl
+      description: No host namespace, no hostPath volume and the safe sysctl is set
+      type: file
+      source: validation/validate-no-host-access-and-sysctl.sh
+      hint: Remove hostNetwork, replace the hostPath volume with an emptyDir, and set net.ipv4.ip_local_port_range in the pod-level sysctls.
+    - name: identity-and-volume
+      description: Users, groups and the group of the shared volume are correct
+      type: file
+      source: validation/validate-identity-and-volume.sh
+      hint: Pod-level runAsUser, runAsGroup and fsGroup, and a container-level runAsUser for logger only.
+    - name: privilege-and-filesystem
+      description: No capability, no escalation, seccomp filter and read-only root filesystem
+      type: file
+      source: validation/validate-privilege-and-filesystem.sh
+      hint: Both containers need drop ALL, allowPrivilegeEscalation false and readOnlyRootFilesystem true, and probe needs an emptyDir at /tmp.
+
+teardown:
+  keepCluster: false

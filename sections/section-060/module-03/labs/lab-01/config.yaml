@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Consume Secrets In Pods (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-lab-060-03
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - busybox:1.37.0
+      - curlimages/curl:8.22.0
+
+# Starting state: the probe Deployment holds its password as a plain value,
+# two Secrets exist and nothing uses them, and the auditor service account has
+# no permissions.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the Secrets, the service accounts and the probe Deployment
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: probe-password-from-secret
+      description: DB_PASSWORD comes from probe-credentials and the container has it
+      type: file
+      source: validation/validate-probe-password-from-secret.sh
+      hint: Replace the plain value with valueFrom.secretKeyRef (name probe-credentials, key password). Remove the plain value completely.
+    - name: probe-certificate-mounted
+      description: probe-certificate is mounted read-only at /etc/probe/tls with mode 0400
+      type: file
+      source: validation/validate-probe-certificate-mount.sh
+      hint: Add a secret volume with defaultMode 0400 and a volumeMount with readOnly true. Check the mode inside the pod with stat -L.
+    - name: auditor-least-privilege
+      description: auditor can get only the Secret probe-credentials
+      type: file
+      source: validation/validate-auditor-least-privilege.sh
+      hint: Use a Role with resourceNames [probe-credentials] and the verb get only, bound to the auditor service account with a RoleBinding in starfleet.
+    - name: secrets-intact
+      description: The Secrets are unchanged and a probe pod is running
+      type: file
+      source: validation/validate-secrets-intact.sh
+      hint: Do not edit or delete the Secrets. Change the Deployment and the RBAC objects only.
+
+teardown:
+  keepCluster: false

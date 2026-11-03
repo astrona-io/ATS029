@@ -1,0 +1,300 @@
+# Knowledge check for section 030. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats029-030
+course_id: ATS029
+exam_code: CKAD
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-030
+  title: "Allocation, Enforcement And Namespace Policy"
+questions:
+  - id: ats029-030-q01
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Explain which value the scheduler uses to place a Pod"
+    source_readings:
+      - sections/section-030/module-01/course-01-requests-limits-and-namespace-budgets.md
+    prompt: |-
+      A node has 2 CPUs allocatable. Pods already on it request 1900m of CPU in total, but they are idle and use almost no CPU. A new Pod requests 500m. What does the scheduler do with the new Pod on this node?
+    options:
+      - id: a
+        text: "It places the Pod, because the node is almost idle."
+        explanation: "The scheduler does not look at live usage. It compares requests."
+      - id: b
+        text: "It places the Pod and throttles the idle Pods to make room."
+        explanation: "Nothing is throttled to make room. Placement is decided before any enforcement."
+      - id: c
+        text: "It does not place the Pod on this node, because the requests would add up to more than the allocatable CPU."
+        explanation: "Correct. The scheduler sums the requests of the Pods on a node and compares the total with the allocatable amount. Usage is not part of this decision."
+      - id: d
+        text: "It places the Pod only if the Pod also sets a CPU limit."
+        explanation: "A limit is not used for placement."
+    correct_option: c
+    explanation: "The scheduler places Pods by requests against the allocatable amount of a node, not by live usage."
+
+  - id: ats029-030-q02
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Distinguish how CPU limits and memory limits are enforced"
+    source_readings:
+      - sections/section-030/module-01/course-01-requests-limits-and-namespace-budgets.md
+    prompt: |-
+      A container tries to use more CPU than its limit and also more memory than its limit. What happens?
+    options:
+      - id: a
+        text: "The CPU use is throttled and the container keeps running, but the container is killed for the memory."
+        explanation: "Correct. CPU is a compressible resource and is throttled. Memory cannot be taken back, so the container is ended with `OOMKilled`."
+      - id: b
+        text: "Both are throttled and the container keeps running."
+        explanation: "Only CPU is throttled. Memory above the limit ends the container."
+      - id: c
+        text: "The Pod is evicted at once in both cases."
+        explanation: "A limit is enforced on the container by the container runtime, not by an eviction."
+      - id: d
+        text: "The container is killed for the CPU and throttled for the memory."
+        explanation: "This reverses the two behaviours."
+    correct_option: a
+    explanation: "CPU above the limit is throttled. Memory above the limit ends the container with OOMKilled."
+
+  - id: ats029-030-q03
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Resolve an admission error caused by a missing request under a ResourceQuota"
+    source_readings:
+      - sections/section-030/module-02/course-01-compute-quota-and-admission.md
+    prompt: |-
+      A namespace has a ResourceQuota with `requests.cpu` and `limits.cpu`. There is no LimitRange. A new Pod is rejected with an error that says the Pod must specify `limits.cpu` and `requests.cpu`. What is the correct fix?
+    options:
+      - id: a
+        text: "Raise the `requests.cpu` value in the quota."
+        explanation: "The Pod is not refused for lack of room. It is refused because it declares nothing."
+      - id: b
+        text: "Delete the ResourceQuota and apply it again."
+        explanation: "Recreating the quota changes nothing about the Pod."
+      - id: c
+        text: "Add the `--force` flag to `kubectl apply`."
+        explanation: "No flag bypasses quota admission."
+      - id: d
+        text: "Add CPU requests and limits to the Pod, or create a LimitRange that supplies defaults."
+        explanation: "Correct. A quota on a compute resource requires every new Pod to declare that resource. A LimitRange default fills it in at admission."
+    correct_option: d
+    explanation: "A compute quota requires each Pod to declare the resource. The Pod can declare it, or a LimitRange can supply defaults."
+
+  - id: ats029-030-q04
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain that a ResourceQuota is checked at admission and is not applied to existing Pods"
+    source_readings:
+      - sections/section-030/module-02/course-01-compute-quota-and-admission.md
+    prompt: |-
+      Eight Pods already run in a namespace. A ResourceQuota with `pods: "5"` is then created in it. What happens to the running Pods?
+    options:
+      - id: a
+        text: "Three Pods are deleted to bring the count to 5."
+        explanation: "A quota does not delete anything."
+      - id: b
+        text: "All eight keep running, and the quota refuses new Pods until the count is below the limit."
+        explanation: "Correct. The quota is checked when an object is created. Existing objects are counted but are not removed."
+      - id: c
+        text: "The quota is refused because it is lower than the current use."
+        explanation: "A quota lower than current use is accepted."
+      - id: d
+        text: "All eight Pods are restarted under the quota."
+        explanation: "A quota never restarts Pods."
+    correct_option: b
+    explanation: "A quota applies to new requests. Existing objects are counted and keep running."
+
+  - id: ats029-030-q05
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Limit the number of objects of a type in a namespace with an object-count quota"
+    source_readings:
+      - sections/section-030/module-02/course-02-object-count-and-storage-quotas.md
+    prompt: |-
+      A team must be limited to at most 4 Deployments in a namespace. Which quota key does this?
+    options:
+      - id: a
+        text: "`deployments: \"4\"`"
+        explanation: "This short name exists only for a few legacy resources. Deployments need the `count/` form."
+      - id: b
+        text: "`requests.deployments: \"4\"`"
+        explanation: "The `requests.` prefix is for compute and storage quantities."
+      - id: c
+        text: "`count/deployments.apps: \"4\"`"
+        explanation: "Correct. The generic form is `count/<resource>.<group>`, and Deployments are in the `apps` group."
+      - id: d
+        text: "`pods: \"4\"`"
+        explanation: "This limits Pods, not Deployments."
+    correct_option: c
+    explanation: "Object-count quotas use count/<resource>.<group>, so Deployments use count/deployments.apps."
+
+  - id: ats029-030-q06
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Use a quota scope to apply a quota only to a class of Pods"
+    source_readings:
+      - sections/section-030/module-02/course-03-quota-scopes.md
+    prompt: |-
+      A quota uses the scope `BestEffort`. Which resource can that quota limit?
+    options:
+      - id: a
+        text: "Only the number of Pods."
+        explanation: "Correct. A BestEffort Pod has no requests and no limits, so only the `pods` count can apply to it."
+      - id: b
+        text: "`requests.cpu` and `requests.memory`."
+        explanation: "A BestEffort Pod has no requests to add up."
+      - id: c
+        text: "`limits.cpu` and `limits.memory`."
+        explanation: "A BestEffort Pod has no limits to add up."
+      - id: d
+        text: "`requests.storage`."
+        explanation: "Storage is not tied to the QoS class of a Pod."
+    correct_option: a
+    explanation: "The BestEffort scope matches Pods with no requests or limits, so it can only limit the pods count."
+
+  - id: ats029-030-q07
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Find why a Deployment has fewer Pods than requested when a quota refuses them"
+    source_readings:
+      - sections/section-030/module-02/course-04-quota-with-controllers.md
+    prompt: |-
+      A Deployment is created successfully with 5 replicas, but only 3 Pods exist. The namespace has a ResourceQuota. `kubectl apply` printed no error. Where is the quota refusal reported?
+    options:
+      - id: a
+        text: "In the output of `kubectl apply`, which was missed."
+        explanation: "The Deployment object itself was accepted. The refusal happens later, when the controller creates Pods."
+      - id: b
+        text: "In the logs of the container in the first Pod."
+        explanation: "The missing Pods have no containers and no logs."
+      - id: c
+        text: "In the node conditions."
+        explanation: "The refusal is made by the API server, before any node is involved."
+      - id: d
+        text: "As `FailedCreate` events on the ReplicaSet, visible with `kubectl describe rs` or `kubectl get events`."
+        explanation: "Correct. The ReplicaSet controller creates the Pods, and the quota refuses them. The controller records a `FailedCreate` event with the quota message."
+    correct_option: d
+    explanation: "A quota refusal for controller-created Pods is recorded as FailedCreate events on the ReplicaSet."
+
+  - id: ats029-030-q08
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain when a LimitRange takes effect"
+    source_readings:
+      - sections/section-030/module-03/course-01-limitrange.md
+    prompt: |-
+      A LimitRange with default requests is created in a namespace that already has running Pods with no requests. What is true afterwards?
+    options:
+      - id: a
+        text: "The running Pods are updated with the default requests."
+        explanation: "Resources of a running Pod cannot be changed this way."
+      - id: b
+        text: "The running Pods are unchanged. Pods created from now on receive the defaults."
+        explanation: "Correct. A LimitRange acts at admission, so it affects only Pods created after it exists, for example after a rollout restart."
+      - id: c
+        text: "The running Pods are evicted and recreated by the LimitRange."
+        explanation: "A LimitRange never evicts or recreates Pods."
+      - id: d
+        text: "Nothing changes for any Pod until the node restarts."
+        explanation: "A node restart is not involved."
+    correct_option: b
+    explanation: "A LimitRange is applied at admission, so only new Pods are affected."
+
+  - id: ats029-030-q09
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Read a LimitRange maxLimitRequestRatio rejection"
+    source_readings:
+      - sections/section-030/module-03/course-01-limitrange.md
+    prompt: |-
+      A LimitRange sets `maxLimitRequestRatio` for `cpu` to 4. Which container is admitted?
+    options:
+      - id: a
+        text: "Request 50m CPU, limit 400m CPU."
+        explanation: "The ratio is 8, which is above 4, so this is rejected."
+      - id: b
+        text: "Request 50m CPU, limit 1 CPU."
+        explanation: "The ratio is 20, which is above 4."
+      - id: c
+        text: "Request 100m CPU, limit 400m CPU."
+        explanation: "Correct. The ratio is 4, which does not exceed the maximum."
+      - id: d
+        text: "Request 25m CPU, limit 200m CPU."
+        explanation: "The ratio is 8, which is above 4."
+    correct_option: c
+    explanation: "The limit divided by the request must not be above the ratio. Only the third option gives exactly 4."
+
+  - id: ats029-030-q10
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Determine the QoS class of a Pod from its resources"
+    source_readings:
+      - sections/section-030/module-03/course-02-qos-classes.md
+    prompt: |-
+      Which Pod has the QoS class `Guaranteed`?
+    options:
+      - id: a
+        text: "A Pod whose only container has CPU and memory requests equal to its CPU and memory limits."
+        explanation: "Correct. Every container needs CPU and memory limits, and the requests must equal the limits."
+      - id: b
+        text: "A Pod whose only container has a memory limit and no requests."
+        explanation: "Kubernetes copies the limit into the missing request for memory, but CPU is not set, so the Pod is Burstable."
+      - id: c
+        text: "A Pod with a CPU request of 100m and a CPU limit of 200m."
+        explanation: "The request differs from the limit, so the Pod is Burstable."
+      - id: d
+        text: "A Pod with no requests and no limits."
+        explanation: "This Pod is BestEffort."
+    correct_option: a
+    explanation: "Guaranteed needs CPU and memory limits on every container, with requests equal to the limits."
+
+  - id: ats029-030-q11
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Diagnose and fix an OOM-killed container"
+    source_readings:
+      - sections/section-030/module-03/course-03-cpu-throttling-and-oom-kills.md
+    prompt: |-
+      A container restarts again and again. `kubectl describe pod` shows the last state as terminated with the reason `OOMKilled` and exit code 137. What is the correct fix?
+    options:
+      - id: a
+        text: "Raise the CPU limit."
+        explanation: "A CPU limit throttles. It never produces an OOM kill."
+      - id: b
+        text: "Raise the memory request only."
+        explanation: "The kill happens at the memory limit, not at the request."
+      - id: c
+        text: "Delete the Pod so that the node frees memory."
+        explanation: "The new Pod has the same limit and is killed again."
+      - id: d
+        text: "Raise the memory limit above what the application needs, or reduce the memory use of the application."
+        explanation: "Correct. The container used more memory than its limit, so the limit or the use must change."
+    correct_option: d
+    explanation: "OOMKilled with exit code 137 means the container went above its memory limit."
+
+  - id: ats029-030-q12
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Diagnose a Pending Pod caused by insufficient node resources"
+    source_readings:
+      - sections/section-030/module-03/course-04-scheduling-pending-and-eviction.md
+    prompt: |-
+      A Pod stays `Pending`. Its events show `FailedScheduling` with the message `Insufficient cpu`. No quota refused it. What does this mean, and what fixes it?
+    options:
+      - id: a
+        text: "The namespace quota is full. Raise the quota."
+        explanation: "A quota refusal happens at admission, and the Pod would not exist."
+      - id: b
+        text: "No node has enough unrequested CPU for the Pod's request. Lower the request or add node capacity."
+        explanation: "Correct. The scheduler sums requests per node. When no node can fit the request, the Pod stays Pending."
+      - id: c
+        text: "The CPU limit is too low. Raise the CPU limit."
+        explanation: "Limits are not used for placement."
+      - id: d
+        text: "The container is using too much CPU. Restart the Pod."
+        explanation: "A Pending Pod is not running, so it uses no CPU."
+    correct_option: b
+    explanation: "Insufficient cpu means no node has enough unrequested CPU for the request of the Pod."

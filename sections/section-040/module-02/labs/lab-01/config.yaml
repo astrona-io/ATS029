@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Create ConfigMaps From Different Sources (LAB). Graded against the live cluster.
+# UNTESTED: authored with static checks only.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-lab-040-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - docker.io/library/busybox:1.37.0
+
+# Starting state: the starfleet namespace and a probe-settings ConfigMap.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the starfleet namespace and the probe-settings ConfigMap
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: scout-env-has-one-key-per-line
+      description: scout-env has the keys MODE and RETRIES
+      type: file
+      source: validation/validate-scout-env.sh
+      hint: Use --from-env-file. The flag --from-file would store the whole file under one key named after the file.
+    - name: scout-files-has-chosen-key
+      description: scout-files has the keys app.properties and banner.txt
+      type: file
+      source: validation/validate-scout-files.sh
+      hint: Use --from-file=app.properties=PATH to choose the key, and a second --from-file for banner.txt.
+    - name: scout-locked-is-immutable
+      description: scout-locked is immutable and the API server refuses a change
+      type: file
+      source: validation/validate-scout-locked.sh
+      hint: kubectl create configmap has no flag for this. Write a YAML file with immutable true at the top level and apply it.
+    - name: probe-settings-keeps-probe-conf
+      description: probe-settings has LOG_LEVEL=info and still has probe.conf
+      type: file
+      source: validation/validate-probe-settings.sh
+      hint: Change one key with kubectl patch or kubectl edit. kubectl replace with a partial file removes the other keys.
+
+teardown:
+  keepCluster: false

@@ -1,0 +1,297 @@
+# hangar-operator: the controller code, its service account, its permissions and its Deployment.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fleet-system
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hangar-operator-code
+  namespace: fleet-system
+data:
+  controller.py: |
+    """hangar-operator: turns each Hangar custom resource into a Deployment.
+
+    It lists Hangar objects in all namespaces every few seconds. For each one it
+    creates or patches a Deployment that is owned by the Hangar, then writes the
+    Ready condition into the Hangar status.
+    """
+    import json
+    import ssl
+    import time
+    import urllib.error
+    import urllib.request
+    from pathlib import Path
+
+    ROOT = Path("/var/run/secrets/kubernetes.io/serviceaccount")
+    CONTEXT = ssl.create_default_context(cafile=str(ROOT / "ca.crt"))
+    BASE = "https://kubernetes.default.svc"
+    GROUP = "fleet.astrona.io"
+    DEFAULT_IMAGE = "ghcr.io/stefanprodan/podinfo:6.15.0"
+    LAST_REPORT = {}
+
+
+    class ApiError(Exception):
+        def __init__(self, code, message):
+            super().__init__(message)
+            self.code = code
+            self.message = message
+
+
+    def call(path, method="GET", body=None, content_type="application/json"):
+        token = (ROOT / "token").read_text()
+        data = None if body is None else json.dumps(body).encode()
+        headers = {
+            "Authorization": "Bearer " + token,
+            "Content-Type": content_type,
+            "Accept": "application/json",
+        }
+        request = urllib.request.Request(BASE + path, data=data, method=method, headers=headers)
+        try:
+            with urllib.request.urlopen(request, context=CONTEXT, timeout=10) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            raw = error.read().decode(errors="replace")
+            try:
+                message = json.loads(raw).get("message", raw)
+            except ValueError:
+                message = raw
+            raise ApiError(error.code, message)
+
+
+    def report(key, message):
+        """Print a problem once, not on every loop."""
+        if LAST_REPORT.get(key) != message:
+            print(message, flush=True)
+            LAST_REPORT[key] = message
+
+
+    def clear(key):
+        LAST_REPORT.pop(key, None)
+
+
+    def now():
+        return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+
+
+    def deployment_body(item, deployment_name, replicas, image):
+        meta = item["metadata"]
+        labels = {"app": deployment_name}
+        return {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "name": deployment_name,
+                "namespace": meta["namespace"],
+                "labels": labels,
+                "ownerReferences": [
+                    {
+                        "apiVersion": GROUP + "/v1",
+                        "kind": "Hangar",
+                        "name": meta["name"],
+                        "uid": meta["uid"],
+                        "controller": True,
+                        "blockOwnerDeletion": True,
+                    }
+                ],
+            },
+            "spec": {
+                "replicas": replicas,
+                "selector": {"matchLabels": labels},
+                "template": {
+                    "metadata": {"labels": labels},
+                    "spec": {
+                        "containers": [
+                            {
+                                "name": "hangar",
+                                "image": image,
+                                "resources": {
+                                    "requests": {"cpu": "10m", "memory": "32Mi"},
+                                    "limits": {"memory": "128Mi"},
+                                },
+                            }
+                        ]
+                    },
+                },
+            },
+        }
+
+
+    def write_status(item, ready_count, status, reason, message):
+        meta = item["metadata"]
+        old = item.get("status") or {}
+        old_condition = next(
+            (c for c in old.get("conditions", []) if c.get("type") == "Ready"), {}
+        )
+        generation = meta.get("generation", 1)
+        unchanged = (
+            old.get("observedGeneration") == generation
+            and old.get("readyReplicas") == ready_count
+            and old_condition.get("status") == status
+            and old_condition.get("reason") == reason
+            and old_condition.get("message") == message
+        )
+        if unchanged:
+            return
+        transition = old_condition.get("lastTransitionTime") if old_condition.get("status") == status else None
+        condition = {
+            "type": "Ready",
+            "status": status,
+            "reason": reason,
+            "message": message,
+            "observedGeneration": generation,
+            "lastTransitionTime": transition or now(),
+        }
+        patch = {
+            "status": {
+                "observedGeneration": generation,
+                "readyReplicas": ready_count,
+                "conditions": [condition],
+            }
+        }
+        path = "/apis/%s/v1/namespaces/%s/hangars/%s/status" % (GROUP, meta["namespace"], meta["name"])
+        call(path, "PATCH", patch, "application/merge-patch+json")
+        print("status of %s/%s: Ready=%s reason=%s" % (meta["namespace"], meta["name"], status, reason), flush=True)
+
+
+    def reconcile(item):
+        meta = item["metadata"]
+        namespace = meta["namespace"]
+        name = meta["name"]
+        key = namespace + "/" + name
+        if meta.get("deletionTimestamp"):
+            return
+        spec = item.get("spec") or {}
+        replicas = int(spec.get("replicas", 1))
+        image = spec.get("image", DEFAULT_IMAGE)
+        deployment_name = "hangar-" + name
+        collection = "/apis/apps/v1/namespaces/%s/deployments" % namespace
+        ready_count = 0
+        try:
+            try:
+                deployment = call(collection + "/" + deployment_name)
+            except ApiError as error:
+                if error.code != 404:
+                    raise
+                deployment = call(collection, "POST", deployment_body(item, deployment_name, replicas, image))
+            else:
+                container = deployment["spec"]["template"]["spec"]["containers"][0]
+                if deployment["spec"]["replicas"] != replicas or container["image"] != image:
+                    patch = {
+                        "spec": {
+                            "replicas": replicas,
+                            "template": {"spec": {"containers": [{"name": "hangar", "image": image}]}},
+                        }
+                    }
+                    deployment = call(
+                        collection + "/" + deployment_name, "PATCH", patch, "application/strategic-merge-patch+json"
+                    )
+            ready_count = (deployment.get("status") or {}).get("readyReplicas", 0)
+            if ready_count == replicas:
+                status, reason, message = "True", "DeploymentReady", "%d of %d replicas are ready" % (ready_count, replicas)
+            else:
+                status, reason, message = "False", "DeploymentProgressing", "%d of %d replicas are ready" % (ready_count, replicas)
+            clear(key + "/deployment")
+        except ApiError as error:
+            status, reason = "False", "DeploymentFailed"
+            message = "HTTP %d: %s" % (error.code, error.message)
+            report(key + "/deployment", "cannot reconcile deployment for %s: %s" % (key, message))
+        try:
+            write_status(item, ready_count, status, reason, message)
+            clear(key + "/status")
+        except ApiError as error:
+            report(key + "/status", "cannot update status of %s: HTTP %d: %s" % (key, error.code, error.message))
+
+
+    def main():
+        print("hangar-operator started", flush=True)
+        while True:
+            items = []
+            try:
+                items = call("/apis/%s/v1/hangars" % GROUP).get("items", [])
+                clear("list")
+            except ApiError as error:
+                report("list", "cannot list hangars: HTTP %d: %s" % (error.code, error.message))
+            except Exception as error:
+                report("list", "cannot list hangars: " + type(error).__name__)
+            for item in items:
+                try:
+                    reconcile(item)
+                except Exception as error:
+                    report("loop/" + item["metadata"]["name"], "unexpected error: " + type(error).__name__ + ": " + str(error))
+            time.sleep(3)
+
+
+    main()
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hangar-operator
+  namespace: fleet-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: hangar-operator
+rules:
+- apiGroups: ["fleet.astrona.io"]
+  resources: ["hangars"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["fleet.astrona.io"]
+  resources: ["hangars/status"]
+  verbs: ["get", "patch"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch", "create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: hangar-operator
+subjects:
+- kind: ServiceAccount
+  name: hangar-operator
+  namespace: fleet-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: hangar-operator
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hangar-operator
+  namespace: fleet-system
+  labels:
+    app.kubernetes.io/name: hangar-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hangar-operator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hangar-operator
+    spec:
+      serviceAccountName: hangar-operator
+      containers:
+      - name: operator
+        image: docker.io/library/python:3.13-alpine
+        command: ["python", "-u", "/app/controller.py"]
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+        volumeMounts:
+        - name: code
+          mountPath: /app
+          readOnly: true
+      volumes:
+      - name: code
+        configMap:
+          name: hangar-operator-code

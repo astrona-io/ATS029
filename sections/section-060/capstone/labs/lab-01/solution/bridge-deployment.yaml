@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bridge
+  namespace: starfleet
+  labels:
+    app: bridge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bridge
+  template:
+    metadata:
+      labels:
+        app: bridge
+    spec:
+      serviceAccountName: bridge
+      terminationGracePeriodSeconds: 1
+      imagePullSecrets:
+        - name: bridge-registry
+      containers:
+        - name: bridge
+          image: busybox:1.37.0
+          command: ["sh", "-c", "sleep 3600"]
+          env:
+            - name: BRIDGE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bridge-credentials
+                  key: password
+          volumeMounts:
+            - name: credentials
+              mountPath: /etc/bridge/credentials
+              readOnly: true
+      volumes:
+        - name: credentials
+          secret:
+            secretName: bridge-credentials
+            defaultMode: 0400
+            items:
+              - key: password
+                path: password
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: bridge-credentials-reader
+  namespace: starfleet
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["bridge-credentials"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: auditor-reads-bridge-credentials
+  namespace: starfleet
+subjects:
+  - kind: ServiceAccount
+    name: auditor
+    namespace: starfleet
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: bridge-credentials-reader

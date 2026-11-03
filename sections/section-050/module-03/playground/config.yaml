@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Namespace Policy, Storage And Right-Sizing (PLAYGROUND) — playground environment.
+# A clean sandbox: it starts a namespace with a LimitRange and a ResourceQuota
+# and two broken Deployments, then stays running for free exploration. No task,
+# no grading, no `astrona submit`.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-playground-050-03
+  docs:
+    guide: docs/overview.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - curlimages/curl:8.22.0
+      - busybox:1.37.0
+
+# What the learner starts with: starfleet (scout healthy, bridge killed for
+# memory, shuttle Pending) and outpost (LimitRange, ResourceQuota, drifter).
+bootstrap:
+  manifests:
+    - name: namespaces-and-policy
+      type: file
+      source: manifests/policy.yaml
+    - name: workloads
+      type: file
+      source: manifests/workloads.yaml
+  waitFor:
+    - resource: deploy/scout
+      namespace: starfleet
+    - resource: deploy/drifter
+      namespace: outpost
+
+teardown:
+  keepCluster: false

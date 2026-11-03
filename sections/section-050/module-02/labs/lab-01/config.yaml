@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Fix Resource Settings And Quality Of Service (LAB). Graded against the live cluster.
+# UNTESTED: authored with static checks only.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-lab-050-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - busybox:1.37.0
+
+# Starting state: shuttle is killed for memory, scout is Burstable because of
+# its init container and sidecar, probe has a CPU unit mistake and stays
+# Pending. The faults are left in place on purpose.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the workloads with the faulty resource settings
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: shuttle-memory-fixed
+      description: shuttle runs without memory kills and has a sensible memory limit
+      type: file
+      source: validation/validate-shuttle-memory-fixed.sh
+      hint: The container needs a memory limit of at least 192Mi (and at most 512Mi), with a request that is not above the limit. Use kubectl set resources or edit the Deployment.
+    - name: scout-guaranteed
+      description: scout Pods have the Guaranteed QoS class
+      type: file
+      source: validation/validate-scout-guaranteed.sh
+      hint: Every container counts, including the init container and the sidecar. Each needs CPU and memory limits with requests equal to them.
+    - name: probe-scheduled
+      description: probe is Running with CPU requests in millicores
+      type: file
+      source: validation/validate-probe-scheduled.sh
+      hint: The CPU value 100 means one hundred cores. Use 100m for the request and 200m for the limit.
+    - name: resources-not-removed
+      description: Every container still has CPU and memory requests
+      type: file
+      source: validation/validate-resources-not-removed.sh
+      hint: Do not delete the resources field to get past the problem. A Pod with no settings is BestEffort.
+    - name: workloads-keep-images
+      description: The Deployments keep their images and replica counts
+      type: file
+      source: validation/validate-workloads-keep-images.sh
+      hint: Change only the resources. Do not replace the images, commands or replica counts.
+
+teardown:
+  keepCluster: false

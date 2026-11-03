@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Define A CustomResourceDefinition (PLAYGROUND) - playground environment.
+# A clean sandbox: it starts, registers the reference Telemetry CRD, then stays
+# running for free exploration. No task, no grading, no `astrona submit`.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-playground-010-02
+  docs:
+    guide: docs/overview.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+
+# What the learner starts with: the namespaces `starfleet` and `outpost` and
+# the reference CRD telemetries.fleet.astrona.io. No custom resource exists
+# yet and no controller runs.
+bootstrap:
+  manifests:
+    - name: namespaces
+      type: file
+      source: manifests/namespaces.yaml
+    - name: telemetry-crd
+      type: file
+      source: manifests/telemetry.yaml
+  waitFor:
+    - resource: crd/telemetries.fleet.astrona.io
+      condition: Established
+      timeout: 120s
+
+teardown:
+  keepCluster: false

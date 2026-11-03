@@ -1,0 +1,32 @@
+# Starting state for the "Creating ConfigMaps" playground: the starfleet
+# namespace and a viewer Deployment with one busybox pod for `kubectl exec`.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: viewer
+  namespace: starfleet
+  labels:
+    app: viewer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: viewer
+  template:
+    metadata:
+      labels:
+        app: viewer
+    spec:
+      containers:
+        - name: viewer
+          image: docker.io/library/busybox:1.37.0
+          command: ["sleep", "86400"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi

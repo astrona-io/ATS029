@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Consume ConfigMaps In A Deployment (LAB). Graded against the live cluster.
+# UNTESTED: authored with static checks only.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-lab-040-03
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - docker.io/library/busybox:1.37.0
+
+# Starting state: the probe Deployment with a fixed LOG_LEVEL and the
+# probe-settings ConfigMap that it does not use yet.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the probe-settings ConfigMap and the probe Deployment
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: log-level-from-key-ref
+      description: LOG_LEVEL comes from probe-settings through configMapKeyRef
+      type: file
+      source: validation/validate-env-key-ref.sh
+      hint: Replace the fixed value with valueFrom.configMapKeyRef, name probe-settings, key LOG_LEVEL.
+    - name: envfrom-with-prefix
+      description: Every running pod has the SETTING_ variables
+      type: file
+      source: validation/validate-envfrom-prefix.sh
+      hint: Add envFrom with configMapRef probe-settings and prefix SETTING_ to the probe container. The prefix goes next to configMapRef, not inside it.
+    - name: only-probe-conf-mounted
+      description: /etc/probe holds only probe.conf with mode 444
+      type: file
+      source: validation/validate-mounted-file.sh
+      hint: Use a configMap volume with items (key probe.properties, path probe.conf, mode 0444). Do not use subPath.
+    - name: rollout-complete-with-new-values
+      description: Both pods run the new configuration
+      type: file
+      source: validation/validate-rollout-complete.sh
+      hint: Changing the pod template starts the rollout. Wait for kubectl rollout status, and check LOG_LEVEL inside a pod.
+    - name: configmap-unchanged
+      description: probe-settings keeps its original data
+      type: file
+      source: validation/validate-configmap-unchanged.sh
+      hint: Change the Deployment, not the ConfigMap.
+
+teardown:
+  keepCluster: false

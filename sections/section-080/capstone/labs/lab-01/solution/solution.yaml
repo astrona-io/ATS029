@@ -1,0 +1,72 @@
+# Reference solution: the probe Deployment with a pod template that meets the
+# restricted level and the identity, volume and sysctl requirements.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: probe
+  namespace: starfleet
+  labels:
+    app: probe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: probe
+  template:
+    metadata:
+      labels:
+        app: probe
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 3000
+        runAsGroup: 3000
+        fsGroup: 4000
+        seccompProfile:
+          type: RuntimeDefault
+        sysctls:
+          - name: net.ipv4.ip_local_port_range
+            value: "32768 40000"
+      volumes:
+        - name: shared
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+      containers:
+        - name: probe
+          image: docker.io/library/busybox:1.37.0
+          command: ["sh", "-c", "echo up > /tmp/state; while true; do date > /shared/heartbeat; sleep 5; done"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+        - name: logger
+          image: docker.io/library/busybox:1.37.0
+          command: ["sh", "-c", "while true; do date > /shared/logger-seen; sleep 5; done"]
+          securityContext:
+            runAsUser: 3500
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi

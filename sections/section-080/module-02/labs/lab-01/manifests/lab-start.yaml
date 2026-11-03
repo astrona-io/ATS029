@@ -1,0 +1,55 @@
+# Starting state for the identity and privilege lab. The `shuttle` Deployment
+# runs as root, one container is privileged and the pod sets no group
+# ownership for the shared volume. The learner fixes it.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shuttle
+  namespace: starfleet
+  labels:
+    app: shuttle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shuttle
+  template:
+    metadata:
+      labels:
+        app: shuttle
+    spec:
+      volumes:
+        - name: data
+          emptyDir: {}
+      containers:
+        - name: shuttle
+          image: docker.io/library/busybox:1.37.0
+          command: ["sh", "-c", "while true; do date > /data/heartbeat; sleep 5; done"]
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+        - name: relay
+          image: docker.io/library/busybox:1.37.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi

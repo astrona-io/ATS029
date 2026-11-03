@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Discover And Operate With Operators (PLAYGROUND) - playground environment.
+# A clean sandbox: it starts, installs the Hangar CRD and the hangar-operator,
+# then stays running for free exploration. No task, no grading, no
+# `astrona submit`.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-playground-010-03
+  docs:
+    guide: docs/overview.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - docker.io/library/python:3.13-alpine
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+
+# What the learner starts with: the namespaces `starfleet` and `outpost`, the
+# Hangar CRD, and the hangar-operator Deployment in `fleet-system` with the
+# permissions it needs. No Hangar exists yet.
+bootstrap:
+  manifests:
+    - name: namespaces
+      type: file
+      source: manifests/namespaces.yaml
+    - name: hangar-crd
+      type: file
+      source: manifests/hangar-crd.yaml
+    - name: hangar-operator
+      type: file
+      source: manifests/hangar-operator.yaml
+  waitFor:
+    - resource: crd/hangars.fleet.astrona.io
+      condition: Established
+      timeout: 120s
+    - resource: deploy/hangar-operator
+      namespace: fleet-system
+      timeout: 240s
+
+teardown:
+  keepCluster: false

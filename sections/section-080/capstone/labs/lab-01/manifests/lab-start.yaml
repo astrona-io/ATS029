@@ -1,0 +1,61 @@
+# Starting state for the section capstone. The `starfleet` namespace enforces
+# the restricted level. The `probe` Deployment breaks it on purpose (privileged,
+# root, host network, hostPath, no seccomp profile), so it has no pod.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: probe
+  namespace: starfleet
+  labels:
+    app: probe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: probe
+  template:
+    metadata:
+      labels:
+        app: probe
+    spec:
+      hostNetwork: true
+      volumes:
+        - name: shared
+          hostPath:
+            path: /tmp/probe-shared
+            type: DirectoryOrCreate
+      containers:
+        - name: probe
+          image: docker.io/library/busybox:1.37.0
+          command: ["sh", "-c", "echo up > /tmp/state; while true; do date > /shared/heartbeat; sleep 5; done"]
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+        - name: logger
+          image: docker.io/library/busybox:1.37.0
+          command: ["sh", "-c", "while true; do date > /shared/logger-seen; sleep 5; done"]
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi

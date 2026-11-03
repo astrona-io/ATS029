@@ -1,0 +1,56 @@
+# Starting state: probe runs three replicas with no resources, bridge allocates
+# about 143Mi of memory but has a 128Mi limit (so it is killed and restarts),
+# and neither a LimitRange nor a ResourceQuota exists in starfleet.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: probe
+  namespace: starfleet
+  labels:
+    app: probe
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: probe
+  template:
+    metadata:
+      labels:
+        app: probe
+    spec:
+      containers:
+        - name: probe
+          image: curlimages/curl:8.22.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bridge
+  namespace: starfleet
+  labels:
+    app: bridge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bridge
+  template:
+    metadata:
+      labels:
+        app: bridge
+    spec:
+      containers:
+        - name: bridge
+          image: docker.io/library/python:3.13-alpine
+          command: ["python", "-c", "data = b'x' * 150000000; import time; time.sleep(86400)"]
+          resources:
+            requests:
+              memory: 64Mi
+            limits:
+              memory: 128Mi

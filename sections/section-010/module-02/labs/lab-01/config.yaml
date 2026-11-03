@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Register A Beacon CustomResourceDefinition (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-lab-010-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+
+# Starting state: the namespaces `starfleet` and `outpost`. The Beacon type
+# does not exist yet.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the starfleet and outpost namespaces
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: crd-registered
+      description: The Beacon CRD is established with the required names, scope, version and status subresource
+      type: file
+      source: validation/validate-crd-registered.sh
+      hint: The CRD name must be beacons.signals.astrona.io, the scope Namespaced, the short name bcn, version v1 served and stored, and subresources.status set to an empty object.
+    - name: schema-rules-enforced
+      description: The API server rejects bad Beacons and fills the default mode
+      type: file
+      source: validation/validate-schema-rules.sh
+      hint: Put required, minimum 1, maximum 1000 on frequencyMhz, an enum of steady and pulse on mode, and default steady. Defaults go on the field, not on the object.
+    - name: unknown-fields-dropped
+      description: A field outside the schema is not stored
+      type: file
+      source: validation/validate-unknown-fields-pruned.sh
+      hint: Declare every field in the schema and do not set x-kubernetes-preserve-unknown-fields.
+    - name: printer-columns
+      description: kubectl get shows the Frequency and Mode columns
+      type: file
+      source: validation/validate-printer-columns.sh
+      hint: Add two additionalPrinterColumns entries with the names Frequency and Mode and the jsonPath values .spec.frequencyMhz and .spec.mode. Frequency has the type integer.
+    - name: scout-beacon-exists
+      description: The Beacon scout-beacon exists in starfleet with the requested values
+      type: file
+      source: validation/validate-scout-beacon.sh
+      hint: Create scout-beacon in starfleet with apiVersion signals.astrona.io/v1, frequencyMhz 120 and mode pulse, after the CRD is Established.
+
+teardown:
+  keepCluster: false

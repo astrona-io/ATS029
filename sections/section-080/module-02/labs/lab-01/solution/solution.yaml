@@ -1,0 +1,60 @@
+# Reference solution: the shuttle Deployment with the identity, the volume
+# group and the privilege settings fixed. Applied by solution/apply.sh.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shuttle
+  namespace: starfleet
+  labels:
+    app: shuttle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shuttle
+  template:
+    metadata:
+      labels:
+        app: shuttle
+    spec:
+      securityContext:
+        runAsUser: 1500
+        runAsGroup: 3000
+        fsGroup: 4000
+      volumes:
+        - name: data
+          emptyDir: {}
+      containers:
+        - name: shuttle
+          image: docker.io/library/busybox:1.37.0
+          command: ["sh", "-c", "while true; do date > /data/heartbeat; sleep 5; done"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+        - name: relay
+          image: docker.io/library/busybox:1.37.0
+          command: ["sh", "-c", "while true; do sleep 30; done"]
+          securityContext:
+            runAsUser: 2500
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi

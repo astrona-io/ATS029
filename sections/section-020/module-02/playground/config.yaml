@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Authentication And kubeconfig (PLAYGROUND). A clean sandbox with no task and no grading.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-playground-020-02
+  docs:
+    guide: docs/overview.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - busybox:1.37.0
+
+bootstrap:
+  manifests:
+    - name: outpost
+      type: file
+      source: manifests/outpost.yaml
+  waitFor:
+    - resource: deploy/scout
+      namespace: starfleet
+    - resource: deploy/drifter
+      namespace: outpost
+
+teardown:
+  keepCluster: false

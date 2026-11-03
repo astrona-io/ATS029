@@ -1,0 +1,46 @@
+# Starting state for the "Consume ConfigMaps In A Deployment" lab: the probe
+# Deployment sets LOG_LEVEL as a fixed value and uses no ConfigMap yet.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starfleet
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: probe-settings
+  namespace: starfleet
+data:
+  LOG_LEVEL: debug
+  REGION: outpost-7
+  probe.properties: |
+    retries=3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: probe
+  namespace: starfleet
+  labels:
+    app: probe
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: probe
+  template:
+    metadata:
+      labels:
+        app: probe
+    spec:
+      containers:
+        - name: probe
+          image: docker.io/library/busybox:1.37.0
+          command: ["sleep", "86400"]
+          env:
+            - name: LOG_LEVEL
+              value: warn
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi

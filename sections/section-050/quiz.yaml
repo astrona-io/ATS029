@@ -1,0 +1,302 @@
+# Knowledge check for the resource requirements section. Listed in astrona.yaml as a `type: quiz` entry after the capstone lab.
+schema_version: 1
+kind: question_bank
+id: ats029-050
+course_id: ATS029
+exam_code: CKAD
+status: draft
+provenance: Original practice material written for this course; not official exam questions.
+scope:
+  type: section
+  id: section-050
+  title: "Define resource requirements"
+questions:
+  - id: ats029-050-q01
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Write CPU and memory quantities in the correct units"
+    source_readings:
+      - sections/section-050/module-02/course-01-cpu-and-memory-requests-and-limits.md
+    prompt: |-
+      A developer wants a container to request one quarter of a CPU and 256 mebibytes of memory. Which `requests` block is correct?
+    options:
+      - id: a
+        text: "`cpu: 250` and `memory: 256M`"
+        explanation: "`cpu: 250` asks for 250 cores, and `256M` is 256 million bytes, not 256 mebibytes."
+      - id: b
+        text: "`cpu: 0.25m` and `memory: 256m`"
+        explanation: "A lowercase `m` means one thousandth, so this asks for a tiny fraction of a CPU and a fraction of a byte."
+      - id: c
+        text: "`cpu: 250m` and `memory: 256Mi`"
+        explanation: "Correct. `250m` is 250 millicpu, which is one quarter of a CPU, and `256Mi` is 256 mebibytes."
+      - id: d
+        text: "`cpu: 25m` and `memory: 256Gi`"
+        explanation: "`25m` is one fortieth of a CPU, and `256Gi` is 256 gibibytes."
+    correct_option: c
+    explanation: "CPU uses millicpu with the suffix `m`, and memory uses the binary suffix `Mi` for mebibytes."
+
+  - id: ats029-050-q02
+    type: single_choice
+    difficulty: beginner
+    learning_objective: "Name the component that uses requests and the component that enforces limits"
+    source_readings:
+      - sections/section-050/module-02/course-01-cpu-and-memory-requests-and-limits.md
+    prompt: |-
+      A Pod has a CPU request of `500m` and a CPU limit of `1`. Which statement describes who uses these values?
+    options:
+      - id: a
+        text: "The scheduler reads the limit to choose a node, and the kubelet enforces the request."
+        explanation: "The roles are reversed."
+      - id: b
+        text: "The scheduler reads the request to choose a node, and the kernel enforces the limit through control groups."
+        explanation: "Correct. The scheduler adds up requests, and the kubelet sets the limit in the container runtime so the kernel enforces it."
+      - id: c
+        text: "Both values are only used by the kubelet after the Pod runs."
+        explanation: "The scheduler uses requests before the Pod runs."
+      - id: d
+        text: "The API server enforces the limit by deleting the Pod when it is exceeded."
+        explanation: "The API server does not measure usage. The kernel throttles CPU and kills a container that exceeds memory."
+    correct_option: b
+    explanation: "Requests drive placement. Limits are enforced on the node by the kernel."
+
+  - id: ats029-050-q03
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Tell an out-of-memory kill from CPU throttling"
+    source_readings:
+      - sections/section-050/module-02/course-01-cpu-and-memory-requests-and-limits.md
+    prompt: |-
+      A container in `starfleet` restarts every few minutes. `kubectl get pod -o jsonpath='{.status.containerStatuses[0].lastState.terminated}'` shows the reason `OOMKilled` and exit code 137. What is the correct fix?
+    options:
+      - id: a
+        text: "Raise the memory request only, because requests decide when a container is killed."
+        explanation: "The kernel kills the container at the memory limit, so raising only the request does not stop the kill."
+      - id: b
+        text: "Raise the CPU limit, because the container is throttled."
+        explanation: "Throttling does not kill a container and does not give `OOMKilled`."
+      - id: c
+        text: "Remove the `resources` field so the container has no limits."
+        explanation: "This hides the symptom and makes the Pod BestEffort, the first class to be evicted."
+      - id: d
+        text: "Raise the memory limit above the container's peak use, and keep the request at or below the limit."
+        explanation: "Correct. `OOMKilled` means the container used more memory than its limit."
+    correct_option: d
+    explanation: "An `OOMKilled` reason with exit code 137 means the memory limit is lower than the peak use."
+
+  - id: ats029-050-q04
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Predict the quality of service class of a Pod"
+    source_readings:
+      - sections/section-050/module-02/course-02-quality-of-service-and-node-allocation.md
+    prompt: |-
+      A Pod has one container with `limits: {cpu: 200m, memory: 128Mi}` and no `requests`. What is its QoS class?
+    options:
+      - id: a
+        text: "Guaranteed, because Kubernetes copies the limits into the requests."
+        explanation: "Correct. When only limits are set, the requests default to the limits, so requests equal limits for both resources."
+      - id: b
+        text: "Burstable, because no request was written."
+        explanation: "The API server fills the requests from the limits."
+      - id: c
+        text: "BestEffort, because there are no requests."
+        explanation: "BestEffort needs no requests and no limits at all."
+      - id: d
+        text: "The class is not set until the Pod runs under memory pressure."
+        explanation: "The class is set when the Pod is created and stored in `status.qosClass`."
+    correct_option: a
+    explanation: "Guaranteed needs equal requests and limits for CPU and memory in every container, and missing requests copy the limits."
+
+  - id: ats029-050-q05
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Read the allocation of a node and the reason for a Pending Pod"
+    source_readings:
+      - sections/section-050/module-02/course-02-quality-of-service-and-node-allocation.md
+    prompt: |-
+      A Pod stays `Pending`. `kubectl describe pod` shows a `FailedScheduling` event that says `Insufficient memory`, but `kubectl top node` shows the node using little memory. Why?
+    options:
+      - id: a
+        text: "The metrics server is out of date."
+        explanation: "The scheduler does not read metrics."
+      - id: b
+        text: "The scheduler compares the sum of requests with the node's allocatable memory, not the live use."
+        explanation: "Correct. The requests of the Pods already on the node can fill the allocatable memory even when their real use is low."
+      - id: c
+        text: "The memory limit of the Pod is above the node capacity."
+        explanation: "Limits are not used for placement."
+      - id: d
+        text: "The node is out of ephemeral storage."
+        explanation: "That would give `Insufficient ephemeral-storage`."
+    correct_option: b
+    explanation: "Placement depends on declared requests against allocatable capacity."
+
+  - id: ats029-050-q06
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Calculate the effective request of a Pod with init containers and a sidecar"
+    source_readings:
+      - sections/section-050/module-02/course-03-init-and-sidecar-container-resources.md
+    prompt: |-
+      A Pod has a sidecar (`restartPolicy: Always` init container) requesting 200m CPU, a regular init container requesting 100m CPU, and one application container requesting 500m CPU. What is the effective CPU request?
+    options:
+      - id: a
+        text: "800m, the sum of all three."
+        explanation: "The regular init container runs alone before the application container, so it is not added to the running sum."
+      - id: b
+        text: "500m, only the application container."
+        explanation: "The sidecar runs beside the application container, so it counts."
+      - id: c
+        text: "300m, because the init containers are the largest."
+        explanation: "300m is the startup need. The running sum is larger."
+      - id: d
+        text: "700m, the larger of the startup need of 300m and the running sum of 700m."
+        explanation: "Correct. The startup need is 100m plus the sidecar 200m, and the running sum is 200m plus 500m."
+    correct_option: d
+    explanation: "The effective request is the maximum of the highest startup need and the sum of the sidecars and application containers."
+
+  - id: ats029-050-q07
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain how a LimitRange fills defaults and rejects values"
+    source_readings:
+      - sections/section-050/module-03/course-01-limitrange-and-resourcequota.md
+    prompt: |-
+      A LimitRange in `outpost` sets `defaultRequest.cpu: 100m` and `max.cpu: 500m`. A Pod with no resources is created, and a second Pod asks for a CPU limit of `2`. What happens?
+    options:
+      - id: a
+        text: "The first Pod gets a CPU request of 100m, and the API server refuses the second Pod."
+        explanation: "Correct. The LimitRanger plugin adds defaults and checks the maximum at admission."
+      - id: b
+        text: "Both Pods are created, and the scheduler lowers the limit of the second Pod."
+        explanation: "The scheduler never changes limits."
+      - id: c
+        text: "The first Pod is BestEffort, and the second Pod stays Pending."
+        explanation: "The defaults make the first Pod Burstable, and the second Pod is refused, not Pending."
+      - id: d
+        text: "Both Pods are created, and the LimitRange also changes Pods that already run."
+        explanation: "A LimitRange changes only Pods created after it exists."
+    correct_option: a
+    explanation: "A LimitRange acts at admission: it fills missing values and rejects values outside its range."
+
+  - id: ats029-050-q08
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Find where a quota rejection appears for a Deployment"
+    source_readings:
+      - sections/section-050/module-03/course-01-limitrange-and-resourcequota.md
+    prompt: |-
+      A Deployment with 8 replicas shows only 4 ready replicas in a namespace whose quota allows 6 Pods in total. No Pod is Pending. Where do you find the reason?
+    options:
+      - id: a
+        text: "In the `FailedScheduling` events of the Pods."
+        explanation: "The Pods that failed were never created, so they have no events."
+      - id: b
+        text: "In the kubelet log of the node."
+        explanation: "The kubelet never saw the missing Pods."
+      - id: c
+        text: "In the `FailedCreate` events of the ReplicaSet, which say `exceeded quota`."
+        explanation: "Correct. The Deployment is accepted, and the API server refuses the extra Pods when the ReplicaSet creates them."
+      - id: d
+        text: "In the `OOMKilled` state of the container."
+        explanation: "That is a runtime memory kill and does not apply to Pods that were not created."
+    correct_option: c
+    explanation: "Admission refuses the Pods, so the ReplicaSet records `FailedCreate` events."
+
+  - id: ats029-050-q09
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Describe what happens when a Pod exceeds its ephemeral storage limit"
+    source_readings:
+      - sections/section-050/module-03/course-02-ephemeral-storage-extended-resources-and-pod-level-resources.md
+    prompt: |-
+      A Pod with `limits.ephemeral-storage: 50Mi` writes 100 MB of files into its writable layer. What does the kubelet do?
+    options:
+      - id: a
+        text: "It kills the container with `OOMKilled` and exit code 137."
+        explanation: "`OOMKilled` is for memory."
+      - id: b
+        text: "It throttles the disk writes of the container."
+        explanation: "Ephemeral storage has no throttling."
+      - id: c
+        text: "It does nothing, because ephemeral storage limits are only used by the scheduler."
+        explanation: "The kubelet enforces the limit by eviction."
+      - id: d
+        text: "It evicts the Pod, which becomes `Failed` with the reason `Evicted`."
+        explanation: "Correct. The kubelet measures the usage and evicts a Pod that is over its total ephemeral storage limit."
+    correct_option: d
+    explanation: "Overuse of ephemeral storage leads to eviction, not to an OOM kill."
+
+  - id: ats029-050-q10
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Use extended resources and Pod-level resources correctly"
+    source_readings:
+      - sections/section-050/module-03/course-02-ephemeral-storage-extended-resources-and-pod-level-resources.md
+    prompt: |-
+      Which statement about extended resources such as `example.com/dock` is correct?
+    options:
+      - id: a
+        text: "A request of `500m` is valid, because all resources accept millicpu."
+        explanation: "Extended resource quantities must be whole numbers."
+      - id: b
+        text: "The request can be lower than the limit, so the resource can be overcommitted."
+        explanation: "Extended resources cannot be overcommitted."
+      - id: c
+        text: "Quantities are whole numbers, and a request and a limit, when both are set, must be equal."
+        explanation: "Correct. The scheduler counts whole units on the node."
+      - id: d
+        text: "The kubelet creates the resource on the node when a Pod asks for it."
+        explanation: "An administrator or a device plugin advertises the resource in the node status."
+    correct_option: c
+    explanation: "Extended resources are whole units advertised in the node status and cannot be overcommitted."
+
+  - id: ats029-050-q11
+    type: single_choice
+    difficulty: advanced
+    learning_objective: "Diagnose a Pending Pod caused by a unit mistake and apply a fix"
+    source_readings:
+      - sections/section-050/module-03/course-03-right-sizing-and-fixing-failing-workloads.md
+      - sections/section-050/module-01/course-01-expressing-resource-needs-for-every-container.md
+    prompt: |-
+      The `shuttle` Deployment requests `cpu: "50"`, and its Pod stays `Pending` with `Insufficient cpu`. Which command fixes the cause and keeps the Pod's intent?
+    options:
+      - id: a
+        text: "`kubectl set resources deployment shuttle -c shuttle --requests=cpu=50m,memory=32Mi --limits=cpu=100m,memory=64Mi`"
+        explanation: "Correct. The value was meant as 50 millicores, and the command writes it in the right unit and keeps requests and limits."
+      - id: b
+        text: "`kubectl delete pod -l app=shuttle`"
+        explanation: "The new Pod copies the same request and stays Pending."
+      - id: c
+        text: "`kubectl set resources deployment shuttle -c shuttle --limits=memory=1Gi`"
+        explanation: "A memory limit does not change the CPU request that the scheduler cannot satisfy."
+      - id: d
+        text: "`kubectl scale deployment shuttle --replicas=0`"
+        explanation: "This removes the Pod and does not fix the request."
+    correct_option: a
+    explanation: "Read the event, then correct the number that the scheduler reads, which is the request."
+
+  - id: ats029-050-q12
+    type: single_choice
+    difficulty: intermediate
+    learning_objective: "Explain the eviction order of quality of service classes"
+    source_readings:
+      - sections/section-050/module-02/course-02-quality-of-service-and-node-allocation.md
+      - sections/section-050/module-01/course-02-guided-practice.md
+    prompt: |-
+      Under memory pressure on a node, which Pods does the kubelet evict first?
+    options:
+      - id: a
+        text: "Pods in the Guaranteed class, because they use the most memory."
+        explanation: "Guaranteed Pods are evicted last."
+      - id: b
+        text: "BestEffort Pods, then Burstable Pods that use more than they requested."
+        explanation: "Correct. Pods with no settings come first, and Guaranteed Pods come last."
+      - id: c
+        text: "The Pods with the highest CPU limit."
+        explanation: "CPU limits do not decide eviction order."
+      - id: d
+        text: "The oldest Pods in each namespace."
+        explanation: "Age is not the rule."
+    correct_option: b
+    explanation: "The QoS class decides the eviction order: BestEffort first, Guaranteed last."

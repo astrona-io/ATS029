@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=https://cli.astrona.io/schema/lab-config.schema.json
+#
+# Fit A Workload Into A Namespace Quota (LAB). Graded against the live cluster.
+apiVersion: astrona.io/v1
+metadata:
+  name: ats-029-lab-030-02
+  docs:
+    prerequisites: prerequisites.md
+    question: question.md
+    solution: solution.md
+
+runtime:
+  type: kind
+  kind:
+    image: kindest/node:v1.35.8
+    preloadImages:
+      - ghcr.io/stefanprodan/podinfo:6.15.0
+      - curlimages/curl:8.22.0
+
+# Starting state: scout with complete resources, shuttle with three replicas
+# and no requests or limits, and no ResourceQuota in starfleet.
+bootstrap:
+  init:
+    - name: seed-cluster
+      description: Create the starfleet workloads with no ResourceQuota
+      type: file
+      source: bootstrap/01-seed-cluster.sh
+
+# Applied only by `astrona test`: the reference solution.
+testing:
+  init:
+    - name: apply-solution
+      description: Apply the reference solution
+      type: file
+      source: solution/apply.sh
+
+validation:
+  scripts:
+    - name: quota-values
+      description: fleet-budget has the requested hard values
+      type: file
+      source: validation/validate-quota-values.sh
+      hint: Create the ResourceQuota fleet-budget in starfleet with exactly the seven hard values from the task. Do not raise them.
+    - name: shuttle-fits-quota
+      description: shuttle runs three replicas with the requested resources
+      type: file
+      source: validation/validate-shuttle-fits-quota.sh
+      hint: Set requests (200m, 128Mi) and limits (400m, 256Mi) on the shuttle container. A quota on limits needs limits on every pod, not only requests. Keep three replicas.
+    - name: over-budget-rejected
+      description: A pod that exceeds the budget is rejected and a small pod is admitted
+      type: file
+      source: validation/validate-over-budget-rejected.sh
+      hint: The quota must be active and shuttle must leave room. A pod requesting 2 CPUs must fail with exceeded quota.
+    - name: storage-budget
+      description: The logbook claim exists and a second large claim is rejected
+      type: file
+      source: validation/validate-storage-budget.sh
+      hint: Create a 2Gi ReadWriteOnce claim named logbook. The quota allows 3Gi of storage in total, so another 2Gi claim must be refused.
+
+teardown:
+  keepCluster: false
