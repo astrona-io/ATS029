@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://astrona.io/courses/certified-kubernetes-application-developer-ckad">
+    <img src="https://astrona.io/courses/certified-kubernetes-application-developer-ckad/domains/ATS029.svg" alt="ATS029: Application Environment, Configuration and Security, part of the Certified Kubernetes Application Developer course on Astrona" width="100%">
+  </a>
+</p>
+
 # Application Environment, Configuration and Security (ATS029)
 
 Certified Kubernetes Application Developer (CKAD): Application Environment, Configuration and Security, worth 25% of the curriculum and part of ATP006.
